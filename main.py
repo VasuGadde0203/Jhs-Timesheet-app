@@ -595,7 +595,7 @@ async def serve_login_page():
 
 # Serve dashboard (index.html) for authenticated users
 @app.get("/dashboard", response_class=HTMLResponse)
-async def serve_dashboard_page(current_user: str = Depends(get_current_user)):
+async def serve_dashboard_page(request: Request):
     """Serve the main timesheet dashboard for authenticated users"""
     try:
         with open("static/index.html", "r", encoding="utf-8") as file:
