@@ -984,7 +984,40 @@
         let currentRow = null;
         let weekOptions = [];
         let loggedInEmployeeId = localStorage.getItem('loggedInEmployeeId');
-        const API_URL = 'https://timesheet-app-8c0s.onrender.com/docs';
+        const API_URL = '';
+
+        // Add this right after const API_URL = '';
+        document.addEventListener('DOMContentLoaded', async function() {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                window.location.href = '/';  // Redirect to login if no token
+                return;
+            }
+
+            // Verify session
+            try {
+                const response = await fetch('/verify_session', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!response.ok) {
+                    localStorage.removeItem('access_token');
+                    localStorage.removeItem('loggedInEmployeeId');
+                    window.location.href = '/';
+                    return;
+                }
+            } catch (error) {
+                console.error('Session verification failed:', error);
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('loggedInEmployeeId');
+                window.location.href = '/';
+                return;
+            }
+
+            // Your existing code continues here...
+            await checkSession();  // This can stay, but it might be redundant now
+            // ... rest of your existing DOMContentLoaded code
+        });
 
         async function checkSession() {
             const token = localStorage.getItem('access_token');
