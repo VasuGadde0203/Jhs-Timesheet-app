@@ -825,6 +825,85 @@
                 grid-template-columns: repeat(3, 1fr);
             }
         }
+                .logo-container {
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .jhs-logo {
+            max-width: 200px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            transition: var(--transition);
+        }
+        @media (max-width: 768px) {
+            .jhs-logo {
+                max-width: 150px;
+            }
+        }
+        @media (max-width: 480px) {
+            .jhs-logo {
+                max-width: 120px;
+            }
+        }
+        .validation-error {
+            border-color: #e74c3c !important;
+            background-color: #fdf2f2 !important;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1) !important;
+        }
+        .validation-message {
+            color: #e74c3c;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            font-style: italic;
+            text-align: left;
+        }
+        .exit-confirmation {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: var(--shadow-heavy);
+            z-index: 2000;
+            text-align: center;
+            animation: popIn 0.3s ease-out;
+            min-width: 300px;
+        }
+        .exit-confirmation p {
+            margin: 0 0 1.5rem 0;
+            font-size: 1.1rem;
+            color: var(--text-dark);
+        }
+        .exit-confirmation button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0 0.5rem;
+            transition: var(--transition);
+        }
+        .exit-confirmation .confirm-btn {
+            background: var(--success-gradient);
+            color: white;
+        }
+        .exit-confirmation .cancel-btn {
+            background: var(--danger-gradient);
+            color: white;
+        }
+        .exit-confirmation button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+        @keyframes popIn {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
     </style>
 </head>
 <body>
@@ -839,6 +918,9 @@
 
     <div class="container">
         <div class="header">
+            <div class="logo-container">
+                <img src="jhs_logo.png" alt="JHS Logo" class="jhs-logo">
+            </div>
             <h1><i class="fas fa-stopwatch"></i> JHS Time Sheet</h1>
             <!-- <p>Advanced Time Tracking & Project Management System</p> -->
         </div>
@@ -951,10 +1033,10 @@
         <div class="modal-content">
             <div><label id="modalLabel1">Date</label><input type="date" id="modalInput1" onchange="validateModalDate(this); updateModalHours()"></div>
             <div><label id="modalLabel2">Location</label><select id="modalInput2" onchange="updateModalClientFields()"><option value="Office">Office</option><option value="Client Site">Client Site</option><option value="Work From Home">Work From Home</option><option value="Field Work">Field Work</option></select></div>
-            <div><label id="modalLabel3">Punch In</label><input type="time" id="modalInput3" onchange="updateModalHours()"></div>
-            <div><label id="modalLabel4">Punch Out</label><input type="time" id="modalInput4" onchange="updateModalHours()"></div>
-            <div><label id="modalLabel5">Project Start</label><input type="time" id="modalInput5" onchange="updateModalHours()"></div>
-            <div><label id="modalLabel6">Project End</label><input type="time" id="modalInput6" onchange="updateModalHours()"></div>
+            <div><label id="modalLabel3">Punch In</label><input type="time" id="modalInput3" onchange="validateTimes(null, true); updateModalHours()"></div>
+            <div><label id="modalLabel4">Punch Out</label><input type="time" id="modalInput4" onchange="validateTimes(null, true); updateModalHours()"></div>
+            <div><label id="modalLabel5">Project Start</label><input type="time" id="modalInput5" onchange="validateTimes(null, true); updateModalHours()"></div>
+            <div><label id="modalLabel6">Project End</label><input type="time" id="modalInput6" onchange="validateTimes(null, true); updateModalHours()"></div>
             <div><label id="modalLabel7">Client</label><select id="modalInput7" onchange="updateModalProjectCode()"><option value="">Select Client</option></select></div>
             <div><label id="modalLabel8">Project</label><input type="text" id="modalInput8" placeholder="Enter Project" onchange="updateModalHours()"></div>
             <div><label id="modalLabel9">Project Code</label><input type="text" id="modalInput9" readonly></div>
@@ -974,6 +1056,12 @@
     </div>
 
     <div class="loading-bar" id="loadingBar"><i class="fas fa-spinner fa-spin"></i> Saving...</div>
+
+    <div class="exit-confirmation" id="exitConfirmation">
+    <p>Do you want to exit?</p>
+    <button class="cancel-btn" onclick="cancelExit()">No</button>
+    <button class="confirm-btn" onclick="confirmExit()">Yes</button>
+    </div>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
@@ -1375,21 +1463,32 @@
 
         function calculateHours(row) {
             if (!row) return;
-            const punchIn = row.querySelector('.punch-in').value;
-            const punchOut = row.querySelector('.punch-out').value;
-            const hoursField = row.querySelector('.hours-field');
-            if (punchIn && punchOut) {
-                const [inH, inM] = punchIn.split(':').map(Number);
-                const [outH, outM] = punchOut.split(':').map(Number);
-                let hours = (outH - inH) + (outM - inM) / 60;
-                if (hours < 0) hours += 24;
-                hoursField.value = hours.toFixed(2);
-            } else {
-                hoursField.value = '';
+            const isValid = validateTimes(row);
+            if (!isValid) {
+                const hoursField = row.querySelector('.hours-field');
+                if (hoursField) hoursField.value = '';
+                return;
             }
-            validateHours(hoursField);
-            updateSummary();
-        }
+
+            const projectStart = row.querySelector('.project-start')?.value;
+            const projectEnd = row.querySelector('.project-end')?.value;
+            let hours = 0;
+
+            if (projectStart && projectEnd) {
+                const [startH, startM] = projectStart.split(':').map(Number);
+                const [endH, endM] = projectEnd.split(':').map(Number);
+                const startMinutes = startH * 60 + startM;
+                const endMinutes = endH * 60 + endM;
+                hours = (endMinutes - startMinutes) / 60;
+                hours = Math.max(0, hours).toFixed(2);
+            }
+
+    const hoursField = row.querySelector('.hours-field');
+    if (hoursField) {
+        hoursField.value = hours > 0 ? hours : '';
+    }
+    updateSummary();
+}
 
         function addWeekSection() {
             sectionCount++;
@@ -1507,10 +1606,10 @@
                     <option value="Work From Home">Work From Home</option>
                     <option value="Field Work">Field Work</option>
                 </select></td>
-                <td><input type="time" class="project-start" oninput="updateSummary()"></td>
-                <td><input type="time" class="project-end" oninput="updateSummary()"></td>
-                <td><input type="time" class="punch-in" onchange="calculateHours(this.closest('tr'))"></td>
-                <td><input type="time" class="punch-out" onchange="calculateHours(this.closest('tr'))"></td>
+                <td><input type="time" class="project-start" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+                <td><input type="time" class="project-end" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+                <td><input type="time" class="punch-in" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+                <td><input type="time" class="punch-out" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
                 <td><select class="client-field client-select" onchange="handleClientChange(this)" data-projects="[]"><option value="">Select Client</option></select></td>
                 <td><input type="text" class="project-field" placeholder="Enter Project" oninput="updateSummary()"></td>
                 <td><input type="text" class="project-code" readonly></td>
@@ -2365,7 +2464,144 @@
             dateInputs.forEach(input => validateDate(input));
         }
 
+        function validateTimes(row, isModal = false) {
+            let isValid = true;
+            let errorMessage = '';
+
+            if (isModal) {
+                const projectStart = document.getElementById('modalInput5').value;
+                const projectEnd = document.getElementById('modalInput6').value;
+                const punchIn = document.getElementById('modalInput3').value;
+                const punchOut = document.getElementById('modalInput4').value;
+
+                if (projectStart && projectEnd) {
+                    const [startH, startM] = projectStart.split(':').map(Number);
+                    const [endH, endM] = projectEnd.split(':').map(Number);
+                    const startMinutes = startH * 60 + startM;
+                    const endMinutes = endH * 60 + endM;
+                    if (endMinutes <= startMinutes) {
+                        isValid = false;
+                        errorMessage = 'Project End Time must be later than Project Start Time.';
+                        document.getElementById('modalInput6').classList.add('validation-error');
+                        showValidationMessage(document.getElementById('modalInput6'), errorMessage);
+                    } else {
+                        document.getElementById('modalInput6').classList.remove('validation-error');
+                        clearValidationMessage(document.getElementById('modalInput6'));
+                    }
+                }
+
+                if (punchIn && punchOut) {
+                    const [inH, inM] = punchIn.split(':').map(Number);
+                    const [outH, outM] = punchOut.split(':').map(Number);
+                    const inMinutes = inH * 60 + inM;
+                    const outMinutes = outH * 60 + outM;
+                    if (outMinutes <= inMinutes) {
+                        isValid = false;
+                        errorMessage = errorMessage || 'Punch Out must be later than Punch In.';
+                        document.getElementById('modalInput4').classList.add('validation-error');
+                        showValidationMessage(document.getElementById('modalInput4'), errorMessage);
+                    } else {
+                        document.getElementById('modalInput4').classList.remove('validation-error');
+                        clearValidationMessage(document.getElementById('modalInput4'));
+                    }
+                }
+            } else {
+                const projectStart = row.querySelector('.project-start')?.value;
+                const projectEnd = row.querySelector('.project-end')?.value;
+                const punchIn = row.querySelector('.punch-in')?.value;
+                const punchOut = row.querySelector('.punch-out')?.value;
+
+                if (projectStart && projectEnd) {
+                    const [startH, startM] = projectStart.split(':').map(Number);
+                    const [endH, endM] = projectEnd.split(':').map(Number);
+                    const startMinutes = startH * 60 + startM;
+                    const endMinutes = endH * 60 + endM;
+                    if (endMinutes <= startMinutes) {
+                        isValid = false;
+                        errorMessage = 'Project End Time must be later than Project Start Time.';
+                        row.querySelector('.project-end').classList.add('validation-error');
+                        showValidationMessage(row.querySelector('.project-end'), errorMessage);
+                    } else {
+                        row.querySelector('.project-end').classList.remove('validation-error');
+                        clearValidationMessage(row.querySelector('.project-end'));
+                    }
+                }
+
+                if (punchIn && punchOut) {
+                    const [inH, inM] = punchIn.split(':').map(Number);
+                    const [outH, outM] = punchOut.split(':').map(Number);
+                    const inMinutes = inH * 60 + inM;
+                    const outMinutes = outH * 60 + outM;
+                    if (outMinutes <= inMinutes) {
+                        isValid = false;
+                        errorMessage = errorMessage || 'Punch Out must be later than Punch In.';
+                        row.querySelector('.punch-out').classList.add('validation-error');
+                        showValidationMessage(row.querySelector('.punch-out'), errorMessage);
+                    } else {
+                        row.querySelector('.punch-out').classList.remove('validation-error');
+                        clearValidationMessage(row.querySelector('.punch-out'));
+                    }
+                }
+            }
+
+            if (!isValid && errorMessage) {
+                showPopup(errorMessage, true);
+            }
+
+            return isValid;
+        }
+
+        function showValidationMessage(element, message) {
+            let validationDiv = element.nextElementSibling;
+            if (!validationDiv || !validationDiv.classList.contains('validation-message')) {
+                validationDiv = document.createElement('div');
+                validationDiv.className = 'validation-message';
+                element.parentNode.insertBefore(validationDiv, element.nextSibling);
+            }
+            validationDiv.textContent = message;
+        }
+
+        function clearValidationMessage(element) {
+            const validationDiv = element.nextElementSibling;
+            if (validationDiv && validationDiv.classList.contains('validation-message')) {
+                validationDiv.remove();
+            }
+        }
+
+        let isExiting = false;
+        window.addEventListener('beforeunload', function(e) {
+            if (!isExiting) {
+                e.preventDefault();
+                e.returnValue = '';
+                showExitConfirmation();
+                return 'Are you sure you want to leave?';
+            }
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Backspace' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
+                e.preventDefault();
+                showExitConfirmation();
+            }
+        });
+        function showExitConfirmation() {
+            const exitPopup = document.getElementById('exitConfirmation');
+            if (exitPopup) {
+                exitPopup.style.display = 'block';
+            }
+        }
+        function cancelExit() {
+            const exitPopup = document.getElementById('exitConfirmation');
+            if (exitPopup) {
+                exitPopup.style.display = 'none';
+            }
+        }
+        function confirmExit() {
+            isExiting = true;
+            logout();
+        }
+
         // The script tag ends here
+
     </script>
 </body>
 </html>
