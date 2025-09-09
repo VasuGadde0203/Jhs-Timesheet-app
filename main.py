@@ -1030,6 +1030,12 @@ async def save_timesheets(entries: List[TimesheetEntry], current_user: str = Dep
                 "reportingManager": timesheet.reportingManager or "",
                 "department": timesheet.department or "",
                 "Data": [],
+                "hits": timesheet.hits or "",
+                "misses": timesheet.misses or "",
+                "feedback_hr": timesheet.feedback_hr or "",
+                "feedback_it": timesheet.feedback_it or "",
+                "feedback_crm": timesheet.feedback_crm or "",
+                "feedback_others": timesheet.feedback_others or "",
                 "created_time": now_iso,
                 "updated_time": now_iso
             }
@@ -1049,12 +1055,6 @@ async def save_timesheets(entries: List[TimesheetEntry], current_user: str = Dep
             "hours": timesheet.hours or "",
             "billable": timesheet.billable or "",
             "remarks": timesheet.remarks or "",
-            "hits": timesheet.hits or "",
-            "misses": timesheet.misses or "",
-            "feedback_hr": timesheet.feedback_hr or "",
-            "feedback_it": timesheet.feedback_it or "",
-            "feedback_crm": timesheet.feedback_crm or "",
-            "feedback_others": timesheet.feedback_others or "",
             "id": str(ObjectId()),
             "created_time": now_iso,
             "updated_time": now_iso
