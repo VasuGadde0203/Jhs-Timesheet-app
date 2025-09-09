@@ -964,6 +964,9 @@
             from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
             to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
         }
+        .history-week-section {
+            margin-bottom: 2rem;
+        }
     </style>
 </head>
 <body>
@@ -1085,37 +1088,7 @@
 
         <div class="history-section" id="historySection">
             <h2><i class="fas fa-history"></i> Past Timesheet Entries</h2>
-            <table class="history-table">
-                <thead>
-                    <tr>
-                        <th class="col-narrow"><i class="fas fa-edit"></i> Edit</th>
-                        <th>Week Period</th>
-                        <th>Date</th>
-                        <th>Location</th>
-                        <th>Project Start</th>
-                        <th>Project End</th>
-                        <th>Punch In</th>
-                        <th>Punch Out</th>
-                        <th class="col-client">Client</th>
-                        <th class="col-project">Project</th>
-                        <th>Project Code</th>
-                        <th>Reporting Manager</th>
-                        <th>Activity</th>
-                        <th>Project Hours</th>
-                        <th class="col-medium">Billable</th>
-                        <th>Remarks</th>
-                        <th>3 HITS</th>
-                        <th>3 MISSES</th>
-                        <th>FEEDBACK FOR HR</th>
-                        <th>FEEDBACK FOR IT</th>
-                        <th>FEEDBACK FOR CRM</th>
-                        <th>FEEDBACK FOR OTHERS</th>
-                        <th>Created Time</th>
-                        <th>Updated Time</th>
-                    </tr>
-                </thead>
-                <tbody id="historyBody"></tbody>
-            </table>
+            <div id="historyContent"></div>
             <div class="history-export-section">
                 <h3><i class="fas fa-download"></i> Export History</h3>
                 <button class="export-btn" onclick="exportHistoryToExcel()"><i class="fas fa-file-excel"></i> Export History to Excel</button>
@@ -1137,8 +1110,9 @@
             <div><label id="modalLabel10">Reporting Manager</label><select id="modalInput10" onchange="updateModalHours()"><option value="">Select Reporting Manager</option></select></div>
             <div><label id="modalLabel11">Activity</label><input type="text" id="modalInput11" placeholder="Enter Activity" onchange="updateModalHours()"></div>
             <div><label id="modalLabel12">Project Hours</label><input type="number" id="modalInput12" readonly></div>
-            <div><label id="modalLabel13">Billable</label><select id="modalInput13" onchange="updateModalHours()"><option value="Yes">Billable</option><option value="No">Non-Billable</option></select></div>
-            <div><label id="modalLabel14">Remarks</label><input type="text" id="modalInput14" placeholder="Additional notes" onchange="updateModalHours()"></div>
+            <div><label id="modalLabel13">Working Hours</label><input type="number" id="modalInput13" readonly></div>
+            <div><label id="modalLabel14">Billable</label><select id="modalInput14" onchange="updateModalHours()"><option value="Yes">Billable</option><option value="No">Non-Billable</option></select></div>
+            <div><label id="modalLabel15">Remarks</label><input type="text" id="modalInput15" placeholder="Additional notes" onchange="updateModalHours()"></div>
             <button class="modal-cancel-btn" onclick="closeModal()"><i class="fas fa-times"></i> Cancel</button>
             <button class="modal-add-btn" onclick="saveModalEntry()"><i class="fas fa-check"></i> Add</button>
         </div>
@@ -1559,30 +1533,50 @@
             if (!row) return;
             const isValid = validateTimes(row);
             if (!isValid) {
-                const hoursField = row.querySelector('.hours-field');
-                if (hoursField) hoursField.value = '';
+                const projectHoursField = row.querySelector('.project-hours-field');
+                const workingHoursField = row.querySelector('.working-hours-field');
+                if (projectHoursField) projectHoursField.value = '';
+                if (workingHoursField) workingHoursField.value = '';
                 return;
             }
 
             const projectStart = row.querySelector('.project-start')?.value;
             const projectEnd = row.querySelector('.project-end')?.value;
-            let hours = 0;
+            const punchIn = row.querySelector('.punch-in')?.value;
+            const punchOut = row.querySelector('.punch-out')?.value;
 
+            let projectHours = 0;
             if (projectStart && projectEnd) {
                 const [startH, startM] = projectStart.split(':').map(Number);
                 const [endH, endM] = projectEnd.split(':').map(Number);
                 const startMinutes = startH * 60 + startM;
                 const endMinutes = endH * 60 + endM;
-                hours = (endMinutes - startMinutes) / 60;
-                hours = Math.max(0, hours).toFixed(2);
+                projectHours = (endMinutes - startMinutes) / 60;
+                if (projectHours < 0) projectHours += 24;
+                projectHours = Math.max(0, projectHours).toFixed(2);
             }
 
-    const hoursField = row.querySelector('.hours-field');
-    if (hoursField) {
-        hoursField.value = hours > 0 ? hours : '';
-    }
-    updateSummary();
-}
+            let workingHours = 0;
+            if (punchIn && punchOut) {
+                const [inH, inM] = punchIn.split(':').map(Number);
+                const [outH, outM] = punchOut.split(':').map(Number);
+                const inMinutes = inH * 60 + inM;
+                const outMinutes = outH * 60 + outM;
+                workingHours = (outMinutes - inMinutes) / 60;
+                if (workingHours < 0) workingHours += 24;
+                workingHours = Math.max(0, workingHours).toFixed(2);
+            }
+
+            const projectHoursField = row.querySelector('.project-hours-field');
+            const workingHoursField = row.querySelector('.working-hours-field');
+            if (projectHoursField) {
+                projectHoursField.value = projectHours > 0 ? projectHours : '';
+            }
+            if (workingHoursField) {
+                workingHoursField.value = workingHours > 0 ? workingHours : '';
+            }
+            updateSummary();
+        }
 
         function addWeekSection() {
             sectionCount++;
@@ -1645,6 +1639,7 @@
                         <th class="col-wide">Reporting Manager</th>
                         <th class="col-wide">Activity</th>
                         <th class="col-narrow">Project Hours</th>
+                        <th class="col-narrow">Working Hours</th>
                         <th class="col-medium">Billable</th>
                         <th class="col-wide">Remarks</th>
                         <th class="col-narrow">Action</th>
@@ -1709,7 +1704,8 @@
                 <td><input type="text" class="project-code" readonly></td>
                 <td><select class="reporting-manager-field reporting-manager-select" onchange="handleReportingManagerChange(this)"><option value="">Select Reporting Manager</option></select></td>
                 <td><input type="text" class="activity-field" placeholder="Enter Activity" oninput="updateSummary()"></td>
-                <td><input type="number" class="hours-field" readonly></td>
+                <td><input type="number" class="project-hours-field" readonly></td>
+                <td><input type="number" class="working-hours-field" readonly></td>
                 <td><select class="billable-select" onchange="updateSummary()">
                     <option value="Yes">Billable</option>
                     <option value="No">Non-Billable</option>
@@ -1874,9 +1870,8 @@
             const inputs = currentRow.querySelectorAll('input, select');
             
             const labels = [
-                'Date', 'Location of Work', 'Project Start Time', 'Project End Time',
-                'Punch In', 'Punch Out', 'Client', 'Project', 'Project Code',
-                'Reporting Manager', 'Activity', 'Project Hours', 'Billable', 'Remarks'
+                'Date', 'Location of Work', 'Punch In', 'Punch Out', 'Project Start Time', 'Project End Time',
+                'Client', 'Project', 'Project Code', 'Reporting Manager', 'Activity', 'Project Hours', 'Working Hours', 'Billable', 'Remarks'
             ];
             
             for (let i = 0; i < inputs.length; i++) {
@@ -1980,18 +1975,33 @@
             if (!currentRow) return;
             const projectStart = document.getElementById('modalInput5').value;
             const projectEnd = document.getElementById('modalInput6').value;
-            const hoursField = document.getElementById('modalInput12');
+            const punchIn = document.getElementById('modalInput3').value;
+            const punchOut = document.getElementById('modalInput4').value;
+
+            let projectHours = 0;
             if (projectStart && projectEnd) {
                 const [startH, startM] = projectStart.split(':').map(Number);
                 const [endH, endM] = projectEnd.split(':').map(Number);
                 const startMinutes = startH * 60 + startM;
                 const endMinutes = endH * 60 + endM;
-                let hours = (endMinutes - startMinutes) / 60;
-                if (hours < 0) hours += 24;
-                hoursField.value = hours.toFixed(2);
-            } else {
-                hoursField.value = '';
+                projectHours = (endMinutes - startMinutes) / 60;
+                if (projectHours < 0) projectHours += 24;
+                projectHours = projectHours.toFixed(2);
             }
+
+            let workingHours = 0;
+            if (punchIn && punchOut) {
+                const [inH, inM] = punchIn.split(':').map(Number);
+                const [outH, outM] = punchOut.split(':').map(Number);
+                const inMinutes = inH * 60 + inM;
+                const outMinutes = outH * 60 + outM;
+                workingHours = (outMinutes - inMinutes) / 60;
+                if (workingHours < 0) workingHours += 24;
+                workingHours = workingHours.toFixed(2);
+            }
+
+            document.getElementById('modalInput12').value = projectHours;
+            document.getElementById('modalInput13').value = workingHours;
         }
 
         function saveModalEntry() {
@@ -2021,7 +2031,7 @@
             sections.forEach(section => {
                 const rows = section.querySelectorAll('tbody tr');
                 rows.forEach(row => {
-                    const hours = parseFloat(row.querySelector('.hours-field').value) || 0;
+                    const hours = parseFloat(row.querySelector('.project-hours-field').value) || 0;
                     totalHours += hours;
                     if (row.querySelector('.billable-select').value === 'Yes') {
                         billableHours += hours;
@@ -2062,20 +2072,21 @@
                         'Department': document.getElementById('department').value || '',
                         'Week Period': weekPeriod,
                         'S.No': row.cells[0].textContent,
-                        'Date': inputs[2] ? inputs[2].value : '',
-                        'Location of Work': inputs[3] ? (inputs[3].value || inputs[3].querySelector('option:checked')?.value) : '',
-                        'Project Start Time': inputs[4] ? inputs[4].value : '',
-                        'Project End Time': inputs[5] ? inputs[5].value : '',
-                        'Punch In': inputs[6] ? inputs[6].value : '',
-                        'Punch Out': inputs[7] ? inputs[7].value : '',
-                        'Client': inputs[8] ? (inputs[8].value || inputs[8].querySelector('option:checked')?.value) : '',
-                        'Project': inputs[9] ? inputs[9].value : '',
-                        'Project Code': inputs[10] ? inputs[10].value : '',
-                        'Reporting Manager Entry': inputs[11] ? (inputs[11].value || inputs[11].querySelector('option:checked')?.value) : '',
-                        'Activity': inputs[12] ? inputs[12].value : '',
-                        'Project Hours': inputs[13] ? inputs[13].value : '',
-                        'Billable': inputs[14] ? inputs[14].value : '',
-                        'Remarks': inputs[15] ? inputs[15].value : '',
+                        'Date': inputs[0] ? inputs[0].value : '',
+                        'Location of Work': inputs[1] ? (inputs[1].value || inputs[1].querySelector('option:checked')?.value) : '',
+                        'Project Start Time': inputs[2] ? inputs[2].value : '',
+                        'Project End Time': inputs[3] ? inputs[3].value : '',
+                        'Punch In': inputs[4] ? inputs[4].value : '',
+                        'Punch Out': inputs[5] ? inputs[5].value : '',
+                        'Client': inputs[6] ? (inputs[6].value || inputs[6].querySelector('option:checked')?.value) : '',
+                        'Project': inputs[7] ? inputs[7].value : '',
+                        'Project Code': inputs[8] ? inputs[8].value : '',
+                        'Reporting Manager Entry': inputs[9] ? (inputs[9].value || inputs[9].querySelector('option:checked')?.value) : '',
+                        'Activity': inputs[10] ? inputs[10].value : '',
+                        'Project Hours': inputs[11] ? inputs[11].value : '',
+                        'Working Hours': inputs[12] ? inputs[12].value : '',
+                        'Billable': inputs[13] ? inputs[13].value : '',
+                        'Remarks': inputs[14] ? inputs[14].value : '',
                         '3 HITS': document.getElementById('hits').value || '',
                         '3 MISSES': document.getElementById('misses').value || '',
                         'FEEDBACK FOR HR': document.getElementById('feedback_hr').value || '',
@@ -2115,6 +2126,7 @@
                 'Reporting Manager Entry': '',
                 'Activity': '',
                 'Project Hours': '',
+                'Working Hours': '',
                 'Billable': '',
                 'Remarks': '',
                 '3 HITS': '',
@@ -2170,6 +2182,7 @@
                         'Reporting Manager Entry': entry.reportingManagerEntry || '',
                         'Activity': entry.activity || '',
                         'Project Hours': entry.hours || '',
+                        'Working Hours': entry.workingHours || '',
                         'Billable': entry.billable || '',
                         'Remarks': entry.remarks || '',
                         '3 HITS': entry.hits || '',
@@ -2222,6 +2235,7 @@
                 reportingManagerEntry: '',
                 activity: '',
                 hours: '',
+                workingHours: '',
                 billable: '',
                 remarks: '',
                 hits: document.getElementById('hits').value || '',
@@ -2239,8 +2253,8 @@
                 const rows = section.querySelectorAll('tbody tr');
                 rows.forEach(row => {
                     const inputs = row.querySelectorAll('input, select');
-                    if (inputs.length < 14) return;
-                    const dateInput = inputs[2];
+                    if (inputs.length < 15) return;
+                    const dateInput = inputs[0];
                     const selectedWeek = weekOptions.find(opt => opt.value === weekPeriod);
                     if (selectedWeek) {
                         const inputDate = new Date(dateInput.value);
@@ -2258,20 +2272,21 @@
                         reportingManager: document.getElementById('reportingManager').value || '',
                         department: document.getElementById('department').value || '',
                         weekPeriod: weekPeriod,
-                        date: inputs[2] ? inputs[2].value : '',
-                        location: inputs[3] ? (inputs[3].value || inputs[3].querySelector('option:checked')?.value) : '',
-                        projectStartTime: inputs[4] ? inputs[4].value : '',
-                        projectEndTime: inputs[5] ? inputs[5].value : '',
-                        punchIn: inputs[6] ? inputs[6].value : '',
-                        punchOut: inputs[7] ? inputs[7].value : '',
-                        client: inputs[8] ? (inputs[8].value || inputs[8].querySelector('option:checked')?.value || '') : '',
-                        project: inputs[9] ? inputs[9].value : '',
-                        projectCode: inputs[10] ? inputs[10].value : '',
-                        reportingManagerEntry: inputs[11] ? (inputs[11].value || inputs[11].querySelector('option:checked')?.value || '') : '',
-                        activity: inputs[12] ? inputs[12].value : '',
-                        hours: inputs[13] ? inputs[13].value : '',
-                        billable: inputs[14] ? inputs[14].value : '',
-                        remarks: inputs[15] ? inputs[15].value : '',
+                        date: inputs[0] ? inputs[0].value : '',
+                        location: inputs[1] ? (inputs[1].value || inputs[1].querySelector('option:checked')?.value) : '',
+                        projectStartTime: inputs[2] ? inputs[2].value : '',
+                        projectEndTime: inputs[3] ? inputs[3].value : '',
+                        punchIn: inputs[4] ? inputs[4].value : '',
+                        punchOut: inputs[5] ? inputs[5].value : '',
+                        client: inputs[6] ? (inputs[6].value || inputs[6].querySelector('option:checked')?.value || '') : '',
+                        project: inputs[7] ? inputs[7].value : '',
+                        projectCode: inputs[8] ? inputs[8].value : '',
+                        reportingManagerEntry: inputs[9] ? (inputs[9].value || inputs[9].querySelector('option:checked')?.value || '') : '',
+                        activity: inputs[10] ? inputs[10].value : '',
+                        hours: inputs[11] ? inputs[11].value : '',
+                        workingHours: inputs[12] ? inputs[12].value : '',
+                        billable: inputs[13] ? inputs[13].value : '',
+                        remarks: inputs[14] ? inputs[14].value : '',
                         hits: document.getElementById('hits').value || '',
                         misses: document.getElementById('misses').value || '',
                         feedback_hr: document.getElementById('feedback_hr').value || '',
@@ -2376,7 +2391,7 @@
             }
         }
 
-                async function loadHistory() {
+        async function loadHistory() {
             try {
                 const token = localStorage.getItem('access_token');
                 const response = await fetch(`${API_URL}/timesheets/${loggedInEmployeeId}`, {
@@ -2394,17 +2409,70 @@
                     throw new Error('Failed to fetch history');
                 }
                 const data = await response.json();
-                const historyBody = document.getElementById('historyBody');
-                historyBody.innerHTML = '';
-                
                 const entries = Array.isArray(data.Data) ? data.Data : data.Data ? [data.Data] : [];
-                if (entries.length > 0) {
-                    entries.forEach(entry => {
+                const historyContent = document.getElementById('historyContent');
+                historyContent.innerHTML = '';
+
+                if (entries.length === 0) {
+                    historyContent.innerHTML = '<p>No history found</p>';
+                    return;
+                }
+
+                let weekMap = new Map();
+                entries.forEach(entry => {
+                    let week = entry.weekPeriod || 'Unknown';
+                    if (!weekMap.has(week)) {
+                        weekMap.set(week, {entries: [], feedback: {
+                            hits: entry.hits || '',
+                            misses: entry.misses || '',
+                            feedback_hr: entry.feedback_hr || '',
+                            feedback_it: entry.feedback_it || '',
+                            feedback_crm: entry.feedback_crm || '',
+                            feedback_others: entry.feedback_others || ''
+                        }});
+                    }
+                    weekMap.get(week).entries.push(entry);
+                });
+
+                for (let [week, weekData] of weekMap) {
+                    let weekDiv = document.createElement('div');
+                    weekDiv.className = 'history-week-section';
+                    weekDiv.innerHTML = `<h3>${week}</h3>`;
+
+                    let table = document.createElement('table');
+                    table.className = 'history-table';
+                    table.innerHTML = `
+                        <thead>
+                            <tr>
+                                <th class="col-narrow"><i class="fas fa-edit"></i> Edit</th>
+                                <th>Date</th>
+                                <th>Location</th>
+                                <th>Project Start</th>
+                                <th>Project End</th>
+                                <th>Punch In</th>
+                                <th>Punch Out</th>
+                                <th class="col-client">Client</th>
+                                <th class="col-project">Project</th>
+                                <th>Project Code</th>
+                                <th>Reporting Manager</th>
+                                <th>Activity</th>
+                                <th>Project Hours</th>
+                                <th>Working Hours</th>
+                                <th class="col-medium">Billable</th>
+                                <th>Remarks</th>
+                                <th>Created Time</th>
+                                <th>Updated Time</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    `;
+                    let tbody = table.querySelector('tbody');
+
+                    weekData.entries.forEach(entry => {
                         const row = document.createElement('tr');
                         row.dataset.entryId = entry.id;
                         row.innerHTML = `
                             <td><button class="edit-btn" onclick="editHistoryRow(this, '${entry.id}')"><i class="fas fa-edit"></i></button></td>
-                            <td>${entry.weekPeriod || ''}</td>
                             <td>${entry.date || ''}</td>
                             <td>${entry.location || ''}</td>
                             <td>${entry.projectStartTime || ''}</td>
@@ -2417,24 +2485,51 @@
                             <td>${entry.reportingManagerEntry || ''}</td>
                             <td>${entry.activity || ''}</td>
                             <td>${entry.hours || ''}</td>
+                            <td>${entry.workingHours || ''}</td>
                             <td>${entry.billable || ''}</td>
                             <td>${entry.remarks || ''}</td>
-                            <td>${entry.hits || ''}</td>
-                            <td>${entry.misses || ''}</td>
-                            <td>${entry.feedback_hr || ''}</td>
-                            <td>${entry.feedback_it || ''}</td>
-                            <td>${entry.feedback_crm || ''}</td>
-                            <td>${entry.feedback_others || ''}</td>
                             <td>${entry.created_time || ''}</td>
                             <td>${entry.updated_time || ''}</td>
                         `;
-                        historyBody.appendChild(row);
+                        tbody.appendChild(row);
                     });
-                    updateAllClientFields();
-                    updateAllReportingManagerFields();
-                } else {
-                    historyBody.innerHTML = '<tr><td colspan="24">No history found</td></tr>';
+
+                    weekDiv.appendChild(table);
+
+                    const feedbackDiv = document.createElement('div');
+                    feedbackDiv.className = 'feedback-section';
+                    feedbackDiv.innerHTML = `
+                        <div class="feedback-item">
+                            <label>3 HITS</label>
+                            <textarea readonly rows="3">${weekData.feedback.hits}</textarea>
+                        </div>
+                        <div class="feedback-item">
+                            <label>3 MISSES</label>
+                            <textarea readonly rows="3">${weekData.feedback.misses}</textarea>
+                        </div>
+                        <div class="feedback-item">
+                            <label>FEEDBACK FOR HR</label>
+                            <textarea readonly rows="3">${weekData.feedback.feedback_hr}</textarea>
+                        </div>
+                        <div class="feedback-item">
+                            <label>FEEDBACK FOR IT</label>
+                            <textarea readonly rows="3">${weekData.feedback.feedback_it}</textarea>
+                        </div>
+                        <div class="feedback-item">
+                            <label>FEEDBACK FOR CRM</label>
+                            <textarea readonly rows="3">${weekData.feedback.feedback_crm}</textarea>
+                        </div>
+                        <div class="feedback-item">
+                            <label>FEEDBACK FOR OTHERS</label>
+                            <textarea readonly rows="3">${weekData.feedback.feedback_others}</textarea>
+                        </div>
+                    `;
+                    weekDiv.appendChild(feedbackDiv);
+
+                    historyContent.appendChild(weekDiv);
                 }
+                updateAllClientFields();
+                updateAllReportingManagerFields();
             } catch (error) {
                 console.error('Error loading history:', error);
                 showPopup('Failed to load history: Server error', true);
@@ -2449,68 +2544,56 @@
             row.dataset.entryId = entryId;
 
             const data = {
-                weekPeriod: cells[1].textContent,
-                date: cells[2].textContent,
-                location: cells[3].textContent,
-                projectStartTime: cells[4].textContent,
-                projectEndTime: cells[5].textContent,
-                punchIn: cells[6].textContent,
-                punchOut: cells[7].textContent,
-                client: cells[8].textContent,
-                project: cells[9].textContent,
-                projectCode: cells[10].textContent,
-                reportingManagerEntry: cells[11].textContent,
-                activity: cells[12].textContent,
-                hours: cells[13].textContent,
+                date: cells[1].textContent,
+                location: cells[2].textContent,
+                projectStartTime: cells[3].textContent,
+                projectEndTime: cells[4].textContent,
+                punchIn: cells[5].textContent,
+                punchOut: cells[6].textContent,
+                client: cells[7].textContent,
+                project: cells[8].textContent,
+                projectCode: cells[9].textContent,
+                reportingManagerEntry: cells[10].textContent,
+                activity: cells[11].textContent,
+                hours: cells[12].textContent,
+                workingHours: cells[13].textContent,
                 billable: cells[14].textContent,
                 remarks: cells[15].textContent,
-                hits: cells[16].textContent,
-                misses: cells[17].textContent,
-                feedback_hr: cells[18].textContent,
-                feedback_it: cells[19].textContent,
-                feedback_crm: cells[20].textContent,
-                feedback_others: cells[21].textContent,
-                created_time: cells[22].textContent,
-                updated_time: cells[23].textContent
+                created_time: cells[16].textContent,
+                updated_time: cells[17].textContent
             };
 
             cells[0].innerHTML = `
                 <button class="cancel-btn" onclick="cancelEdit(this)">Cancel</button>
                 <button class="update-btn" onclick="updateHistoryRow(this, '${entryId}')">Update</button>
             `;
-            cells[1].innerHTML = `<input type="text" value="${data.weekPeriod}" style="width: 100%; padding: 5px; border: 1px solid #ddd; border-radius: 3px;">`;
-            cells[2].innerHTML = `<input type="date" value="${data.date}" class="date-field">`;
-            cells[3].innerHTML = `<select class="location-select">
+            cells[1].innerHTML = `<input type="date" value="${data.date}" class="date-field">`;
+            cells[2].innerHTML = `<select class="location-select">
                 <option value="Office" ${data.location === 'Office' ? 'selected' : ''}>Office</option>
                 <option value="Client Site" ${data.location === 'Client Site' ? 'selected' : ''}>Client Site</option>
                 <option value="Work From Home" ${data.location === 'Work From Home' ? 'selected' : ''}>Work From Home</option>
                 <option value="Field Work" ${data.location === 'Field Work' ? 'selected' : ''}>Field Work</option>
             </select>`;
-            cells[4].innerHTML = `<input type="time" value="${data.projectStartTime}" class="project-start">`;
-            cells[5].innerHTML = `<input type="time" value="${data.projectEndTime}" class="project-end">`;
-            cells[6].innerHTML = `<input type="time" value="${data.punchIn}" class="punch-in" onchange="calculateHours(this.closest('tr'))">`;
-            cells[7].innerHTML = `<input type="time" value="${data.punchOut}" class="punch-out" onchange="calculateHours(this.closest('tr'))">`;
-            cells[8].innerHTML = `<select class="client-field client-select" data-projects="[]" onchange="handleClientChange(this)"><option value="">Select Client</option></select>`;
-            cells[8].querySelector('select').value = data.client;
-            cells[9].innerHTML = `<input type="text" value="${data.project}" class="project-field">`;
-            cells[10].innerHTML = `<input type="text" value="${data.projectCode}" class="project-code" readonly>`;
-            cells[11].innerHTML = `<select class="reporting-manager-field reporting-manager-select" onchange="handleReportingManagerChange(this)"><option value="">Select Reporting Manager</option></select>`;
-            cells[11].querySelector('select').value = data.reportingManagerEntry;
-            cells[12].innerHTML = `<input type="text" value="${data.activity}" class="activity-field">`;
-            cells[13].innerHTML = `<input type="number" value="${data.hours}" class="hours-field" readonly>`;
+            cells[3].innerHTML = `<input type="time" value="${data.projectStartTime}" class="project-start" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))">`;
+            cells[4].innerHTML = `<input type="time" value="${data.projectEndTime}" class="project-end" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))">`;
+            cells[5].innerHTML = `<input type="time" value="${data.punchIn}" class="punch-in" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))">`;
+            cells[6].innerHTML = `<input type="time" value="${data.punchOut}" class="punch-out" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))">`;
+            cells[7].innerHTML = `<select class="client-field client-select" data-projects="[]" onchange="handleClientChange(this)"><option value="">Select Client</option></select>`;
+            cells[7].querySelector('select').value = data.client;
+            cells[8].innerHTML = `<input type="text" value="${data.project}" class="project-field">`;
+            cells[9].innerHTML = `<input type="text" value="${data.projectCode}" class="project-code" readonly>`;
+            cells[10].innerHTML = `<select class="reporting-manager-field reporting-manager-select" onchange="handleReportingManagerChange(this)"><option value="">Select Reporting Manager</option></select>`;
+            cells[10].querySelector('select').value = data.reportingManagerEntry;
+            cells[11].innerHTML = `<input type="text" value="${data.activity}" class="activity-field">`;
+            cells[12].innerHTML = `<input type="number" value="${data.hours}" class="project-hours-field" readonly>`;
+            cells[13].innerHTML = `<input type="number" value="${data.workingHours}" class="working-hours-field" readonly>`;
             cells[14].innerHTML = `<select class="billable-select">
                 <option value="Yes" ${data.billable === 'Yes' ? 'selected' : ''}>Billable</option>
                 <option value="No" ${data.billable === 'No' ? 'selected' : ''}>Non-Billable</option>
             </select>`;
             cells[15].innerHTML = `<input type="text" value="${data.remarks}" class="remarks-field">`;
-            cells[16].innerHTML = `<textarea rows="3">${data.hits}</textarea>`;
-            cells[17].innerHTML = `<textarea rows="3">${data.misses}</textarea>`;
-            cells[18].innerHTML = `<textarea rows="3">${data.feedback_hr}</textarea>`;
-            cells[19].innerHTML = `<textarea rows="3">${data.feedback_it}</textarea>`;
-            cells[20].innerHTML = `<textarea rows="3">${data.feedback_crm}</textarea>`;
-            cells[21].innerHTML = `<textarea rows="3">${data.feedback_others}</textarea>`;
-            cells[22].innerHTML = data.created_time;
-            cells[23].innerHTML = data.updated_time;
+            cells[16].innerHTML = data.created_time;
+            cells[17].innerHTML = data.updated_time;
 
             updateAllClientFields();
             updateAllReportingManagerFields();
@@ -2530,27 +2613,21 @@
             if (!row) return;
 
             const cells = row.querySelectorAll('td');
-            const weekPeriodCell = cells[1];
-            const dateCell = cells[2];
-            const locationCell = cells[3];
-            const projectStartCell = cells[4];
-            const projectEndCell = cells[5];
-            const punchInCell = cells[6];
-            const punchOutCell = cells[7];
-            const clientCell = cells[8];
-            const projectCell = cells[9];
-            const projectCodeCell = cells[10];
-            const reportingCell = cells[11];
-            const activityCell = cells[12];
-            const hoursCell = cells[13];
+            const dateCell = cells[1];
+            const locationCell = cells[2];
+            const projectStartCell = cells[3];
+            const projectEndCell = cells[4];
+            const punchInCell = cells[5];
+            const punchOutCell = cells[6];
+            const clientCell = cells[7];
+            const projectCell = cells[8];
+            const projectCodeCell = cells[9];
+            const reportingCell = cells[10];
+            const activityCell = cells[11];
+            const hoursCell = cells[12];
+            const workingHoursCell = cells[13];
             const billableCell = cells[14];
             const remarksCell = cells[15];
-            const hitsCell = cells[16];
-            const missesCell = cells[17];
-            const feedbackHrCell = cells[18];
-            const feedbackItCell = cells[19];
-            const feedbackCrmCell = cells[20];
-            const feedbackOthersCell = cells[21];
 
             function getCellValue(cell) {
                 const input = cell.querySelector('input');
@@ -2563,7 +2640,6 @@
             }
 
             const updatedEntry = {
-                weekPeriod: getCellValue(weekPeriodCell),
                 date: getCellValue(dateCell),
                 location: getCellValue(locationCell),
                 projectStartTime: getCellValue(projectStartCell),
@@ -2576,14 +2652,9 @@
                 reportingManagerEntry: getCellValue(reportingCell),
                 activity: getCellValue(activityCell),
                 hours: getCellValue(hoursCell),
+                workingHours: getCellValue(workingHoursCell),
                 billable: getCellValue(billableCell),
-                remarks: getCellValue(remarksCell),
-                hits: getCellValue(hitsCell),
-                misses: getCellValue(missesCell),
-                feedback_hr: getCellValue(feedbackHrCell),
-                feedback_it: getCellValue(feedbackItCell),
-                feedback_crm: getCellValue(feedbackCrmCell),
-                feedback_others: getCellValue(feedbackOthersCell)
+                remarks: getCellValue(remarksCell)
             };
 
             console.log('Updating entry with data:', updatedEntry);
@@ -2713,23 +2784,6 @@
             }
 
             return isValid;
-        }
-
-        function showValidationMessage(element, message) {
-            let validationDiv = element.nextElementSibling;
-            if (!validationDiv || !validationDiv.classList.contains('validation-message')) {
-                validationDiv = document.createElement('div');
-                validationDiv.className = 'validation-message';
-                element.parentNode.insertBefore(validationDiv, element.nextSibling);
-            }
-            validationDiv.textContent = message;
-        }
-
-        function clearValidationMessage(element) {
-            const validationDiv = element.nextElementSibling;
-            if (validationDiv && validationDiv.classList.contains('validation-message')) {
-                validationDiv.remove();
-            }
         }
 
         let isExiting = false;

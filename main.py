@@ -73,6 +73,12 @@
 #     hours: Optional[str] = None
 #     billable: Optional[str] = None
 #     remarks: Optional[str] = None
+#     hits: Optional[str] = None
+#     misses: Optional[str] = None
+#     feedback_hr: Optional[str] = None
+#     feedback_it: Optional[str] = None
+#     feedback_crm: Optional[str] = None
+#     feedback_others: Optional[str] = None
 
 # class LoginRequest(BaseModel):
 #     empid: str
@@ -94,6 +100,12 @@
 #     hours: Optional[str] = None
 #     billable: Optional[str] = None
 #     remarks: Optional[str] = None
+#     hits: Optional[str] = None
+#     misses: Optional[str] = None
+#     feedback_hr: Optional[str] = None
+#     feedback_it: Optional[str] = None
+#     feedback_crm: Optional[str] = None
+#     feedback_others: Optional[str] = None
 
 # # Function to create JWT token
 # def create_access_token(data: dict):
@@ -202,7 +214,7 @@
 # async def serve_dashboard_page(request: Request):
 #     """Serve the main timesheet dashboard for authenticated users"""
 #     try:
-#         with open("static/index.html", "r", encoding="utf-8") as file:
+#         with open("static/index2.html", "r", encoding="utf-8") as file:
 #             return HTMLResponse(content=file.read())
 #     except FileNotFoundError:
 #         # Fallback dashboard
@@ -422,6 +434,12 @@
 #             "hours": timesheet.hours or "",
 #             "billable": timesheet.billable or "",
 #             "remarks": timesheet.remarks or "",
+#             "hits": timesheet.hits or "",
+#             "misses": timesheet.misses or "",
+#             "feedback_hr": timesheet.feedback_hr or "",
+#             "feedback_it": timesheet.feedback_it or "",
+#             "feedback_crm": timesheet.feedback_crm or "",
+#             "feedback_others": timesheet.feedback_others or "",
 #             "id": str(ObjectId()),  # Unique ID for each entry
 #             "created_time": now_iso,
 #             "updated_time": now_iso
@@ -562,6 +580,12 @@
 #                                     "hours": update_data.hours or entry.get("hours", ""),
 #                                     "billable": update_data.billable or entry.get("billable", ""),
 #                                     "remarks": update_data.remarks or entry.get("remarks", ""),
+#                                     "hits": update_data.hits or entry.get("hits", ""),
+#                                     "misses": update_data.misses or entry.get("misses", ""),
+#                                     "feedback_hr": update_data.feedback_hr or entry.get("feedback_hr", ""),
+#                                     "feedback_it": update_data.feedback_it or entry.get("feedback_it", ""),
+#                                     "feedback_crm": update_data.feedback_crm or entry.get("feedback_crm", ""),
+#                                     "feedback_others": update_data.feedback_others or entry.get("feedback_others", ""),
 #                                     "updated_time": now_iso,
 #                                     "id": entry_id  # Keep the same ID
 #                                 }
@@ -670,6 +694,7 @@ class TimesheetEntry(BaseModel):
     reportingManagerEntry: Optional[str] = None
     activity: Optional[str] = None
     hours: Optional[str] = None
+    workingHours: Optional[str] = None
     billable: Optional[str] = None
     remarks: Optional[str] = None
     hits: Optional[str] = None
@@ -684,7 +709,6 @@ class LoginRequest(BaseModel):
     password: str
 
 class UpdateTimesheetRequest(BaseModel):
-    weekPeriod: str
     date: str
     location: Optional[str] = None
     projectStartTime: Optional[str] = None
@@ -697,14 +721,9 @@ class UpdateTimesheetRequest(BaseModel):
     reportingManagerEntry: Optional[str] = None
     activity: Optional[str] = None
     hours: Optional[str] = None
+    workingHours: Optional[str] = None
     billable: Optional[str] = None
     remarks: Optional[str] = None
-    hits: Optional[str] = None
-    misses: Optional[str] = None
-    feedback_hr: Optional[str] = None
-    feedback_it: Optional[str] = None
-    feedback_crm: Optional[str] = None
-    feedback_others: Optional[str] = None
 
 # Function to create JWT token
 def create_access_token(data: dict):
@@ -996,10 +1015,21 @@ async def save_timesheets(entries: List[TimesheetEntry], current_user: str = Dep
 
     employee_data = {}
     now_iso = datetime.utcnow().isoformat()
+    feedback = None
     
     for timesheet in entries:
         employee_id = timesheet.employeeId
-        week_period = timesheet.weekPeriod
+        week_period = timesheet.weekPeriod or "No Week"
+
+        if feedback is None and timesheet.hits:
+            feedback = {
+                "hits": timesheet.hits or "",
+                "misses": timesheet.misses or "",
+                "feedback_hr": timesheet.feedback_hr or "",
+                "feedback_it": timesheet.feedback_it or "",
+                "feedback_crm": timesheet.feedback_crm or "",
+                "feedback_others": timesheet.feedback_others or ""
+            }
 
         if employee_id not in employee_data:
             employee_data[employee_id] = {
@@ -1011,12 +1041,15 @@ async def save_timesheets(entries: List[TimesheetEntry], current_user: str = Dep
                 "reportingManager": timesheet.reportingManager or "",
                 "department": timesheet.department or "",
                 "Data": {},
-                "created_time": now_iso if employee_id not in employee_data else employee_data[employee_id].get("created_time"),
+                "created_time": now_iso,
                 "updated_time": now_iso
             }
 
         if week_period not in employee_data[employee_id]["Data"]:
-            employee_data[employee_id]["Data"][week_period] = []
+            employee_data[employee_id]["Data"][week_period] = {
+                "entries": [],
+                "feedback": feedback or {}
+            }
 
         daily_entry = {
             "date": timesheet.date or "",
@@ -1031,53 +1064,35 @@ async def save_timesheets(entries: List[TimesheetEntry], current_user: str = Dep
             "reportingManagerEntry": timesheet.reportingManagerEntry or "",
             "activity": timesheet.activity or "",
             "hours": timesheet.hours or "",
+            "workingHours": timesheet.workingHours or "",
             "billable": timesheet.billable or "",
             "remarks": timesheet.remarks or "",
-            "hits": timesheet.hits or "",
-            "misses": timesheet.misses or "",
-            "feedback_hr": timesheet.feedback_hr or "",
-            "feedback_it": timesheet.feedback_it or "",
-            "feedback_crm": timesheet.feedback_crm or "",
-            "feedback_others": timesheet.feedback_others or "",
-            "id": str(ObjectId()),  # Unique ID for each entry
+            "id": str(ObjectId()),
             "created_time": now_iso,
             "updated_time": now_iso
         }
 
-        employee_data[employee_id]["Data"][week_period].append(daily_entry)
+        employee_data[employee_id]["Data"][week_period]["entries"].append(daily_entry)
 
     print("Processing and saving data to DB...")
     for employee_id, data in employee_data.items():
-        # Convert Data dict to list of {week: entries}
-        week_list = []
-        for week, entries_list in data["Data"].items():
-            week_list.append({week: entries_list})
-        data["Data"] = week_list
-
         existing_doc = collection.find_one({"employeeId": employee_id})
         if existing_doc:
             print(f"Updating existing document for employeeId: {employee_id}")
-            # Merge Data - existing_doc["Data"] is list of {week: entries}
-            existing_weeks = existing_doc.get("Data", [])
-            new_weeks = data["Data"]
+            existing_data = existing_doc.get("Data", {})
+            new_data = data["Data"]
             
-            # For each new week, merge or add
-            for new_week_obj in new_weeks:
-                week = list(new_week_obj.keys())[0]
-                found = False
-                for i, existing_item in enumerate(existing_weeks):
-                    if isinstance(existing_item, dict) and week in existing_item:
-                        existing_weeks[i][week] = new_week_obj[week]
-                        found = True
-                        break
-                if not found:
-                    existing_weeks.append(new_week_obj)
+            for week, week_data in new_data.items():
+                if week in existing_data:
+                    existing_data[week]["entries"].extend(week_data["entries"])
+                    existing_data[week]["feedback"] = week_data["feedback"]
+                else:
+                    existing_data[week] = week_data
             
-            # Update the document
             result = collection.update_one(
                 {"employeeId": employee_id},
                 {"$set": {
-                    "Data": existing_weeks,
+                    "Data": existing_data,
                     "employeeName": data["employeeName"],
                     "designation": data["designation"],
                     "gender": data["gender"],
@@ -1120,17 +1135,15 @@ async def get_timesheets(employee_id: str, current_user: str = Depends(get_curre
             "department": doc.get("department", "")
         }
         
-        # Iterate through Data structure - now a list of {week: [entries]}
-        if "Data" in doc and isinstance(doc["Data"], list):
-            for week_item in doc["Data"]:
-                if isinstance(week_item, dict):
-                    week_period = list(week_item.keys())[0]
-                    week_entries = week_item.get(week_period, [])
-                    if isinstance(week_entries, list):
-                        for entry in week_entries:
-                            flattened_entry = {**employee_info, **entry}
-                            flattened_entry["weekPeriod"] = week_period
-                            flattened_data.append(flattened_entry)
+        # Iterate through Data structure - now a dict {week: {"entries": [], "feedback": {}}}
+        if "Data" in doc and isinstance(doc["Data"], dict):
+            for week_period, week_data in doc["Data"].items():
+                week_entries = week_data.get("entries", [])
+                feedback = week_data.get("feedback", {})
+                for entry in week_entries:
+                    flattened_entry = {**employee_info, **entry, **feedback}
+                    flattened_entry["weekPeriod"] = week_period
+                    flattened_data.append(flattened_entry)
         
         return {"success": True, "Data": flattened_data}
     except Exception as e:
@@ -1152,55 +1165,50 @@ async def update_timesheet(employee_id: str, entry_id: str, update_data: UpdateT
             raise HTTPException(status_code=404, detail="Employee document not found")
         
         entry_found = False
+        week_found = None
         updated = False
         
-        # Search through all weeks and entries - Data is list of {week: [entries]}
-        if "Data" in doc and isinstance(doc["Data"], list):
-            for week_item in doc["Data"]:
-                if isinstance(week_item, dict):
-                    week_period = list(week_item.keys())[0]
-                    week_entries = week_item.get(week_period, [])
-                    if isinstance(week_entries, list):
-                        for i, entry in enumerate(week_entries):
-                            if entry.get("id") == entry_id:
-                                # Update this specific entry
-                                updated_entry = {
-                                    "date": update_data.date,
-                                    "location": update_data.location or entry.get("location", ""),
-                                    "projectStartTime": update_data.projectStartTime or entry.get("projectStartTime", ""),
-                                    "projectEndTime": update_data.projectEndTime or entry.get("projectEndTime", ""),
-                                    "punchIn": update_data.punchIn or entry.get("punchIn", ""),
-                                    "punchOut": update_data.punchOut or entry.get("punchOut", ""),
-                                    "client": update_data.client or entry.get("client", ""),
-                                    "project": update_data.project or entry.get("project", ""),
-                                    "projectCode": update_data.projectCode or entry.get("projectCode", ""),
-                                    "reportingManagerEntry": update_data.reportingManagerEntry or entry.get("reportingManagerEntry", ""),
-                                    "activity": update_data.activity or entry.get("activity", ""),
-                                    "hours": update_data.hours or entry.get("hours", ""),
-                                    "billable": update_data.billable or entry.get("billable", ""),
-                                    "remarks": update_data.remarks or entry.get("remarks", ""),
-                                    "hits": update_data.hits or entry.get("hits", ""),
-                                    "misses": update_data.misses or entry.get("misses", ""),
-                                    "feedback_hr": update_data.feedback_hr or entry.get("feedback_hr", ""),
-                                    "feedback_it": update_data.feedback_it or entry.get("feedback_it", ""),
-                                    "feedback_crm": update_data.feedback_crm or entry.get("feedback_crm", ""),
-                                    "feedback_others": update_data.feedback_others or entry.get("feedback_others", ""),
-                                    "updated_time": now_iso,
-                                    "id": entry_id  # Keep the same ID
-                                }
-                                
-                                # Replace the entry in the array
-                                week_item[week_period][i] = updated_entry
-                                updated = True
-                                entry_found = True
-                                break
-                    if updated:
-                        break
+        # Search through all weeks and entries - Data is dict {week: {"entries": [], "feedback": {}}}
+        if "Data" in doc and isinstance(doc["Data"], dict):
+            for week_period, week_data in doc["Data"].items():
+                week_entries = week_data.get("entries", [])
+                if isinstance(week_entries, list):
+                    for i, entry in enumerate(week_entries):
+                        if entry.get("id") == entry_id:
+                            # Update this specific entry
+                            updated_entry = {
+                                "date": update_data.date or entry.get("date", ""),
+                                "location": update_data.location or entry.get("location", ""),
+                                "projectStartTime": update_data.projectStartTime or entry.get("projectStartTime", ""),
+                                "projectEndTime": update_data.projectEndTime or entry.get("projectEndTime", ""),
+                                "punchIn": update_data.punchIn or entry.get("punchIn", ""),
+                                "punchOut": update_data.punchOut or entry.get("punchOut", ""),
+                                "client": update_data.client or entry.get("client", ""),
+                                "project": update_data.project or entry.get("project", ""),
+                                "projectCode": update_data.projectCode or entry.get("projectCode", ""),
+                                "reportingManagerEntry": update_data.reportingManagerEntry or entry.get("reportingManagerEntry", ""),
+                                "activity": update_data.activity or entry.get("activity", ""),
+                                "hours": update_data.hours or entry.get("hours", ""),
+                                "workingHours": update_data.workingHours or entry.get("workingHours", ""),
+                                "billable": update_data.billable or entry.get("billable", ""),
+                                "remarks": update_data.remarks or entry.get("remarks", ""),
+                                "updated_time": now_iso,
+                                "id": entry_id  # Keep the same ID
+                            }
+                            
+                            # Replace the entry in the array
+                            doc["Data"][week_period]["entries"][i] = updated_entry
+                            updated = True
+                            entry_found = True
+                            week_found = week_period
+                            break
+                if updated:
+                    break
         
         if not entry_found:
             raise HTTPException(status_code=404, detail="Timesheet entry not found")
         
-        # Update the document in database - set the whole Data
+        # Update the document in database
         collection.update_one(
             {"employeeId": employee_id},
             {"$set": {
