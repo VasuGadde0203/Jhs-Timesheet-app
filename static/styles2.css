@@ -1009,7 +1009,7 @@ body {
     left: 0;
     z-index: 1;
     background: var(--dark-bg);
-    color: var(--dark-bg); /* Match header text */
+    color: white; /* Match header text */
     border-right: 1px solid var(--border-color);
     min-width: 120px; /* Ensure enough space */
 }
@@ -1033,7 +1033,7 @@ body {
     left: 0;
     z-index: 1;
     background: var(--dark-bg);
-    color: var(--dark-bg); /* Match header text */
+    color: white; /* Match header text */
     border-right: 1px solid var(--border-color);
     min-width: 120px; /* Ensure enough space */
 }
