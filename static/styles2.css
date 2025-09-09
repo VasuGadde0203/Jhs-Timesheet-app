@@ -992,29 +992,73 @@ body {
 }
 
 /* Sticky Date column (or Client if preferred) */
-.timesheet-table th.col-date,
+/* .timesheet-table th.col-date,
 .timesheet-table td.col-date,
 .history-table th.col-date,
 .history-table td.col-date {
     position: sticky;
     left: 0;
     z-index: 1;
-    background: white; /* Prevent content bleed */
+    background: white; 
     border-right: 1px solid var(--border-color);
+} */
+
+.timesheet-table th.col-date,
+.history-table th.col-date{
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--dark-bg);
+    color: var(--dark-bg); /* Match header text */
+    border-right: 1px solid var(--border-color);
+    min-width: 120px; /* Ensure enough space */
+}
+
+.timesheet-table td.col-date,
+.history-table td.col-date {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: white;
+    color: var(--dark-bg); /* Match header text */
+    border-right: 1px solid var(--border-color);
+    min-width: 120px; /* Ensure enough space */
 }
 
 /* Optional: Sticky Client column (uncomment if Client should be sticky instead) */
 
 .timesheet-table th.col-client,
+.history-table th.col-client {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--dark-bg);
+    color: var(--dark-bg); /* Match header text */
+    border-right: 1px solid var(--border-color);
+    min-width: 120px; /* Ensure enough space */
+}
+
+.timesheet-table td.col-client,
+.history-table td.col-client {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: white;
+    color: var(--dark-bg); /* Match header text */
+    border-right: 1px solid var(--border-color);
+    min-width: 120px; /* Ensure enough space */
+}
+
+/* .timesheet-table th.col-client,
 .timesheet-table td.col-client,
 .history-table th.col-client,
 .history-table td.col-client {
     position: sticky;
-    left: 150px; /* Adjust based on preceding columns' widths */
+    left: 150px; 
     z-index: 1;
     background: black;
     border-right: 1px solid var(--border-color);
-}
+} */
 */
 
 /* Update existing input/select rule or add new */
