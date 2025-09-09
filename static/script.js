@@ -1424,11 +1424,12 @@ async function loadHistory() {
             }
             throw new Error(`Failed to fetch history: ${response.statusText}`);
         }
-        const data = await response.json();
-        console.log('Fetched history data:', data); // Debug log
+        const response_json = await response.json();
+        console.log('Fetched history data:', response_json); // Debug log
         const historyContent = document.getElementById('historyContent');
         historyContent.innerHTML = '';
 
+        data = response_json.Data;
         if (!data || data.length === 0) {
             historyContent.innerHTML = '<p>No history found</p>';
             return;
