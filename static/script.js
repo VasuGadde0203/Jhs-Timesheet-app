@@ -937,7 +937,7 @@ function exportTimesheetToExcel() {
                 'Gender': employeeInfo['Gender'],
                 'Partner': employeeInfo['Partner'],
                 'Reporting Manager': employeeInfo['Reporting Manager'],
-                'Department': document.getElementById('department').value || '',
+                // 'Department': document.getElementById('department').value || '',
                 'Week Period': weekPeriod,
                 'S.No': row.cells[0].textContent,
                 'Date': inputs[0] ? inputs[0].value : '',
@@ -979,7 +979,7 @@ function getEmployeeInfoForExport() {
         'Gender': document.getElementById('gender').value || '',
         'Partner': document.getElementById('partner').value || '',
         'Reporting Manager': document.getElementById('reportingManager').value || '',
-        'Department': document.getElementById('department').value || '',
+        // 'Department': document.getElementById('department').value || '',
         'Week Period': '',
         'S.No': '',
         'Date': '',
@@ -1035,7 +1035,7 @@ async function exportHistoryToExcel() {
                 'Gender': employeeInfo['Gender'],
                 'Partner': employeeInfo['Partner'],
                 'Reporting Manager': employeeInfo['Reporting Manager'],
-                'Department': document.getElementById('department').value || '',
+                // 'Department': document.getElementById('department').value || '',
                 'Week Period': entry.weekPeriod || '',
                 'S.No': '',
                 'Date': entry.date || '',
@@ -1089,7 +1089,7 @@ async function saveDataToMongo() {
         gender: document.getElementById('gender').value || '',
         partner: document.getElementById('partner').value || '',
         reportingManager: document.getElementById('reportingManager').value || '',
-        department: document.getElementById('department').value || '',
+        // department: document.getElementById('department').value || '',
         weekPeriod: '',
         date: '',
         location: '',
@@ -1138,7 +1138,7 @@ async function saveDataToMongo() {
                 gender: document.getElementById('gender').value || '',
                 partner: document.getElementById('partner').value || '',
                 reportingManager: document.getElementById('reportingManager').value || '',
-                department: document.getElementById('department').value || '',
+                // department: document.getElementById('department').value || '',
                 weekPeriod: weekPeriod,
                 date: inputs[0] ? inputs[0].value : '',
                 location: inputs[1] ? (inputs[1].value || inputs[1].querySelector('option:checked')?.value) : '',
@@ -1192,7 +1192,8 @@ async function saveDataToMongo() {
         }
         const result = await response.json();
         if (result.success) {
-            showPopup(`Data stored successfully at ${new Date().toLocaleString()}!`);
+            // showPopup(`Data stored successfully at ${new Date().toLocaleString()}!`);
+            showPopup(`Data stored successfully`);
             setTimeout(() => {
                 window.location.reload();
             }, 3000);
