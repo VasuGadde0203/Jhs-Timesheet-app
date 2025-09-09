@@ -1104,7 +1104,13 @@ async def save_timesheets(entries: List[TimesheetEntry], current_user: str = Dep
                     "partner": data["partner"],
                     "reportingManager": data["reportingManager"],
                     "department": data["department"],
-                    "updated_time": now_iso
+                    "updated_time": now_iso,
+                    "hits": data["hits"] or "",
+                    "misses": data["misses"] or "",
+                    "feedback_hr": data["feedback_hr"] or "",
+                    "feedback_it": data["feedback_it"] or "",
+                    "feedback_crm": data["feedback_crm"] or "",
+                    "feedback_others": data["feedback_others"] or "",
                 }}
             )
             print(f"Updated {result.modified_count} document(s)")
