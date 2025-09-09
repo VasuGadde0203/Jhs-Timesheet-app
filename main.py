@@ -1174,6 +1174,78 @@ async def get_timesheets(employee_id: str, current_user: str = Depends(get_curre
         print(f"Error fetching timesheets for employeeId: {employee_id}, Error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to fetch timesheets: {str(e)}")
 
+# @app.put("/update_timesheet/{employee_id}/{entry_id}")
+# async def update_timesheet(employee_id: str, entry_id: str, update_data: UpdateTimesheetRequest, current_user: str = Depends(get_current_user)):
+#     print(f"Updating timesheet entry {entry_id} for employee {employee_id} with data: {update_data}")
+#     if employee_id != current_user:
+#         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Unauthorized access")
+    
+#     try:
+#         now_iso = datetime.utcnow().isoformat()
+#         collection = timesheets_collection
+        
+#         # Find the document
+#         doc = collection.find_one({"employeeId": employee_id})
+#         if not doc:
+#             raise HTTPException(status_code=404, detail="Employee document not found")
+        
+#         entry_found = False
+#         week_found = None
+#         updated = False
+        
+#         # Search through all weeks and entries - Data is dict {week: {"entries": [], "feedback": {}}}
+#         if "Data" in doc and isinstance(doc["Data"], dict):
+#             for week_period, week_data in doc["Data"].items():
+#                 week_entries = week_data.get("entries", [])
+#                 if isinstance(week_entries, list):
+#                     for i, entry in enumerate(week_entries):
+#                         if entry.get("id") == entry_id:
+#                             # Update this specific entry
+#                             updated_entry = {
+#                                 "date": update_data.date or entry.get("date", ""),
+#                                 "location": update_data.location or entry.get("location", ""),
+#                                 "projectStartTime": update_data.projectStartTime or entry.get("projectStartTime", ""),
+#                                 "projectEndTime": update_data.projectEndTime or entry.get("projectEndTime", ""),
+#                                 "punchIn": update_data.punchIn or entry.get("punchIn", ""),
+#                                 "punchOut": update_data.punchOut or entry.get("punchOut", ""),
+#                                 "client": update_data.client or entry.get("client", ""),
+#                                 "project": update_data.project or entry.get("project", ""),
+#                                 "projectCode": update_data.projectCode or entry.get("projectCode", ""),
+#                                 "reportingManagerEntry": update_data.reportingManagerEntry or entry.get("reportingManagerEntry", ""),
+#                                 "activity": update_data.activity or entry.get("activity", ""),
+#                                 "hours": update_data.hours or entry.get("hours", ""),
+#                                 "workingHours": update_data.workingHours or entry.get("workingHours", ""),
+#                                 "billable": update_data.billable or entry.get("billable", ""),
+#                                 "remarks": update_data.remarks or entry.get("remarks", ""),
+#                                 "updated_time": now_iso,
+#                                 "id": entry_id  # Keep the same ID
+#                             }
+                            
+#                             # Replace the entry in the array
+#                             doc["Data"][week_period]["entries"][i] = updated_entry
+#                             updated = True
+#                             entry_found = True
+#                             week_found = week_period
+#                             break
+#                 if updated:
+#                     break
+        
+#         if not entry_found:
+#             raise HTTPException(status_code=404, detail="Timesheet entry not found")
+        
+#         # Update the document in database
+#         collection.update_one(
+#             {"employeeId": employee_id},
+#             {"$set": {
+#                 "Data": doc["Data"],
+#                 "updated_time": now_iso
+#             }}
+#         )
+        
+#         return {"success": True, "message": "Timesheet entry updated successfully"}
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Failed to update timesheet: {str(e)}")
+
 @app.put("/update_timesheet/{employee_id}/{entry_id}")
 async def update_timesheet(employee_id: str, entry_id: str, update_data: UpdateTimesheetRequest, current_user: str = Depends(get_current_user)):
     print(f"Updating timesheet entry {entry_id} for employee {employee_id} with data: {update_data}")
@@ -1193,42 +1265,42 @@ async def update_timesheet(employee_id: str, entry_id: str, update_data: UpdateT
         week_found = None
         updated = False
         
-        # Search through all weeks and entries - Data is dict {week: {"entries": [], "feedback": {}}}
-        if "Data" in doc and isinstance(doc["Data"], dict):
-            for week_period, week_data in doc["Data"].items():
-                week_entries = week_data.get("entries", [])
-                if isinstance(week_entries, list):
-                    for i, entry in enumerate(week_entries):
-                        if entry.get("id") == entry_id:
-                            # Update this specific entry
-                            updated_entry = {
-                                "date": update_data.date or entry.get("date", ""),
-                                "location": update_data.location or entry.get("location", ""),
-                                "projectStartTime": update_data.projectStartTime or entry.get("projectStartTime", ""),
-                                "projectEndTime": update_data.projectEndTime or entry.get("projectEndTime", ""),
-                                "punchIn": update_data.punchIn or entry.get("punchIn", ""),
-                                "punchOut": update_data.punchOut or entry.get("punchOut", ""),
-                                "client": update_data.client or entry.get("client", ""),
-                                "project": update_data.project or entry.get("project", ""),
-                                "projectCode": update_data.projectCode or entry.get("projectCode", ""),
-                                "reportingManagerEntry": update_data.reportingManagerEntry or entry.get("reportingManagerEntry", ""),
-                                "activity": update_data.activity or entry.get("activity", ""),
-                                "hours": update_data.hours or entry.get("hours", ""),
-                                "workingHours": update_data.workingHours or entry.get("workingHours", ""),
-                                "billable": update_data.billable or entry.get("billable", ""),
-                                "remarks": update_data.remarks or entry.get("remarks", ""),
-                                "updated_time": now_iso,
-                                "id": entry_id  # Keep the same ID
-                            }
-                            
-                            # Replace the entry in the array
-                            doc["Data"][week_period]["entries"][i] = updated_entry
-                            updated = True
-                            entry_found = True
-                            week_found = week_period
-                            break
-                if updated:
-                    break
+        # Search through all weeks and entries - Data is a list of {week: [entries]}
+        if "Data" in doc and isinstance(doc["Data"], list):
+            for week_obj in doc["Data"]:
+                for week_period, week_entries in week_obj.items():
+                    if isinstance(week_entries, list):
+                        for i, entry in enumerate(week_entries):
+                            if entry.get("id") == entry_id:
+                                # Update this specific entry
+                                updated_entry = {
+                                    "date": update_data.date or entry.get("date", ""),
+                                    "location": update_data.location or entry.get("location", ""),
+                                    "projectStartTime": update_data.projectStartTime or entry.get("projectStartTime", ""),
+                                    "projectEndTime": update_data.projectEndTime or entry.get("projectEndTime", ""),
+                                    "punchIn": update_data.punchIn or entry.get("punchIn", ""),
+                                    "punchOut": update_data.punchOut or entry.get("punchOut", ""),
+                                    "client": update_data.client or entry.get("client", ""),
+                                    "project": update_data.project or entry.get("project", ""),
+                                    "projectCode": update_data.projectCode or entry.get("projectCode", ""),
+                                    "reportingManagerEntry": update_data.reportingManagerEntry or entry.get("reportingManagerEntry", ""),
+                                    "activity": update_data.activity or entry.get("activity", ""),
+                                    "hours": update_data.hours or entry.get("hours", ""),
+                                    "workingHours": update_data.workingHours or entry.get("workingHours", ""),
+                                    "billable": update_data.billable or entry.get("billable", ""),
+                                    "remarks": update_data.remarks or entry.get("remarks", ""),
+                                    "updated_time": now_iso,
+                                    "id": entry_id  # Keep the same ID
+                                }
+                                
+                                # Replace the entry in the array
+                                week_obj[week_period][i] = updated_entry
+                                updated = True
+                                entry_found = True
+                                week_found = week_period
+                                break
+                    if updated:
+                        break
         
         if not entry_found:
             raise HTTPException(status_code=404, detail="Timesheet entry not found")
