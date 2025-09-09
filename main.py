@@ -832,7 +832,7 @@ async def serve_login_page():
 async def serve_dashboard_page(request: Request):
     """Serve the main timesheet dashboard for authenticated users"""
     try:
-        with open("static/index2.html", "r", encoding="utf-8") as file:
+        with open("static/index.html", "r", encoding="utf-8") as file:
             return HTMLResponse(content=file.read())
     except FileNotFoundError:
         # Fallback dashboard
