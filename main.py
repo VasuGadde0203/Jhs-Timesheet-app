@@ -1015,21 +1015,10 @@ async def save_timesheets(entries: List[TimesheetEntry], current_user: str = Dep
 
     employee_data = {}
     now_iso = datetime.utcnow().isoformat()
-    feedback = None
     
     for timesheet in entries:
         employee_id = timesheet.employeeId
         week_period = timesheet.weekPeriod or "No Week"
-
-        if feedback is None and timesheet.hits:
-            feedback = {
-                "hits": timesheet.hits or "",
-                "misses": timesheet.misses or "",
-                "feedback_hr": timesheet.feedback_hr or "",
-                "feedback_it": timesheet.feedback_it or "",
-                "feedback_crm": timesheet.feedback_crm or "",
-                "feedback_others": timesheet.feedback_others or ""
-            }
 
         if employee_id not in employee_data:
             employee_data[employee_id] = {
@@ -1040,15 +1029,9 @@ async def save_timesheets(entries: List[TimesheetEntry], current_user: str = Dep
                 "partner": timesheet.partner or "",
                 "reportingManager": timesheet.reportingManager or "",
                 "department": timesheet.department or "",
-                "Data": {},
+                "Data": [],
                 "created_time": now_iso,
                 "updated_time": now_iso
-            }
-
-        if week_period not in employee_data[employee_id]["Data"]:
-            employee_data[employee_id]["Data"][week_period] = {
-                "entries": [],
-                "feedback": feedback or {}
             }
 
         daily_entry = {
@@ -1064,31 +1047,53 @@ async def save_timesheets(entries: List[TimesheetEntry], current_user: str = Dep
             "reportingManagerEntry": timesheet.reportingManagerEntry or "",
             "activity": timesheet.activity or "",
             "hours": timesheet.hours or "",
-            "workingHours": timesheet.workingHours or "",
             "billable": timesheet.billable or "",
             "remarks": timesheet.remarks or "",
+            "hits": timesheet.hits or "",
+            "misses": timesheet.misses or "",
+            "feedback_hr": timesheet.feedback_hr or "",
+            "feedback_it": timesheet.feedback_it or "",
+            "feedback_crm": timesheet.feedback_crm or "",
+            "feedback_others": timesheet.feedback_others or "",
             "id": str(ObjectId()),
             "created_time": now_iso,
             "updated_time": now_iso
         }
 
-        employee_data[employee_id]["Data"][week_period]["entries"].append(daily_entry)
+        # Find or create the week entry in employee_data
+        week_found = False
+        for week_obj in employee_data[employee_id]["Data"]:
+            if week_period in week_obj:
+                week_obj[week_period].append(daily_entry)
+                week_found = True
+                break
+        if not week_found:
+            employee_data[employee_id]["Data"].append({week_period: [daily_entry]})
 
     print("Processing and saving data to DB...")
     for employee_id, data in employee_data.items():
         existing_doc = collection.find_one({"employeeId": employee_id})
         if existing_doc:
             print(f"Updating existing document for employeeId: {employee_id}")
-            existing_data = existing_doc.get("Data", {})
+            existing_data = existing_doc.get("Data", [])
+            
+            # Merge new data with existing data
             new_data = data["Data"]
+            for new_week_obj in new_data:
+                week = list(new_week_obj.keys())[0]
+                week_entries = new_week_obj[week]
+                
+                # Find if the week exists in existing_data
+                week_found = False
+                for existing_week_obj in existing_data:
+                    if week in existing_week_obj:
+                        existing_week_obj[week].extend(week_entries)
+                        week_found = True
+                        break
+                if not week_found:
+                    existing_data.append(new_week_obj)
             
-            for week, week_data in new_data.items():
-                if week in existing_data:
-                    existing_data[week]["entries"].extend(week_data["entries"])
-                    existing_data[week]["feedback"] = week_data["feedback"]
-                else:
-                    existing_data[week] = week_data
-            
+            # Update the document
             result = collection.update_one(
                 {"employeeId": employee_id},
                 {"$set": {
