@@ -554,32 +554,32 @@ function addRow(sectionId) {
     
     const row = document.createElement('tr');
     row.innerHTML = `
-        <td class="col-sno">${rowCount}</td>
-        <td class="col-action"><button class="eye-btn" onclick="openModal(this)"><i class="fas fa-eye"></i></button></td>
-        <td class="col-date"><input type="date" value="${defaultDate}" class="date-field form-input" onchange="validateDate(this); updateSummary()"></td>
-        <td class="col-location"><select class="location-select form-input" onchange="updateSummary()">
+        <td class="col-sno" style="min-width: 60px;">${rowCount}</td>
+        <td class="col-action" style="min-width: 60px;"><button class="eye-btn" onclick="openModal(this)"><i class="fas fa-eye"></i></button></td>
+        <td class="col-date" style="min-width: 120px;"><input type="date" value="${defaultDate}" class="date-field form-input" onchange="validateDate(this); updateSummary()"></td>
+        <td class="col-location" style="min-width: 200px;"><select class="location-select form-input" onchange="updateSummary()">
             <option value="Office">Office</option>
             <option value="Client Site">Client Site</option>
             <option value="Work From Home">Work From Home</option>
             <option value="Field Work">Field Work</option>
         </select></td>
-        <td class="col-project-start"><input type="time" class="project-start form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
-        <td class="col-project-end"><input type="time" class="project-end form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
-        <td class="col-punch-in"><input type="time" class="punch-in form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
-        <td class="col-punch-out"><input type="time" class="punch-out form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
-        <td class="col-client"><select class="client-field client-select form-input" onchange="handleClientChange(this)" data-projects="[]"><option value="">Select Client</option></select></td>
-        <td class="col-project"><input type="text" class="project-field form-input" placeholder="Enter Project" oninput="updateSummary()"></td>
-        <td class="col-project-code"><input type="text" class="project-code form-input" readonly></td>
-        <td class="col-reporting-manager"><select class="reporting-manager-field reporting-manager-select form-input" onchange="handleReportingManagerChange(this)"><option value="">Select Reporting Manager</option></select></td>
-        <td class="col-activity"><input type="text" class="activity-field form-input" placeholder="Enter Activity" oninput="updateSummary()"></td>
-        <td class="col-project-hours"><input type="number" class="project-hours-field form-input" readonly></td>
-        <td class="col-working-hours"><input type="number" class="working-hours-field form-input" readonly></td>
-        <td class="col-billable"><select class="billable-select form-input" onchange="updateSummary()">
+        <td class="col-project-start" style="min-width: 120px;"><input type="time" class="project-start form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+        <td class="col-project-end" style="min-width: 120px;"><input type="time" class="project-end form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+        <td class="col-punch-in" style="min-width: 120px;"><input type="time" class="punch-in form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+        <td class="col-punch-out" style="min-width: 120px;"><input type="time" class="punch-out form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+        <td class="col-client" style="min-width: 250px;"><select class="client-field client-select form-input" onchange="handleClientChange(this)" data-projects="[]"><option value="">Select Client</option></select></td>
+        <td class="col-project" style="min-width: 200px;"><input type="text" class="project-field form-input" placeholder="Enter Project" oninput="updateSummary()"></td>
+        <td class="col-project-code" style="min-width: 200px;"><input type="text" class="project-code form-input" readonly></td>
+        <td class="col-reporting-manager" style="min-width: 200px;"><select class="reporting-manager-field reporting-manager-select form-input" onchange="handleReportingManagerChange(this)"><option value="">Select Reporting Manager</option></select></td>
+        <td class="col-activity" style="min-width: 200px;"><input type="text" class="activity-field form-input" placeholder="Enter Activity" oninput="updateSummary()"></td>
+        <td class="col-project-hours" style="min-width: 80px;"><input type="number" class="project-hours-field form-input" readonly></td>
+        <td class="col-working-hours" style="min-width: 80px;"><input type="number" class="working-hours-field form-input" readonly></td>
+        <td class="col-billable" style="min-width: 120px;"><select class="billable-select form-input" onchange="updateSummary()">
             <option value="Yes">Billable</option>
             <option value="No">Non-Billable</option>
         </select></td>
-        <td class="col-remarks"><input type="text" class="remarks-field form-input" placeholder="Additional notes"></td>
-        <td class="col-delete"><button onclick="deleteRow(this)" style="background:#e74c3c; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Delete</button></td>
+        <td class="col-remarks" style="min-width: 200px;"><input type="text" class="remarks-field form-input" placeholder="Additional notes"></td>
+        <td class="col-delete" style="min-width: 80px;"><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td>
     `;
 
     tbody.appendChild(row);

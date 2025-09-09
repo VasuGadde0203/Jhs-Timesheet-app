@@ -517,11 +517,11 @@ body {
     font-size: 0.9rem;
 }
 
-.col-narrow { width: 60px; }
-.col-medium { width: 120px; }
-.col-wide { width: 200px; }
-.col-client { width: 250px; }
-.col-project { width: 200px; }
+.col-narrow { width: 60px; max-width: 60px; }
+.col-medium { width: 120px; max-width: 120px; }
+.col-wide { width: 200px; max-width: 200px; }
+.col-client { width: 250px; max-width: 250px; }
+.col-project { width: 200px; max-width: 200px; }
 
 .validation-error {
     border-color: #e74c3c !important;
@@ -978,44 +978,76 @@ body {
     overflow-x: auto;
     max-width: 100%;
     -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    position: relative; /* Ensure proper stacking context */
 }
 
-/* Update existing .timesheet-table th, .history-table th rule or add new */
+.timesheet-table,
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: var(--shadow-light);
+    min-width: 1000px; /* Minimum width for desktop */
+    display: table; /* Override previous block to ensure table structure */
+    table-layout: fixed; /* Ensure consistent column widths */
+}
+
 .timesheet-table th,
 .history-table th {
+    background: var(--dark-bg);
+    color: white;
+    padding: 1rem 0.75rem;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
     position: sticky;
     top: 0;
-    z-index: 2;
-    background: var(--dark-bg); /* Retain background */
+    z-index: 2; /* Above content but below table wrapper */
 }
 
-/* Sticky Date column (or Client if preferred) */
+.timesheet-table td,
+.history-table td {
+    padding: 1rem 0.75rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+    white-space: nowrap;
+    transition: var(--transition);
+}
+
+/* Sticky Date column (first column) */
 .timesheet-table th.col-date,
 .timesheet-table td.col-date,
 .history-table th.col-date,
 .history-table td.col-date {
     position: sticky;
     left: 0;
-    z-index: 1;
-    background: white; /* Prevent content bleed */
-    border-right: 1px solid var(--border-color);
+    z-index: 1; /* Above other cells but below header */
+    background: white; /* Match table background */
+    border-right: 1px solid var(--border-color); /* Visual separator */
+    min-width: 120px; /* Ensure enough space for content */
 }
 
-/* Optional: Sticky Client column (uncomment if Client should be sticky instead) */
-
+/* Sticky Client column (adjust left based on preceding columns) */
 .timesheet-table th.col-client,
 .timesheet-table td.col-client,
 .history-table th.col-client,
 .history-table td.col-client {
     position: sticky;
-    left: 150px; /* Adjust based on preceding columns' widths */
+    left: 180px; /* S.No (60px) + Action (60px) + Date (120px) = 240px, adjust as needed */
     z-index: 1;
     background: white;
     border-right: 1px solid var(--border-color);
+    min-width: 250px; /* Match .col-client width */
 }
-*/
 
-/* Update existing input/select rule or add new */
+/* Ensure input/select styling aligns with table cells */
 .timesheet-table input,
 .timesheet-table select,
 .history-table input,
@@ -1028,6 +1060,11 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    padding: 0.75rem; /* Match td padding */
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: var(--transition);
 }
 
 .col-client select,
@@ -1064,6 +1101,16 @@ body {
     .table-responsive {
         border: 1px solid var(--border-color); /* Visual cue for scrollable area */
     }
+    .timesheet-table,
+    .history-table {
+        min-width: 1000px; /* Maintain minimum width */
+    }
+    .timesheet-table th.col-client,
+    .timesheet-table td.col-client,
+    .history-table th.col-client,
+    .history-table td.col-client {
+        left: 150px; /* Adjust for narrower screens */
+    }
 }
 
 @media (max-width: 991px) and (min-width: 768px) {
@@ -1074,12 +1121,20 @@ body {
     .history-table {
         font-size: 0.95rem;
     }
+    .timesheet-table th,
+    .history-table th {
+        padding: 0.75rem 0.5rem; /* Reduce padding for smaller screens */
+    }
+    .timesheet-table td,
+    .history-table td {
+        padding: 0.75rem 0.5rem;
+    }
 }
 
 @media (max-width: 768px) {
     .timesheet-table,
     .history-table {
-        min-width: 1200px; /* Ensure horizontal scroll */
+        min-width: 1200px; /* Ensure full scroll on mobile */
     }
     .form-input,
     .timesheet-table input,
@@ -1092,6 +1147,12 @@ body {
     .col-client select {
         min-width: 150px;
     }
+    .timesheet-table th.col-client,
+    .timesheet-table td.col-client,
+    .history-table th.col-client,
+    .history-table td.col-client {
+        left: 120px; /* Adjust for mobile layout */
+    }
 }
 
 @media (max-width: 480px) {
@@ -1101,6 +1162,22 @@ body {
     .history-table input,
     .history-table select {
         font-size: 0.85rem;
+    }
+    .timesheet-table th,
+    .history-table th {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.75rem;
+    }
+    .timesheet-table td,
+    .history-table td {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.8rem;
+    }
+    .timesheet-table th.col-client,
+    .timesheet-table td.col-client,
+    .history-table th.col-client,
+    .history-table td.col-client {
+        left: 100px; /* Further adjust for small screens */
     }
 }
 
@@ -1114,5 +1191,11 @@ body {
     }
     .col-client select {
         min-width: 250px;
+    }
+    .timesheet-table th.col-client,
+    .timesheet-table td.col-client,
+    .history-table th.col-client,
+    .history-table td.col-client {
+        left: 180px; /* Reset to original for large screens */
     }
 }
