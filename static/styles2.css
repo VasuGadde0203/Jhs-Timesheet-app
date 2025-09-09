@@ -979,19 +979,41 @@ body {
 .table-responsive {
     overflow-x: auto;
     max-width: 100%;
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+    z-index: 0; /* Ensure base layer */
 }
 
-/* Update existing .timesheet-table th, .history-table th rule or add new */
+.timesheet-table,
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: var(--shadow-light);
+    min-width: 1200px; /* Increased for better visibility */
+    display: table; /* Ensure table structure */
+    table-layout: fixed; /* Consistent column widths */
+}
+
 .timesheet-table th,
 .history-table th {
     position: sticky;
     top: 0;
-    z-index: 2;
+    z-index: 2; /* Above content */
     background: var(--dark-bg); /* Retain background */
+    color: white;
+    padding: 1rem 0.75rem;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
 }
 
-/* Sticky Date column (or Client if preferred) */
 .timesheet-table th.col-date,
 .timesheet-table td.col-date,
 .history-table th.col-date,
@@ -999,34 +1021,38 @@ body {
     position: sticky;
     left: 0;
     z-index: 1;
-    background: white; /* Prevent content bleed */
+    background: white;
+    color: var(--dark-bg); /* Match header text */
     border-right: 1px solid var(--border-color);
+    min-width: 120px; /* Ensure enough space */
 }
-
-/* Optional: Sticky Client column (uncomment if Client should be sticky instead) */
 
 .timesheet-table th.col-client,
 .timesheet-table td.col-client,
 .history-table th.col-client,
 .history-table td.col-client {
     position: sticky;
-    left: 150px; /* Adjust based on preceding columns' widths */
+    left: 180px; /* Adjusted for S.No (60px) + Action (60px) + Date (120px) */
     z-index: 1;
     background: white;
+    color: var(--dark-bg); /* Match header text */
     border-right: 1px solid var(--border-color);
+    min-width: 250px; /* Match client width */
 }
-*/
 
-/* Update existing input/select rule or add new */
+/* Ensure input/select alignment */
 .timesheet-table input,
 .timesheet-table select,
 .history-table input,
-.history-table select,
-.form-input {
+.history-table select {
     width: 100%;
     min-width: 150px;
     max-width: 300px;
     box-sizing: border-box;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.9rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1034,7 +1060,7 @@ body {
 
 .col-client select,
 .col-client input {
-    min-width: 200px; /* Wider for Client dropdown */
+    min-width: 200px;
 }
 
 .timesheet-table input[type="number"],
