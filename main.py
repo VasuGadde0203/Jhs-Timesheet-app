@@ -1124,6 +1124,7 @@ async def get_timesheets(employee_id: str, current_user: str = Depends(get_curre
     try:
         doc = timesheets_collection.find_one({"employeeId": employee_id})
         if not doc:
+            print(f"No document found for employeeId: {employee_id}")
             return {"success": True, "Data": []}
         
         # Flatten the nested structure for frontend
@@ -1140,18 +1141,25 @@ async def get_timesheets(employee_id: str, current_user: str = Depends(get_curre
             "department": doc.get("department", "")
         }
         
-        # Iterate through Data structure - now a dict {week: {"entries": [], "feedback": {}}}
-        if "Data" in doc and isinstance(doc["Data"], dict):
-            for week_period, week_data in doc["Data"].items():
-                week_entries = week_data.get("entries", [])
-                feedback = week_data.get("feedback", {})
-                for entry in week_entries:
-                    flattened_entry = {**employee_info, **entry, **feedback}
-                    flattened_entry["weekPeriod"] = week_period
-                    flattened_data.append(flattened_entry)
+        # Handle Data field as a list of {week: [entries]}
+        existing_data = doc.get("Data", [])
+        print(f"Processing Data for employeeId: {employee_id}, Data: {existing_data}")
         
+        for week_item in existing_data:
+            if isinstance(week_item, dict):
+                week_period = next(iter(week_item), None)
+                if week_period:
+                    week_entries = week_item.get(week_period, [])
+                    for entry in week_entries:
+                        if isinstance(entry, dict):
+                            flattened_entry = {**employee_info, **entry}
+                            flattened_entry["weekPeriod"] = week_period
+                            flattened_data.append(flattened_entry)
+        
+        print(f"Returning flattened data: {flattened_data}")
         return {"success": True, "Data": flattened_data}
     except Exception as e:
+        print(f"Error fetching timesheets for employeeId: {employee_id}, Error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to fetch timesheets: {str(e)}")
 
 @app.put("/update_timesheet/{employee_id}/{entry_id}")
