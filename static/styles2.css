@@ -1011,7 +1011,7 @@ body {
 .history-table td.col-client {
     position: sticky;
     left: 150px; /* Adjust based on preceding columns' widths */
-    z-index: 1;
+    z-index: 500;
     background: white;
     border-right: 1px solid var(--border-color);
 }
