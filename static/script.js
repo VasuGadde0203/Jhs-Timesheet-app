@@ -1420,31 +1420,31 @@ async function loadHistory() {
             if (response.status === 401) {
                 localStorage.removeItem('access_token');
                 localStorage.removeItem('loggedInEmployeeId');
-                window.location.href = '/static/login.html';
+                window.location.href = 'login.html';
             }
-            throw new Error('Failed to fetch history');
+            throw new Error(`Failed to fetch history: ${response.statusText}`);
         }
         const data = await response.json();
-        console.log('Fetched history data:', data);
+        console.log('Fetched history data:', data); // Debug log
         const historyContent = document.getElementById('historyContent');
         historyContent.innerHTML = '';
 
-        if (!data.Data || data.Data.length === 0) {
+        if (!data || data.length === 0) {
             historyContent.innerHTML = '<p>No history found</p>';
             return;
         }
 
+        // Group entries by weekPeriod
         let weekMap = new Map();
-        data.Data.forEach(weekObject => {
-            // Each weekObject is { "date-range": [entries] }
-            const week = Object.keys(weekObject)[0]; // Get the date range as week key
-            const weekEntries = weekObject[week] || []; // Get the array of entries
-            if (weekEntries.length > 0) {
-                weekMap.set(week, { entries: weekEntries });
+        data.forEach(entry => {
+            const week = entry.weekPeriod;
+            if (!weekMap.has(week)) {
+                weekMap.set(week, []);
             }
+            weekMap.get(week).push(entry);
         });
 
-        for (let [week, weekData] of weekMap) {
+        for (let [week, weekEntries] of weekMap) {
             let weekDiv = document.createElement('div');
             weekDiv.className = 'history-week-section';
             weekDiv.innerHTML = `<h3>${week}</h3>`;
@@ -1481,7 +1481,7 @@ async function loadHistory() {
             `;
             let tbody = table.querySelector('tbody');
 
-            weekData.entries.forEach(entry => {
+            weekEntries.forEach(entry => {
                 const row = document.createElement('tr');
                 row.dataset.entryId = entry.id;
                 row.innerHTML = `
@@ -1512,33 +1512,34 @@ async function loadHistory() {
             historyContent.appendChild(weekDiv);
         }
 
-        // Render feedback only once at the end, using top-level data
+        // Render feedback only once at the end, using values from the first entry
+        const firstEntry = data[0] || {};
         const feedbackDiv = document.createElement('div');
         feedbackDiv.className = 'feedback-section';
         feedbackDiv.innerHTML = `
             <div class="feedback-item">
                 <label>3 HITS</label>
-                <textarea readonly rows="3">${data.hits || ''}</textarea>
+                <textarea readonly rows="3">${firstEntry.hits || ''}</textarea>
             </div>
             <div class="feedback-item">
                 <label>3 MISSES</label>
-                <textarea readonly rows="3">${data.misses || ''}</textarea>
+                <textarea readonly rows="3">${firstEntry.misses || ''}</textarea>
             </div>
             <div class="feedback-item">
                 <label>FEEDBACK FOR HR</label>
-                <textarea readonly rows="3">${data.feedback_hr || ''}</textarea>
+                <textarea readonly rows="3">${firstEntry.feedback_hr || ''}</textarea>
             </div>
             <div class="feedback-item">
                 <label>FEEDBACK FOR IT</label>
-                <textarea readonly rows="3">${data.feedback_it || ''}</textarea>
+                <textarea readonly rows="3">${firstEntry.feedback_it || ''}</textarea>
             </div>
             <div class="feedback-item">
                 <label>FEEDBACK FOR CRM</label>
-                <textarea readonly rows="3">${data.feedback_crm || ''}</textarea>
+                <textarea readonly rows="3">${firstEntry.feedback_crm || ''}</textarea>
             </div>
             <div class="feedback-item">
                 <label>FEEDBACK FOR OTHERS</label>
-                <textarea readonly rows="3">${data.feedback_others || ''}</textarea>
+                <textarea readonly rows="3">${firstEntry.feedback_others || ''}</textarea>
             </div>
         `;
         historyContent.appendChild(feedbackDiv);
@@ -1546,8 +1547,8 @@ async function loadHistory() {
         updateAllClientFields();
         updateAllReportingManagerFields();
     } catch (error) {
-        console.error('Error loading history:', error);
-        showPopup('Failed to load history: Server error', true);
+        console.error('Error loading history:', error); // Debug log
+        showPopup(`Failed to load history: ${error.message}`, true);
     }
 }
 
