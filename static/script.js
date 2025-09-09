@@ -1259,6 +1259,154 @@ async function showSection(section) {
     }
 }
 
+// async function loadHistory() {
+//     try {
+//         const token = localStorage.getItem('access_token');
+//         const response = await fetch(`${API_URL}/timesheets/${loggedInEmployeeId}`, {
+//             headers: { 
+//                 'Authorization': `Bearer ${token}`,
+//                 'Content-Type': 'application/json'
+//             }
+//         });
+//         if (!response.ok) {
+//             if (response.status === 401) {
+//                 localStorage.removeItem('access_token');
+//                 localStorage.removeItem('loggedInEmployeeId');
+//                 window.location.href = 'login.html';
+//             }
+//             throw new Error('Failed to fetch history');
+//         }
+//         const data = await response.json();
+//         const entries = Array.isArray(data.Data) ? data.Data : data.Data ? [data.Data] : [];
+//         const historyContent = document.getElementById('historyContent');
+//         historyContent.innerHTML = '';
+
+//         if (entries.length === 0) {
+//             historyContent.innerHTML = '<p>No history found</p>';
+//             return;
+//         }
+
+//         let weekMap = new Map();
+//         entries.forEach(entry => {
+//             let week = entry.weekPeriod || 'Unknown';
+//             if (!weekMap.has(week)) {
+//                 weekMap.set(week, {entries: [], feedback: {
+//                     hits: entry.hits || '',
+//                     misses: entry.misses || '',
+//                     feedback_hr: entry.feedback_hr || '',
+//                     feedback_it: entry.feedback_it || '',
+//                     feedback_crm: entry.feedback_crm || '',
+//                     feedback_others: entry.feedback_others || ''
+//                 }});
+//             }
+//             weekMap.get(week).entries.push(entry);
+//         });
+
+//         for (let [week, weekData] of weekMap) {
+//             let weekDiv = document.createElement('div');
+//             weekDiv.className = 'history-week-section';
+//             weekDiv.innerHTML = `<h3>${week}</h3>`;
+
+//             let tableWrapper = document.createElement('div');
+//             tableWrapper.className = 'table-responsive';
+//             let table = document.createElement('table');
+//             table.className = 'history-table';
+//             table.innerHTML = `
+//                 <thead>
+//                     <tr>
+//                         <th class="col-narrow col-edit"><i class="fas fa-edit"></i> Edit</th>
+//                         <th class="col-medium col-date">Date</th>
+//                         <th class="col-wide col-location">Location</th>
+//                         <th class="col-medium col-project-start">Project Start</th>
+//                         <th class="col-medium col-project-end">Project End</th>
+//                         <th class="col-medium col-punch-in">Punch In</th>
+//                         <th class="col-medium col-punch-out">Punch Out</th>
+//                         <th class="col-wide col-client">Client</th>
+//                         <th class="col-wide col-project">Project</th>
+//                         <th class="col-project col-project-code">Project Code</th>
+//                         <th class="col-wide col-reporting-manager">Reporting Manager</th>
+//                         <th class="col-wide col-activity">Activity</th>
+//                         <th class="col-narrow col-project-hours">Project Hours</th>
+//                         <th class="col-narrow col-working-hours">Working Hours</th>
+//                         <th class="col-medium col-billable">Billable</th>
+//                         <th class="col-wide col-remarks">Remarks</th>
+//                         <th class="col-medium col-created-time">Created Time</th>
+//                         <th class="col-medium col-updated-time">Updated Time</th>
+//                     </tr>
+//                 </thead>
+//                 <tbody></tbody>
+//             `;
+//             tableWrapper.appendChild(table);
+//             weekDiv.appendChild(tableWrapper);
+
+//             let tbody = table.querySelector('tbody');
+
+//             weekData.entries.forEach(entry => {
+//                 const row = document.createElement('tr');
+//                 row.dataset.entryId = entry.id;
+//                 row.innerHTML = `
+//                     <td><button class="edit-btn" onclick="editHistoryRow(this, '${entry.id}')"><i class="fas fa-edit"></i></button></td>
+//                     <td>${entry.date || ''}</td>
+//                     <td>${entry.location || ''}</td>
+//                     <td>${entry.projectStartTime || ''}</td>
+//                     <td>${entry.projectEndTime || ''}</td>
+//                     <td>${entry.punchIn || ''}</td>
+//                     <td>${entry.punchOut || ''}</td>
+//                     <td>${entry.client || ''}</td>
+//                     <td>${entry.project || ''}</td>
+//                     <td>${entry.projectCode || ''}</td>
+//                     <td>${entry.reportingManagerEntry || ''}</td>
+//                     <td>${entry.activity || ''}</td>
+//                     <td>${entry.hours || ''}</td>
+//                     <td>${entry.workingHours || ''}</td>
+//                     <td>${entry.billable || ''}</td>
+//                     <td>${entry.remarks || ''}</td>
+//                     <td>${entry.created_time || ''}</td>
+//                     <td>${entry.updated_time || ''}</td>
+//                 `;
+//                 tbody.appendChild(row);
+//             });
+
+//             const feedbackDiv = document.createElement('div');
+//             feedbackDiv.className = 'feedback-section';
+//             feedbackDiv.innerHTML = `
+//                 <div class="feedback-item">
+//                     <label>3 HITS</label>
+//                     <textarea readonly rows="3">${weekData.feedback.hits}</textarea>
+//                 </div>
+//                 <div class="feedback-item">
+//                     <label>3 MISSES</label>
+//                     <textarea readonly rows="3">${weekData.feedback.misses}</textarea>
+//                 </div>
+//                 <div class="feedback-item">
+//                     <label>FEEDBACK FOR HR</label>
+//                     <textarea readonly rows="3">${weekData.feedback.feedback_hr}</textarea>
+//                 </div>
+//                 <div class="feedback-item">
+//                     <label>FEEDBACK FOR IT</label>
+//                     <textarea readonly rows="3">${weekData.feedback.feedback_it}</textarea>
+//                 </div>
+//                 <div class="feedback-item">
+//                     <label>FEEDBACK FOR CRM</label>
+//                     <textarea readonly rows="3">${weekData.feedback.feedback_crm}</textarea>
+//                 </div>
+//                 <div class="feedback-item">
+//                     <label>FEEDBACK FOR OTHERS</label>
+//                     <textarea readonly rows="3">${weekData.feedback.feedback_others}</textarea>
+//                 </div>
+//             `;
+//             weekDiv.appendChild(feedbackDiv);
+
+//             historyContent.appendChild(weekDiv);
+//         }
+//         updateAllClientFields();
+//         updateAllReportingManagerFields();
+//     } catch (error) {
+//         console.error('Error loading history:', error);
+//         showPopup('Failed to load history: Server error', true);
+//     }
+// }
+
 async function loadHistory() {
     try {
         const token = localStorage.getItem('access_token');
@@ -1277,29 +1425,22 @@ async function loadHistory() {
             throw new Error('Failed to fetch history');
         }
         const data = await response.json();
-        const entries = Array.isArray(data.Data) ? data.Data : data.Data ? [data.Data] : [];
         const historyContent = document.getElementById('historyContent');
         historyContent.innerHTML = '';
 
-        if (entries.length === 0) {
+        if (!data.Data || data.Data.length === 0) {
             historyContent.innerHTML = '<p>No history found</p>';
             return;
         }
 
         let weekMap = new Map();
-        entries.forEach(entry => {
-            let week = entry.weekPeriod || 'Unknown';
-            if (!weekMap.has(week)) {
-                weekMap.set(week, {entries: [], feedback: {
-                    hits: entry.hits || '',
-                    misses: entry.misses || '',
-                    feedback_hr: entry.feedback_hr || '',
-                    feedback_it: entry.feedback_it || '',
-                    feedback_crm: entry.feedback_crm || '',
-                    feedback_others: entry.feedback_others || ''
-                }});
+        data.Data.forEach(weekObject => {
+            // Each weekObject is { "date-range": [entries] }
+            const week = Object.keys(weekObject)[0]; // Get the date range as week key
+            const weekEntries = weekObject[week] || []; // Get the array of entries
+            if (weekEntries.length > 0) {
+                weekMap.set(week, { entries: weekEntries });
             }
-            weekMap.get(week).entries.push(entry);
         });
 
         for (let [week, weekData] of weekMap) {
@@ -1309,6 +1450,7 @@ async function loadHistory() {
 
             let tableWrapper = document.createElement('div');
             tableWrapper.className = 'table-responsive';
+
             let table = document.createElement('table');
             table.className = 'history-table';
             table.innerHTML = `
@@ -1336,69 +1478,70 @@ async function loadHistory() {
                 </thead>
                 <tbody></tbody>
             `;
-            tableWrapper.appendChild(table);
-            weekDiv.appendChild(tableWrapper);
-
             let tbody = table.querySelector('tbody');
 
             weekData.entries.forEach(entry => {
                 const row = document.createElement('tr');
                 row.dataset.entryId = entry.id;
                 row.innerHTML = `
-                    <td><button class="edit-btn" onclick="editHistoryRow(this, '${entry.id}')"><i class="fas fa-edit"></i></button></td>
-                    <td>${entry.date || ''}</td>
-                    <td>${entry.location || ''}</td>
-                    <td>${entry.projectStartTime || ''}</td>
-                    <td>${entry.projectEndTime || ''}</td>
-                    <td>${entry.punchIn || ''}</td>
-                    <td>${entry.punchOut || ''}</td>
-                    <td>${entry.client || ''}</td>
-                    <td>${entry.project || ''}</td>
-                    <td>${entry.projectCode || ''}</td>
-                    <td>${entry.reportingManagerEntry || ''}</td>
-                    <td>${entry.activity || ''}</td>
-                    <td>${entry.hours || ''}</td>
-                    <td>${entry.workingHours || ''}</td>
-                    <td>${entry.billable || ''}</td>
-                    <td>${entry.remarks || ''}</td>
-                    <td>${entry.created_time || ''}</td>
-                    <td>${entry.updated_time || ''}</td>
+                    <td class="col-edit"><button class="edit-btn" onclick="editHistoryRow(this, '${entry.id}')"><i class="fas fa-edit"></i></button></td>
+                    <td class="col-date">${entry.date || ''}</td>
+                    <td class="col-location">${entry.location || ''}</td>
+                    <td class="col-project-start">${entry.projectStartTime || ''}</td>
+                    <td class="col-project-end">${entry.projectEndTime || ''}</td>
+                    <td class="col-punch-in">${entry.punchIn || ''}</td>
+                    <td class="col-punch-out">${entry.punchOut || ''}</td>
+                    <td class="col-client">${entry.client || ''}</td>
+                    <td class="col-project">${entry.project || ''}</td>
+                    <td class="col-project-code">${entry.projectCode || ''}</td>
+                    <td class="col-reporting-manager">${entry.reportingManagerEntry || ''}</td>
+                    <td class="col-activity">${entry.activity || ''}</td>
+                    <td class="col-project-hours">${entry.hours || ''}</td>
+                    <td class="col-working-hours">${entry.workingHours || ''}</td>
+                    <td class="col-billable">${entry.billable || ''}</td>
+                    <td class="col-remarks">${entry.remarks || ''}</td>
+                    <td class="col-created-time">${entry.created_time || ''}</td>
+                    <td class="col-updated-time">${entry.updated_time || ''}</td>
                 `;
                 tbody.appendChild(row);
             });
 
-            const feedbackDiv = document.createElement('div');
-            feedbackDiv.className = 'feedback-section';
-            feedbackDiv.innerHTML = `
-                <div class="feedback-item">
-                    <label>3 HITS</label>
-                    <textarea readonly rows="3">${weekData.feedback.hits}</textarea>
-                </div>
-                <div class="feedback-item">
-                    <label>3 MISSES</label>
-                    <textarea readonly rows="3">${weekData.feedback.misses}</textarea>
-                </div>
-                <div class="feedback-item">
-                    <label>FEEDBACK FOR HR</label>
-                    <textarea readonly rows="3">${weekData.feedback.feedback_hr}</textarea>
-                </div>
-                <div class="feedback-item">
-                    <label>FEEDBACK FOR IT</label>
-                    <textarea readonly rows="3">${weekData.feedback.feedback_it}</textarea>
-                </div>
-                <div class="feedback-item">
-                    <label>FEEDBACK FOR CRM</label>
-                    <textarea readonly rows="3">${weekData.feedback.feedback_crm}</textarea>
-                </div>
-                <div class="feedback-item">
-                    <label>FEEDBACK FOR OTHERS</label>
-                    <textarea readonly rows="3">${weekData.feedback.feedback_others}</textarea>
-                </div>
-            `;
-            weekDiv.appendChild(feedbackDiv);
-
+            tableWrapper.appendChild(table);
+            weekDiv.appendChild(tableWrapper);
             historyContent.appendChild(weekDiv);
         }
+
+        // Render feedback only once at the end, using top-level data
+        const feedbackDiv = document.createElement('div');
+        feedbackDiv.className = 'feedback-section';
+        feedbackDiv.innerHTML = `
+            <div class="feedback-item">
+                <label>3 HITS</label>
+                <textarea readonly rows="3">${data.hits || ''}</textarea>
+            </div>
+            <div class="feedback-item">
+                <label>3 MISSES</label>
+                <textarea readonly rows="3">${data.misses || ''}</textarea>
+            </div>
+            <div class="feedback-item">
+                <label>FEEDBACK FOR HR</label>
+                <textarea readonly rows="3">${data.feedback_hr || ''}</textarea>
+            </div>
+            <div class="feedback-item">
+                <label>FEEDBACK FOR IT</label>
+                <textarea readonly rows="3">${data.feedback_it || ''}</textarea>
+            </div>
+            <div class="feedback-item">
+                <label>FEEDBACK FOR CRM</label>
+                <textarea readonly rows="3">${data.feedback_crm || ''}</textarea>
+            </div>
+            <div class="feedback-item">
+                <label>FEEDBACK FOR OTHERS</label>
+                <textarea readonly rows="3">${data.feedback_others || ''}</textarea>
+            </div>
+        `;
+        historyContent.appendChild(feedbackDiv);
+
         updateAllClientFields();
         updateAllReportingManagerFields();
     } catch (error) {
