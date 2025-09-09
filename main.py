@@ -1144,7 +1144,13 @@ async def get_timesheets(employee_id: str, current_user: str = Depends(get_curre
             "gender": doc.get("gender", ""),
             "partner": doc.get("partner", ""),
             "reportingManager": doc.get("reportingManager", ""),
-            "department": doc.get("department", "")
+            "department": doc.get("department", ""),
+            "hits": doc.get("hits", ""),
+            "misses": doc.get("misses", ""),
+            "feedback_hr": doc.get("feedback_hr", ""),
+            "feedback_it": doc.get("feedback_it", ""),
+            "feedback_crm": doc.get("feedback_crm", ""),
+            "feedback_others": doc.get("feedback_others", ""),
         }
         
         # Handle Data field as a list of {week: [entries]}

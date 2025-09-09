@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 async function checkSession() {
     const token = localStorage.getItem('access_token');
     if (!token) {
-        window.location.href = 'login.html';
+        window.location.href = '/static/login.html';
         return;
     }
     try {
@@ -54,13 +54,13 @@ async function checkSession() {
         if (!response.ok) {
             localStorage.removeItem('access_token');
             localStorage.removeItem('loggedInEmployeeId');
-            window.location.href = 'login.html';
+            window.location.href = '/static/login.html';
         }
     } catch (error) {
         console.error('Session check failed:', error);
         localStorage.removeItem('access_token');
         localStorage.removeItem('loggedInEmployeeId');
-        window.location.href = 'login.html';
+        window.location.href = '/static/login.html';
     }
 }
 
@@ -80,7 +80,7 @@ async function fetchData(endpoint) {
     try {
         const token = localStorage.getItem('access_token');
         if (!token) {
-            window.location.href = 'login.html';
+            window.location.href = '/static/login.html';
             return [];
         }
         const response = await fetch(`${API_URL}${endpoint}`, {
@@ -93,7 +93,7 @@ async function fetchData(endpoint) {
             if (response.status === 401) {
                 localStorage.removeItem('access_token');
                 localStorage.removeItem('loggedInEmployeeId');
-                window.location.href = 'login.html';
+                window.location.href = '/static/login.html';
             }
             throw new Error(`Failed to fetch ${endpoint}`);
         }
@@ -1242,7 +1242,7 @@ async function logout() {
         hideLoading();
         localStorage.removeItem('access_token');
         localStorage.removeItem('loggedInEmployeeId');
-        window.location.href = 'login.html';
+        window.location.href = '/static/login.html';
     }
 }
 
@@ -1420,11 +1420,12 @@ async function loadHistory() {
             if (response.status === 401) {
                 localStorage.removeItem('access_token');
                 localStorage.removeItem('loggedInEmployeeId');
-                window.location.href = 'login.html';
+                window.location.href = '/static/login.html';
             }
             throw new Error('Failed to fetch history');
         }
         const data = await response.json();
+        console.log('Fetched history data:', data);
         const historyContent = document.getElementById('historyContent');
         historyContent.innerHTML = '';
 
