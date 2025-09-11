@@ -795,6 +795,7 @@ function updateModalClientFields() {
         const clientField = currentRow.querySelector('.client-field');
         modalClientSelect.value = clientField.value || clientField.querySelector('option:checked')?.value || '';
     }
+    modalClientSelect.onchange = updateModalProjectCode; // Ensure this is set
 }
 
 function updateModalReportingManagerFields() {
@@ -823,20 +824,57 @@ function updateModalReportingManagerFields() {
     }
 }
 
+// function updateModalProjectCode() {
+//     const modalClientSelect = document.getElementById('modalInput7');
+//     const modalProjectCodeInput = document.getElementById('modalInput9');
+//     if (modalClientSelect.value === 'Type here') {
+//         modalProjectCodeInput.readOnly = false;
+//         modalProjectCodeInput.placeholder = 'Enter Project Code';
+//         modalProjectCodeInput.value = '';
+//     } else {
+//         const projects = fetchProjectData(document.getElementById('partner')?.value || '', document.getElementById('reportingManager')?.value || '');
+//         const project = projects.find(p => p['CLIENT NAME'] === modalClientSelect.value);
+//         modalProjectCodeInput.value = project ? project['PROJECT ID'] : '';
+//         modalProjectCodeInput.readOnly = true;
+//     }
+//     updateModalHours();
+// }
+
 function updateModalProjectCode() {
     const modalClientSelect = document.getElementById('modalInput7');
     const modalProjectCodeInput = document.getElementById('modalInput9');
+    if (!modalClientSelect || !modalProjectCodeInput) return;
+
     if (modalClientSelect.value === 'Type here') {
+        // Replace dropdown with text input
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'client-field client-input form-input';
+        input.placeholder = 'Enter Client';
+        input.id = 'modalInput7';
+        input.oninput = () => {
+            modalProjectCodeInput.readOnly = false;
+            modalProjectCodeInput.placeholder = 'Enter Project Code';
+            updateModalHours();
+        };
+        modalClientSelect.replaceWith(input);
+
+        // Make project code field editable
         modalProjectCodeInput.readOnly = false;
         modalProjectCodeInput.placeholder = 'Enter Project Code';
         modalProjectCodeInput.value = '';
+        modalProjectCodeInput.oninput = updateModalHours;
     } else {
-        const projects = fetchProjectData(document.getElementById('partner')?.value || '', document.getElementById('reportingManager')?.value || '');
+        // Update project code based on selected client
+        const projects = fetchProjectData(
+            document.getElementById('partner')?.value || '',
+            document.getElementById('reportingManager')?.value || ''
+        );
         const project = projects.find(p => p['CLIENT NAME'] === modalClientSelect.value);
         modalProjectCodeInput.value = project ? project['PROJECT ID'] : '';
         modalProjectCodeInput.readOnly = true;
+        updateModalHours();
     }
-    updateModalHours();
 }
 
 function updateModalHours() {
