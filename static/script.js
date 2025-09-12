@@ -1402,6 +1402,7 @@ async function saveDataToMongo() {
                     return;
                 }
             }
+            console.log("Inputs:", inputs);
             const rowData = {
                 employeeId: employeeId,
                 employeeName: document.getElementById('employeeName').value || '',
