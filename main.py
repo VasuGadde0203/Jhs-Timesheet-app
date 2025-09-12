@@ -1122,7 +1122,7 @@ async def get_clients(current_user: str = Depends(get_current_user)):
 
 #     return {"message": "Timesheets saved successfully", "employee_ids": list(employee_data.keys()), "success": True}
 
-@router.post("/save_timesheets")
+@app.post("/save_timesheets")
 async def save_timesheets(entries: List[TimesheetEntry], current_user: str = Depends(get_current_user)):
     print("Received timesheets:", entries)
     collection = timesheets_collection
@@ -1316,7 +1316,7 @@ async def save_timesheets(entries: List[TimesheetEntry], current_user: str = Dep
 #         raise HTTPException(status_code=500, detail=f"Failed to fetch timesheets: {str(e)}")
 
 
-@router.get("/timesheets/{employee_id}")
+@app.get("/timesheets/{employee_id}")
 async def get_timesheets(employee_id: str, current_user: str = Depends(get_current_user)):
     if employee_id != current_user:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Unauthorized access")
