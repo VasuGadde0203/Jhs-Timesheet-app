@@ -928,6 +928,33 @@ function saveModalEntry() {
     updateSummary();
 }
 
+// function updateSummary() {
+//     const sections = document.querySelectorAll('.timesheet-section');
+//     let totalHours = 0;
+//     let billableHours = 0;
+//     let nonBillableHours = 0;
+
+//     sections.forEach(section => {
+//         const rows = section.querySelectorAll('tbody tr');
+//         rows.forEach(row => {
+//             const hours = parseFloat(row.querySelector('.project-hours-field').value) || 0;
+//             totalHours += hours;
+//             if (row.querySelector('.billable-select').value === 'Yes') {
+//                 billableHours += hours;
+//             } else if (row.querySelector('.billable-select').value === 'No') {
+//                 nonBillableHours += hours;
+//             }
+//         });
+//     });
+
+//     const totalHoursElement = document.querySelector('.summary-section .total-hours .value');
+//     const billableHoursElement = document.querySelector('.summary-section .billable-hours .value');
+//     const nonBillableHoursElement = document.querySelector('.summary-section .non-billable-hours .value');
+//     if (totalHoursElement) totalHoursElement.textContent = totalHours.toFixed(2);
+//     if (billableHoursElement) billableHoursElement.textContent = billableHours.toFixed(2);
+//     if (nonBillableHoursElement) nonBillableHoursElement.textContent = nonBillableHours.toFixed(2);
+// }
+
 function updateSummary() {
     const sections = document.querySelectorAll('.timesheet-section');
     let totalHours = 0;
@@ -1044,11 +1071,77 @@ function getEmployeeInfoForExport() {
     };
 }
 
+// async function exportHistoryToExcel() {
+//     try {
+//         const token = localStorage.getItem('access_token');
+//         const response = await fetch(`${API_URL}/timesheets/${loggedInEmployeeId}`, {
+//             headers: { 
+//                 'Authorization': `Bearer ${token}`,
+//                 'Content-Type': 'application/json'
+//             }
+//         });
+//         if (!response.ok) {
+//             throw new Error('Failed to fetch history for export');
+//         }
+//         const data = await response.json();
+//         const entries = Array.isArray(data.Data) ? data.Data : data.Data ? [data.Data] : [];
+
+//         const wb = XLSX.utils.book_new();
+//         const employeeInfo = getEmployeeInfoForExport();
+//         let allData = [];
+
+//         allData.push(employeeInfo);
+
+//         entries.forEach(entry => {
+//             const rowData = {
+//                 'Employee ID': employeeInfo['Employee ID'],
+//                 'Employee Name': employeeInfo['Employee Name'],
+//                 'Designation': employeeInfo['Designation'],
+//                 'Gender': employeeInfo['Gender'],
+//                 'Partner': employeeInfo['Partner'],
+//                 'Reporting Manager': employeeInfo['Reporting Manager'],
+//                 // 'Department': document.getElementById('department').value || '',
+//                 'Week Period': entry.weekPeriod || '',
+//                 'S.No': '',
+//                 'Date': entry.date || '',
+//                 'Location of Work': entry.location || '',
+//                 'Project Start Time': entry.projectStartTime || '',
+//                 'Project End Time': entry.projectEndTime || '',
+//                 'Punch In': entry.punchIn || '',
+//                 'Punch Out': entry.punchOut || '',
+//                 'Client': entry.client || '',
+//                 'Project': entry.project || '',
+//                 'Project Code': entry.projectCode || '',
+//                 'Reporting Manager Entry': entry.reportingManagerEntry || '',
+//                 'Activity': entry.activity || '',
+//                 'Project Hours': entry.hours || '',
+//                 'Working Hours': entry.workingHours || '',
+//                 'Billable': entry.billable || '',
+//                 'Remarks': entry.remarks || '',
+//                 '3 HITS': entry.hits || '',
+//                 '3 MISSES': entry.misses || '',
+//                 'FEEDBACK FOR HR': entry.feedback_hr || '',
+//                 'FEEDBACK FOR IT': entry.feedback_it || '',
+//                 'FEEDBACK FOR CRM': entry.feedback_crm || '',
+//                 'FEEDBACK FOR OTHERS': entry.feedback_others || ''
+//             };
+//             allData.push(rowData);
+//         });
+
+//         const ws = XLSX.utils.json_to_sheet(allData);
+//         XLSX.utils.book_append_sheet(wb, ws, 'History');
+//         XLSX.writeFile(wb, `History_${document.getElementById('employeeId').value || 'User'}_${new Date().toISOString().split('T')[0]}.xlsx`);
+//     } catch (error) {
+//         console.error('Error exporting history:', error);
+//         showPopup('Failed to export history: ' + error.message, true);
+//     }
+// }
+
 async function exportHistoryToExcel() {
     try {
         const token = localStorage.getItem('access_token');
         const response = await fetch(`${API_URL}/timesheets/${loggedInEmployeeId}`, {
-            headers: { 
+            headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             }
@@ -1073,7 +1166,6 @@ async function exportHistoryToExcel() {
                 'Gender': employeeInfo['Gender'],
                 'Partner': employeeInfo['Partner'],
                 'Reporting Manager': employeeInfo['Reporting Manager'],
-                // 'Department': document.getElementById('department').value || '',
                 'Week Period': entry.weekPeriod || '',
                 'S.No': '',
                 'Date': entry.date || '',
@@ -1096,7 +1188,10 @@ async function exportHistoryToExcel() {
                 'FEEDBACK FOR HR': entry.feedback_hr || '',
                 'FEEDBACK FOR IT': entry.feedback_it || '',
                 'FEEDBACK FOR CRM': entry.feedback_crm || '',
-                'FEEDBACK FOR OTHERS': entry.feedback_others || ''
+                'FEEDBACK FOR OTHERS': entry.feedback_others || '',
+                'Total Hours': data.totalHours || '0.00',
+                'Total Billable Hours': data.totalBillableHours || '0.00',
+                'Total Non-Billable Hours': data.totalNonBillableHours || '0.00'
             };
             allData.push(rowData);
         });
@@ -1109,6 +1204,142 @@ async function exportHistoryToExcel() {
         showPopup('Failed to export history: ' + error.message, true);
     }
 }
+
+// async function saveDataToMongo() {
+//     showLoading();
+//     const employeeId = document.getElementById('employeeId').value.trim();
+//     if (!employeeId) {
+//         hideLoading();
+//         showPopup('Please enter Employee ID', true);
+//         return;
+//     }
+
+//     const timesheetData = [];
+//     const employeeDataObj = {
+//         employeeId: employeeId,
+//         employeeName: document.getElementById('employeeName').value || '',
+//         designation: document.getElementById('designation').value || '',
+//         gender: document.getElementById('gender').value || '',
+//         partner: document.getElementById('partner').value || '',
+//         reportingManager: document.getElementById('reportingManager').value || '',
+//         // department: document.getElementById('department').value || '',
+//         weekPeriod: '',
+//         date: '',
+//         location: '',
+//         projectStartTime: '',
+//         projectEndTime: '',
+//         punchIn: '',
+//         punchOut: '',
+//         client: '',
+//         project: '',
+//         projectCode: '',
+//         reportingManagerEntry: '',
+//         activity: '',
+//         hours: '',
+//         workingHours: '',
+//         billable: '',
+//         remarks: '',
+//         hits: document.getElementById('hits').value || '',
+//         misses: document.getElementById('misses').value || '',
+//         feedback_hr: document.getElementById('feedback_hr').value || '',
+//         feedback_it: document.getElementById('feedback_it').value || '',
+//         feedback_crm: document.getElementById('feedback_crm').value || '',
+//         feedback_others: document.getElementById('feedback_others').value || ''
+//     };
+
+//     const sections = document.querySelectorAll('.timesheet-section');
+//     let hasInvalidDates = false;
+//     sections.forEach(section => {
+//         const weekPeriod = section.querySelector('.week-period select').value || '';
+//         const rows = section.querySelectorAll('tbody tr');
+//         rows.forEach(row => {
+//             const inputs = row.querySelectorAll('input, select');
+//             if (inputs.length < 15) return;
+//             const dateInput = inputs[0];
+//             const selectedWeek = weekOptions.find(opt => opt.value === weekPeriod);
+//             if (selectedWeek) {
+//                 const inputDate = new Date(dateInput.value);
+//                 if (inputDate < selectedWeek.start || inputDate > selectedWeek.end) {
+//                     hasInvalidDates = true;
+//                     return;
+//                 }
+//             }
+//             const rowData = {
+//                 employeeId: employeeId,
+//                 employeeName: document.getElementById('employeeName').value || '',
+//                 designation: document.getElementById('designation').value || '',
+//                 gender: document.getElementById('gender').value || '',
+//                 partner: document.getElementById('partner').value || '',
+//                 reportingManager: document.getElementById('reportingManager').value || '',
+//                 // department: document.getElementById('department').value || '',
+//                 weekPeriod: weekPeriod,
+//                 date: inputs[0] ? inputs[0].value : '',
+//                 location: inputs[1] ? (inputs[1].value || inputs[1].querySelector('option:checked')?.value) : '',
+//                 projectStartTime: inputs[2] ? inputs[2].value : '',
+//                 projectEndTime: inputs[3] ? inputs[3].value : '',
+//                 punchIn: inputs[4] ? inputs[4].value : '',
+//                 punchOut: inputs[5] ? inputs[5].value : '',
+//                 client: inputs[6] ? (inputs[6].value || inputs[6].querySelector('option:checked')?.value || '') : '',
+//                 project: inputs[7] ? inputs[7].value : '',
+//                 projectCode: inputs[8] ? inputs[8].value : '',
+//                 reportingManagerEntry: inputs[9] ? (inputs[9].value || inputs[9].querySelector('option:checked')?.value || '') : '',
+//                 activity: inputs[10] ? inputs[10].value : '',
+//                 hours: inputs[11] ? inputs[11].value : '',
+//                 workingHours: inputs[12] ? inputs[12].value : '',
+//                 billable: inputs[13] ? inputs[13].value : '',
+//                 remarks: inputs[14] ? inputs[14].value : '',
+//                 hits: document.getElementById('hits').value || '',
+//                 misses: document.getElementById('misses').value || '',
+//                 feedback_hr: document.getElementById('feedback_hr').value || '',
+//                 feedback_it: document.getElementById('feedback_it').value || '',
+//                 feedback_crm: document.getElementById('feedback_crm').value || '',
+//                 feedback_others: document.getElementById('feedback_others').value || '',
+//             };
+//             timesheetData.push(rowData);
+//         });
+//     });
+
+//     if (hasInvalidDates) {
+//         hideLoading();
+//         showPopup('Please correct all dates to be within their respective week periods.', true);
+//         return;
+//     }
+
+//     if (timesheetData.length === 0) {
+//         timesheetData.push(employeeDataObj);
+//     }
+
+//     try {
+//         const token = localStorage.getItem('access_token');
+//         const response = await fetch(`${API_URL}/save_timesheets`, {
+//             method: 'POST',
+//             headers: { 
+//                 'Content-Type': 'application/json',
+//                 'Authorization': `Bearer ${token}`
+//             },
+//             body: JSON.stringify(timesheetData)
+//         });
+//         if (!response.ok) {
+//             const errorData = await response.json();
+//             throw new Error(`Failed to save data: ${errorData.detail || response.statusText}`);
+//         }
+//         const result = await response.json();
+//         if (result.success) {
+//             // showPopup(`Data stored successfully at ${new Date().toLocaleString()}!`);
+//             showPopup(`Data stored successfully`);
+//             setTimeout(() => {
+//                 window.location.reload();
+//             }, 3000);
+//         } else {
+//             showPopup('No data was saved to the database.', true);
+//         }
+//     } catch (error) {
+//         console.error('Error saving to MongoDB:', error);
+//         showPopup(`Failed to save timesheet data: ${error.message}`, true);
+//     } finally {
+//         hideLoading();
+//     }
+// }
 
 async function saveDataToMongo() {
     showLoading();
@@ -1127,7 +1358,6 @@ async function saveDataToMongo() {
         gender: document.getElementById('gender').value || '',
         partner: document.getElementById('partner').value || '',
         reportingManager: document.getElementById('reportingManager').value || '',
-        // department: document.getElementById('department').value || '',
         weekPeriod: '',
         date: '',
         location: '',
@@ -1149,7 +1379,10 @@ async function saveDataToMongo() {
         feedback_hr: document.getElementById('feedback_hr').value || '',
         feedback_it: document.getElementById('feedback_it').value || '',
         feedback_crm: document.getElementById('feedback_crm').value || '',
-        feedback_others: document.getElementById('feedback_others').value || ''
+        feedback_others: document.getElementById('feedback_others').value || '',
+        totalHours: document.querySelector('.summary-section .total-hours .value').textContent || '0.00',
+        totalBillableHours: document.querySelector('.summary-section .billable-hours .value').textContent || '0.00',
+        totalNonBillableHours: document.querySelector('.summary-section .non-billable-hours .value').textContent || '0.00'
     };
 
     const sections = document.querySelectorAll('.timesheet-section');
@@ -1176,7 +1409,6 @@ async function saveDataToMongo() {
                 gender: document.getElementById('gender').value || '',
                 partner: document.getElementById('partner').value || '',
                 reportingManager: document.getElementById('reportingManager').value || '',
-                // department: document.getElementById('department').value || '',
                 weekPeriod: weekPeriod,
                 date: inputs[0] ? inputs[0].value : '',
                 location: inputs[1] ? (inputs[1].value || inputs[1].querySelector('option:checked')?.value) : '',
@@ -1198,7 +1430,10 @@ async function saveDataToMongo() {
                 feedback_hr: document.getElementById('feedback_hr').value || '',
                 feedback_it: document.getElementById('feedback_it').value || '',
                 feedback_crm: document.getElementById('feedback_crm').value || '',
-                feedback_others: document.getElementById('feedback_others').value || ''
+                feedback_others: document.getElementById('feedback_others').value || '',
+                totalHours: document.querySelector('.summary-section .total-hours .value').textContent || '0.00',
+                totalBillableHours: document.querySelector('.summary-section .billable-hours .value').textContent || '0.00',
+                totalNonBillableHours: document.querySelector('.summary-section .non-billable-hours .value').textContent || '0.00'
             };
             timesheetData.push(rowData);
         });
@@ -1218,31 +1453,26 @@ async function saveDataToMongo() {
         const token = localStorage.getItem('access_token');
         const response = await fetch(`${API_URL}/save_timesheets`, {
             method: 'POST',
-            headers: { 
+            headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(timesheetData)
         });
+
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(`Failed to save data: ${errorData.detail || response.statusText}`);
+            throw new Error(`Failed to save data: ${errorData.detail || 'Unknown error'}`);
         }
+
         const result = await response.json();
-        if (result.success) {
-            // showPopup(`Data stored successfully at ${new Date().toLocaleString()}!`);
-            showPopup(`Data stored successfully`);
-            setTimeout(() => {
-                window.location.reload();
-            }, 3000);
-        } else {
-            showPopup('No data was saved to the database.', true);
-        }
-    } catch (error) {
-        console.error('Error saving to MongoDB:', error);
-        showPopup(`Failed to save timesheet data: ${error.message}`, true);
-    } finally {
         hideLoading();
+        showPopup('Timesheet saved successfully!');
+        clearTimesheet();
+    } catch (error) {
+        console.error('Error saving data:', error);
+        hideLoading();
+        showPopup(`Failed to save timesheet: ${error.message}`, true);
     }
 }
 
@@ -1285,16 +1515,174 @@ async function logout() {
     }
 }
 
-async function showSection(section) {
-    document.getElementById('timesheetSection').classList.remove('active');
-    document.getElementById('historySection').classList.remove('active');
-    document.getElementById('navMenu').classList.remove('active');
+// async function showSection(section) {
+//     document.getElementById('timesheetSection').classList.remove('active');
+//     document.getElementById('historySection').classList.remove('active');
+//     document.getElementById('navMenu').classList.remove('active');
     
+//     if (section === 'history') {
+//         await loadHistory();
+//         document.getElementById('historySection').classList.add('active');
+//     } else {
+//         document.getElementById('timesheetSection').classList.add('active');
+//     }
+// }
+
+async function showSection(section) {
+    document.getElementById('timesheetSection').style.display = section === 'timesheet' ? 'block' : 'none';
+    document.getElementById('historySection').style.display = section === 'history' ? 'block' : 'none';
+    document.querySelectorAll('.nav-menu a').forEach(a => a.classList.remove('active'));
+    document.querySelector(`.nav-menu a[onclick*="${section}"]`).classList.add('active');
+
     if (section === 'history') {
-        await loadHistory();
-        document.getElementById('historySection').classList.add('active');
-    } else {
-        document.getElementById('timesheetSection').classList.add('active');
+        try {
+            showLoading();
+            const token = localStorage.getItem('access_token');
+            const response = await fetch(`${API_URL}/timesheets/${loggedInEmployeeId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch history');
+            }
+
+            const data = await response.json();
+            console.log('API Response:', data); // Debug log to check structure
+            const historyContent = document.getElementById('historyContent');
+            historyContent.innerHTML = '';
+
+            // Update summary hours in history section
+            const totalHoursElement = document.querySelector('.history-summary .total-hours .value');
+            const billableHoursElement = document.querySelector('.history-summary .billable-hours .value');
+            const nonBillableHoursElement = document.querySelector('.history-summary .non-billable-hours .value');
+
+            if (totalHoursElement && billableHoursElement && nonBillableHoursElement) {
+                // Check if summary data is at root level
+                totalHoursElement.textContent = (data.totalHours || 0).toFixed(2);
+                billableHoursElement.textContent = (data.totalBillableHours || 0).toFixed(2);
+                nonBillableHoursElement.textContent = (data.totalNonBillableHours || 0).toFixed(2);
+
+                // Fallback: Check if summary data is within data.Data (e.g., aggregated from entries)
+                if (!data.totalHours && data.Data && Array.isArray(data.Data)) {
+                    const summary = data.Data.reduce(
+                        (acc, entry) => {
+                            const hours = parseFloat(entry.hours) || 0;
+                            acc.totalHours += hours;
+                            if (entry.billable === 'Yes') {
+                                acc.totalBillableHours += hours;
+                            } else if (entry.billable === 'No') {
+                                acc.totalNonBillableHours += hours;
+                            }
+                            return acc;
+                        },
+                        { totalHours: 0, totalBillableHours: 0, totalNonBillableHours: 0 }
+                    );
+                    totalHoursElement.textContent = summary.totalHours.toFixed(2);
+                    billableHoursElement.textContent = summary.totalBillableHours.toFixed(2);
+                    nonBillableHoursElement.textContent = summary.totalNonBillableHours.toFixed(2);
+                }
+            }
+
+            if (!data.Data || data.Data.length === 0) {
+                historyContent.innerHTML = '<p>No timesheet entries found.</p>';
+                hideLoading();
+                return;
+            }
+
+            // Rest of the existing code for rendering history table and feedback
+            const groupedByWeek = {};
+            data.Data.forEach(entry => {
+                const week = entry.weekPeriod || 'No Week';
+                if (!groupedByWeek[week]) {
+                    groupedByWeek[week] = [];
+                }
+                groupedByWeek[week].push(entry);
+            });
+
+            Object.keys(groupedByWeek).forEach((week, index) => {
+                const weekDiv = document.createElement('div');
+                weekDiv.className = 'history-week';
+                weekDiv.innerHTML = `<h3>Week Period: ${week}</h3>`;
+
+                const tableWrapper = document.createElement('div');
+                tableWrapper.className = 'table-responsive';
+                const table = document.createElement('table');
+                table.className = 'timesheet-table history-table';
+                table.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th class="col-narrow col-sno">S.No</th>
+                            <th class="col-medium col-date">Date</th>
+                            <th class="col-wide col-location">Location of Work</th>
+                            <th class="col-medium col-project-start">Project Start Time</th>
+                            <th class="col-medium col-project-end">Project End Time</th>
+                            <th class="col-medium col-punch-in">Punch In</th>
+                            <th class="col-medium col-punch-out">Punch Out</th>
+                            <th class="col-wide col-client">Client</th>
+                            <th class="col-wide col-project">Project</th>
+                            <th class="col-project col-project-code">Project Code</th>
+                            <th class="col-wide col-reporting-manager">Reporting Manager</th>
+                            <th class="col-wide col-activity">Activity</th>
+                            <th class="col-narrow col-project-hours">Project Hours</th>
+                            <th class="col-narrow col-working-hours">Working Hours</th>
+                            <th class="col-medium col-billable">Billable</th>
+                            <th class="col-wide col-remarks">Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                `;
+                const tbody = table.querySelector('tbody');
+
+                groupedByWeek[week].forEach((entry, rowIndex) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="col-sno">${rowIndex + 1}</td>
+                        <td class="col-date">${entry.date || ''}</td>
+                        <td class="col-location">${entry.location || ''}</td>
+                        <td class="col-project-start">${entry.projectStartTime || ''}</td>
+                        <td class="col-project-end">${entry.projectEndTime || ''}</td>
+                        <td class="col-punch-in">${entry.punchIn || ''}</td>
+                        <td class="col-punch-out">${entry.punchOut || ''}</td>
+                        <td class="col-client">${entry.client || ''}</td>
+                        <td class="col-project">${entry.project || ''}</td>
+                        <td class="col-project-code">${entry.projectCode || ''}</td>
+                        <td class="col-reporting-manager">${entry.reportingManagerEntry || ''}</td>
+                        <td class="col-activity">${entry.activity || ''}</td>
+                        <td class="col-project-hours">${entry.hours || ''}</td>
+                        <td class="col-working-hours">${entry.workingHours || ''}</td>
+                        <td class="col-billable">${entry.billable || ''}</td>
+                        <td class="col-remarks">${entry.remarks || ''}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                tableWrapper.appendChild(table);
+                weekDiv.appendChild(tableWrapper);
+                historyContent.appendChild(weekDiv);
+
+                const feedbackDiv = document.createElement('div');
+                feedbackDiv.className = 'history-feedback';
+                feedbackDiv.innerHTML = `
+                    <h4>Feedback for Week: ${week}</h4>
+                    <div class="feedback-item"><strong>3 HITS:</strong> ${groupedByWeek[week][0].hits || ''}</div>
+                    <div class="feedback-item"><strong>3 MISSES:</strong> ${groupedByWeek[week][0].misses || ''}</div>
+                    <div class="feedback-item"><strong>FEEDBACK FOR HR:</strong> ${groupedByWeek[week][0].feedback_hr || ''}</div>
+                    <div class="feedback-item"><strong>FEEDBACK FOR IT:</strong> ${groupedByWeek[week][0].feedback_it || ''}</div>
+                    <div class="feedback-item"><strong>FEEDBACK FOR CRM:</strong> ${groupedByWeek[week][0].feedback_crm || ''}</div>
+                    <div class="feedback-item"><strong>FEEDBACK FOR OTHERS:</strong> ${groupedByWeek[week][0].feedback_others || ''}</div>
+                `;
+                historyContent.appendChild(feedbackDiv);
+            });
+
+            hideLoading();
+        } catch (error) {
+            console.error('Error fetching history:', error);
+            hideLoading();
+            showPopup('Failed to load history: ' + error.message, true);
+        }
     }
 }
 
