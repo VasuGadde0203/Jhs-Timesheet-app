@@ -1229,3 +1229,129 @@ body {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.1); }
 }
+
+.summary-section, .history-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+    padding: 2rem;
+    background: var(--light-bg);
+    border-radius: 15px;
+    border-left: 5px solid #e74c3c;
+    box-shadow: var(--shadow-light);
+}
+
+.summary-item {
+    text-align: center;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 10px;
+    box-shadow: var(--shadow-light);
+    transition: var(--transition);
+    animation: fadeInUp 0.5s ease-out forwards;
+    animation-delay: calc(0.1s * var(--index));
+}
+
+.summary-item:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-medium);
+}
+
+.summary-item h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-dark);
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.summary-item i {
+    margin-right: 0.5rem;
+    font-size: 1.2rem;
+    vertical-align: middle;
+}
+
+.total-hours .value, .total-hours i {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2ecc71; /* Green for total hours */
+    margin-top: 0.5rem;
+}
+
+.billable-hours .value, .billable-hours i {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #3498db; /* Blue for billable hours */
+    margin-top: 0.5rem;
+}
+
+.non-billable-hours .value, .non-billable-hours i {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #e74c3c; /* Red for non-billable hours */
+    margin-top: 0.5rem;
+}
+
+.summary-item:nth-child(1) { --index: 1; }
+.summary-item:nth-child(2) { --index: 2; }
+.summary-item:nth-child(3) { --index: 3; }
+
+@media (max-width: 768px) {
+    .summary-section, .history-summary {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1.5rem;
+    }
+
+    .summary-item {
+        padding: 1rem;
+    }
+
+    .summary-item .value {
+        font-size: 2rem;
+    }
+
+    .total-hours .value, .total-hours i {
+        font-size: 2rem;
+        color: #2ecc71;
+    }
+
+    .billable-hours .value, .billable-hours i {
+        font-size: 2rem;
+        color: #3498db;
+    }
+
+    .non-billable-hours .value, .non-billable-hours i {
+        font-size: 2rem;
+        color: #e74c3c;
+    }
+}
+
+@media (max-width: 480px) {
+    .summary-section, .history-summary {
+        padding: 1rem;
+    }
+
+    .summary-item {
+        padding: 0.75rem;
+    }
+
+    .summary-item .value {
+        font-size: 1.8rem;
+    }
+
+    .total-hours .value, .total-hours i {
+        font-size: 1.8rem;
+        color: #2ecc71;
+    }
+
+    .billable-hours .value, .billable-hours i {
+        font-size: 1.8rem;
+        color: #3498db;
+    }
+
+    .non-billable-hours .value, .non-billable-hours i {
+        font-size: 1.8rem;
+        color: #e74c3c;
+    }
+}

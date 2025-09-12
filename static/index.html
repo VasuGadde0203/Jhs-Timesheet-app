@@ -52,20 +52,6 @@
                     <label>Reporting Manager</label>
                     <input type="text" id="reportingManager">
                 </div>
-
-                <!-- <div class="form-group">
-                    <label>Department</label>
-                    <select id="department">
-                        <option value="">Select Department</option>
-                        <option value="Statutory Audit">Statutory Audit</option>
-                        <option value="Tax Services">Tax Services</option>
-                        <option value="Corporate Finance">Corporate Finance</option>
-                        <option value="Consulting">Consulting</option>
-                        <option value="Compliance">Compliance</option>
-                        <option value="Internal/Admin">Internal/Admin</option>
-                        <option value="Concurrent Audit">Concurrent Audit</option>
-                    </select> 
-                </div> -->
             </div>
 
             <div id="timesheetSections"></div>
@@ -124,6 +110,20 @@
 
         <div class="history-section" id="historySection">
             <h2><i class="fas fa-history"></i> Past Timesheet Entries</h2>
+            <div class="summary-section history-summary">
+                <div class="summary-item total-hours">
+                    <h3><i class="fas fa-clock"></i> Total Hours</h3>
+                    <div class="value">0.00</div>
+                </div>
+                <div class="summary-item billable-hours">
+                    <h3><i class="fas fa-dollar-sign"></i> Billable Hours</h3>
+                    <div class="value">0.00</div>
+                </div>
+                <div class="summary-item non-billable-hours">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Non-Billable Hours</h3>
+                    <div class="value">0.00</div>
+                </div>
+            </div>
             <div id="historyContent"></div>
             <div class="history-export-section">
                 <h3><i class="fas fa-download"></i> Export History</h3>
@@ -133,38 +133,38 @@
     </div>
 
     <div class="modal-overlay" id="modalOverlay">
-    <div class="modal-content">
-        <div><label id="modalLabel1">Date</label><input type="date" id="modalInput1" class="form-input" onchange="validateModalDate(this); updateModalHours()"></div>
-        <div><label id="modalLabel2">Location</label><select id="modalInput2" class="form-input" onchange="updateModalClientFields()">
-            <option value="Office">Office</option>
-            <option value="Client Site">Client Site</option>
-            <option value="Work From Home">Work From Home</option>
-            <option value="Field Work">Field Work</option>
-        </select></div>
-        <div><label id="modalLabel3">Punch In</label><input type="time" id="modalInput3" class="form-input" onchange="validateTimes(null, true); updateModalHours()"></div>
-        <div><label id="modalLabel4">Punch Out</label><input type="time" id="modalInput4" class="form-input" onchange="validateTimes(null, true); updateModalHours()"></div>
-        <div><label id="modalLabel5">Project Start</label><input type="time" id="modalInput5" class="form-input" onchange="validateTimes(null, true); updateModalHours()"></div>
-        <div><label id="modalLabel6">Project End</label><input type="time" id="modalInput6" class="form-input" onchange="validateTimes(null, true); updateModalHours()"></div>
-        <div><label id="modalLabel7">Client</label><select id="modalInput7" class="form-input client-select" onchange="updateModalProjectCode()">
-            <option value="">Select Client</option>
-        </select></div>
-        <div><label id="modalLabel8">Project</label><input type="text" id="modalInput8" class="form-input" placeholder="Enter Project" onchange="updateModalHours()"></div>
-        <div><label id="modalLabel9">Project Code</label><input type="text" id="modalInput9" class="form-input" readonly></div>
-        <div><label id="modalLabel10">Reporting Manager</label><select id="modalInput10" class="form-input reporting-manager-select" onchange="updateModalHours()">
-            <option value="">Select Reporting Manager</option>
-        </select></div>
-        <div><label id="modalLabel11">Activity</label><input type="text" id="modalInput11" class="form-input" placeholder="Enter Activity" onchange="updateModalHours()"></div>
-        <div><label id="modalLabel12">Project Hours</label><input type="number" id="modalInput12" class="form-input" readonly></div>
-        <div><label id="modalLabel13">Working Hours</label><input type="number" id="modalInput13" class="form-input" readonly></div>
-        <div><label id="modalLabel14">Billable</label><select id="modalInput14" class="form-input" onchange="updateModalHours()">
-            <option value="Yes">Billable</option>
-            <option value="No">Non-Billable</option>
-        </select></div>
-        <div><label id="modalLabel15">Remarks</label><input type="text" id="modalInput15" class="form-input" placeholder="Additional notes" onchange="updateModalHours()"></div>
-        <button class="modal-cancel-btn" onclick="closeModal()"><i class="fas fa-times"></i> Cancel</button>
-        <button class="modal-add-btn" onclick="saveModalEntry()"><i class="fas fa-check"></i> Add</button>
+        <div class="modal-content">
+            <div><label id="modalLabel1">Date</label><input type="date" id="modalInput1" class="form-input" onchange="validateModalDate(this); updateModalHours()"></div>
+            <div><label id="modalLabel2">Location</label><select id="modalInput2" class="form-input" onchange="updateModalClientFields()">
+                <option value="Office">Office</option>
+                <option value="Client Site">Client Site</option>
+                <option value="Work From Home">Work From Home</option>
+                <option value="Field Work">Field Work</option>
+            </select></div>
+            <div><label id="modalLabel3">Punch In</label><input type="time" id="modalInput3" class="form-input" onchange="validateTimes(null, true); updateModalHours()"></div>
+            <div><label id="modalLabel4">Punch Out</label><input type="time" id="modalInput4" class="form-input" onchange="validateTimes(null, true); updateModalHours()"></div>
+            <div><label id="modalLabel5">Project Start</label><input type="time" id="modalInput5" class="form-input" onchange="validateTimes(null, true); updateModalHours()"></div>
+            <div><label id="modalLabel6">Project End</label><input type="time" id="modalInput6" class="form-input" onchange="validateTimes(null, true); updateModalHours()"></div>
+            <div><label id="modalLabel7">Client</label><select id="modalInput7" class="form-input client-select" onchange="updateModalProjectCode()">
+                <option value="">Select Client</option>
+            </select></div>
+            <div><label id="modalLabel8">Project</label><input type="text" id="modalInput8" class="form-input" placeholder="Enter Project" onchange="updateModalHours()"></div>
+            <div><label id="modalLabel9">Project Code</label><input type="text" id="modalInput9" class="form-input" readonly></div>
+            <div><label id="modalLabel10">Reporting Manager</label><select id="modalInput10" class="form-input reporting-manager-select" onchange="updateModalHours()">
+                <option value="">Select Reporting Manager</option>
+            </select></div>
+            <div><label id="modalLabel11">Activity</label><input type="text" id="modalInput11" class="form-input" placeholder="Enter Activity" onchange="updateModalHours()"></div>
+            <div><label id="modalLabel12">Project Hours</label><input type="number" id="modalInput12" class="form-input" readonly></div>
+            <div><label id="modalLabel13">Working Hours</label><input type="number" id="modalInput13" class="form-input" readonly></div>
+            <div><label id="modalLabel14">Billable</label><select id="modalInput14" class="form-input" onchange="updateModalHours()">
+                <option value="Yes">Billable</option>
+                <option value="No">Non-Billable</option>
+            </select></div>
+            <div><label id="modalLabel15">Remarks</label><input type="text" id="modalInput15" class="form-input" placeholder="Additional notes" onchange="updateModalHours()"></div>
+            <button class="modal-cancel-btn" onclick="closeModal()"><i class="fas fa-times"></i> Cancel</button>
+            <button class="modal-add-btn" onclick="saveModalEntry()"><i class="fas fa-check"></i> Add</button>
+        </div>
     </div>
-</div>
 
     <div class="popup" id="successPopup">
         <button class="popup-close" onclick="closePopup()">&times;</button>

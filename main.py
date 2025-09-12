@@ -999,7 +999,130 @@ async def get_clients(current_user: str = Depends(get_current_user)):
     clients = list(client_details_collection.find({}, {"_id": 0}))
     return clients
 
-@app.post("/save_timesheets")
+# @app.post("/save_timesheets")
+# async def save_timesheets(entries: List[TimesheetEntry], current_user: str = Depends(get_current_user)):
+#     print("Received timesheets:", entries)
+#     collection = timesheets_collection
+
+#     if not entries:
+#         print("No timesheets to save.")
+#         return {"message": "No data to save", "success": False}
+
+#     # Validate that employeeId matches the authenticated user
+#     for entry in entries:
+#         if entry.employeeId != current_user:
+#             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Unauthorized employee ID")
+
+#     employee_data = {}
+#     now_iso = datetime.utcnow().isoformat()
+    
+#     for timesheet in entries:
+#         employee_id = timesheet.employeeId
+#         week_period = timesheet.weekPeriod or "No Week"
+
+#         if employee_id not in employee_data:
+#             employee_data[employee_id] = {
+#                 "employeeId": timesheet.employeeId,
+#                 "employeeName": timesheet.employeeName or "",
+#                 "designation": timesheet.designation or "",
+#                 "gender": timesheet.gender or "",
+#                 "partner": timesheet.partner or "",
+#                 "reportingManager": timesheet.reportingManager or "",
+#                 "department": timesheet.department or "",
+#                 "Data": [],
+#                 "hits": timesheet.hits or "",
+#                 "misses": timesheet.misses or "",
+#                 "feedback_hr": timesheet.feedback_hr or "",
+#                 "feedback_it": timesheet.feedback_it or "",
+#                 "feedback_crm": timesheet.feedback_crm or "",
+#                 "feedback_others": timesheet.feedback_others or "",
+#                 "created_time": now_iso,
+#                 "updated_time": now_iso
+#             }
+
+#         daily_entry = {
+#             "date": timesheet.date or "",
+#             "location": timesheet.location or "",
+#             "projectStartTime": timesheet.projectStartTime or "",
+#             "projectEndTime": timesheet.projectEndTime or "",
+#             "punchIn": timesheet.punchIn or "",
+#             "punchOut": timesheet.punchOut or "",
+#             "client": timesheet.client or "",
+#             "project": timesheet.project or "",
+#             "projectCode": timesheet.projectCode or "",
+#             "reportingManagerEntry": timesheet.reportingManagerEntry or "",
+#             "activity": timesheet.activity or "",
+#             "hours": timesheet.hours or "",
+#             "billable": timesheet.billable or "",
+#             "remarks": timesheet.remarks or "",
+#             "id": str(ObjectId()),
+#             "created_time": now_iso,
+#             "updated_time": now_iso
+#         }
+
+#         # Find or create the week entry in employee_data
+#         week_found = False
+#         for week_obj in employee_data[employee_id]["Data"]:
+#             if week_period in week_obj:
+#                 week_obj[week_period].append(daily_entry)
+#                 week_found = True
+#                 break
+#         if not week_found:
+#             employee_data[employee_id]["Data"].append({week_period: [daily_entry]})
+
+#     print("Processing and saving data to DB...")
+#     for employee_id, data in employee_data.items():
+#         existing_doc = collection.find_one({"employeeId": employee_id})
+#         if existing_doc:
+#             print(f"Updating existing document for employeeId: {employee_id}")
+#             existing_data = existing_doc.get("Data", [])
+            
+#             # Merge new data with existing data
+#             new_data = data["Data"]
+#             for new_week_obj in new_data:
+#                 week = list(new_week_obj.keys())[0]
+#                 week_entries = new_week_obj[week]
+                
+#                 # Find if the week exists in existing_data
+#                 week_found = False
+#                 for existing_week_obj in existing_data:
+#                     if week in existing_week_obj:
+#                         existing_week_obj[week].extend(week_entries)
+#                         week_found = True
+#                         break
+#                 if not week_found:
+#                     existing_data.append(new_week_obj)
+            
+#             # Update the document
+#             result = collection.update_one(
+#                 {"employeeId": employee_id},
+#                 {"$set": {
+#                     "Data": existing_data,
+#                     "employeeName": data["employeeName"],
+#                     "designation": data["designation"],
+#                     "gender": data["gender"],
+#                     "partner": data["partner"],
+#                     "reportingManager": data["reportingManager"],
+#                     "department": data["department"],
+#                     "updated_time": now_iso,
+#                     "hits": data["hits"] or "",
+#                     "misses": data["misses"] or "",
+#                     "feedback_hr": data["feedback_hr"] or "",
+#                     "feedback_it": data["feedback_it"] or "",
+#                     "feedback_crm": data["feedback_crm"] or "",
+#                     "feedback_others": data["feedback_others"] or "",
+#                 }}
+#             )
+#             print(f"Updated {result.modified_count} document(s)")
+#         else:
+#             print(f"Inserting new document for employeeId: {employee_id}")
+#             data["created_time"] = now_iso
+#             result = collection.insert_one(data)
+#             print(f"Inserted document with ID: {result.inserted_id}")
+
+#     return {"message": "Timesheets saved successfully", "employee_ids": list(employee_data.keys()), "success": True}
+
+@router.post("/save_timesheets")
 async def save_timesheets(entries: List[TimesheetEntry], current_user: str = Depends(get_current_user)):
     print("Received timesheets:", entries)
     collection = timesheets_collection
@@ -1016,7 +1139,19 @@ async def save_timesheets(entries: List[TimesheetEntry], current_user: str = Dep
     employee_data = {}
     now_iso = datetime.utcnow().isoformat()
     
+    # Calculate summary hours
+    total_hours = 0
+    total_billable_hours = 0
+    total_non_billable_hours = 0
+    
     for timesheet in entries:
+        hours = float(timesheet.hours or 0)
+        total_hours += hours
+        if timesheet.billable == "Yes":
+            total_billable_hours += hours
+        elif timesheet.billable == "No":
+            total_non_billable_hours += hours
+
         employee_id = timesheet.employeeId
         week_period = timesheet.weekPeriod or "No Week"
 
@@ -1036,6 +1171,9 @@ async def save_timesheets(entries: List[TimesheetEntry], current_user: str = Dep
                 "feedback_it": timesheet.feedback_it or "",
                 "feedback_crm": timesheet.feedback_crm or "",
                 "feedback_others": timesheet.feedback_others or "",
+                "totalHours": total_hours,
+                "totalBillableHours": total_billable_hours,
+                "totalNonBillableHours": total_non_billable_hours,
                 "created_time": now_iso,
                 "updated_time": now_iso
             }
@@ -1104,6 +1242,9 @@ async def save_timesheets(entries: List[TimesheetEntry], current_user: str = Dep
                     "partner": data["partner"],
                     "reportingManager": data["reportingManager"],
                     "department": data["department"],
+                    "totalHours": data["totalHours"],
+                    "totalBillableHours": data["totalBillableHours"],
+                    "totalNonBillableHours": data["totalNonBillableHours"],
                     "updated_time": now_iso,
                     "hits": data["hits"] or "",
                     "misses": data["misses"] or "",
@@ -1122,7 +1263,60 @@ async def save_timesheets(entries: List[TimesheetEntry], current_user: str = Dep
 
     return {"message": "Timesheets saved successfully", "employee_ids": list(employee_data.keys()), "success": True}
 
-@app.get("/timesheets/{employee_id}")
+# @app.get("/timesheets/{employee_id}")
+# async def get_timesheets(employee_id: str, current_user: str = Depends(get_current_user)):
+#     if employee_id != current_user:
+#         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Unauthorized access")
+    
+#     try:
+#         doc = timesheets_collection.find_one({"employeeId": employee_id})
+#         if not doc:
+#             print(f"No document found for employeeId: {employee_id}")
+#             return {"success": True, "Data": []}
+        
+#         # Flatten the nested structure for frontend
+#         flattened_data = []
+        
+#         # Get top-level employee info
+#         employee_info = {
+#             "employeeId": doc.get("employeeId", ""),
+#             "employeeName": doc.get("employeeName", ""),
+#             "designation": doc.get("designation", ""),
+#             "gender": doc.get("gender", ""),
+#             "partner": doc.get("partner", ""),
+#             "reportingManager": doc.get("reportingManager", ""),
+#             "department": doc.get("department", ""),
+#             "hits": doc.get("hits", ""),
+#             "misses": doc.get("misses", ""),
+#             "feedback_hr": doc.get("feedback_hr", ""),
+#             "feedback_it": doc.get("feedback_it", ""),
+#             "feedback_crm": doc.get("feedback_crm", ""),
+#             "feedback_others": doc.get("feedback_others", ""),
+#         }
+        
+#         # Handle Data field as a list of {week: [entries]}
+#         existing_data = doc.get("Data", [])
+#         print(f"Processing Data for employeeId: {employee_id}, Data: {existing_data}")
+        
+#         for week_item in existing_data:
+#             if isinstance(week_item, dict):
+#                 week_period = next(iter(week_item), None)
+#                 if week_period:
+#                     week_entries = week_item.get(week_period, [])
+#                     for entry in week_entries:
+#                         if isinstance(entry, dict):
+#                             flattened_entry = {**employee_info, **entry}
+#                             flattened_entry["weekPeriod"] = week_period
+#                             flattened_data.append(flattened_entry)
+        
+#         print(f"Returning flattened data: {flattened_data}")
+#         return {"success": True, "Data": flattened_data}
+#     except Exception as e:
+#         print(f"Error fetching timesheets for employeeId: {employee_id}, Error: {str(e)}")
+#         raise HTTPException(status_code=500, detail=f"Failed to fetch timesheets: {str(e)}")
+
+
+@router.get("/timesheets/{employee_id}")
 async def get_timesheets(employee_id: str, current_user: str = Depends(get_current_user)):
     if employee_id != current_user:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Unauthorized access")
@@ -1131,7 +1325,7 @@ async def get_timesheets(employee_id: str, current_user: str = Depends(get_curre
         doc = timesheets_collection.find_one({"employeeId": employee_id})
         if not doc:
             print(f"No document found for employeeId: {employee_id}")
-            return {"success": True, "Data": []}
+            return {"success": True, "Data": [], "totalHours": 0, "totalBillableHours": 0, "totalNonBillableHours": 0}
         
         # Flatten the nested structure for frontend
         flattened_data = []
@@ -1151,6 +1345,9 @@ async def get_timesheets(employee_id: str, current_user: str = Depends(get_curre
             "feedback_it": doc.get("feedback_it", ""),
             "feedback_crm": doc.get("feedback_crm", ""),
             "feedback_others": doc.get("feedback_others", ""),
+            "totalHours": doc.get("totalHours", 0),
+            "totalBillableHours": doc.get("totalBillableHours", 0),
+            "totalNonBillableHours": doc.get("totalNonBillableHours", 0)
         }
         
         # Handle Data field as a list of {week: [entries]}
@@ -1169,7 +1366,13 @@ async def get_timesheets(employee_id: str, current_user: str = Depends(get_curre
                             flattened_data.append(flattened_entry)
         
         print(f"Returning flattened data: {flattened_data}")
-        return {"success": True, "Data": flattened_data}
+        return {
+            "success": True,
+            "Data": flattened_data,
+            "totalHours": employee_info["totalHours"],
+            "totalBillableHours": employee_info["totalBillableHours"],
+            "totalNonBillableHours": employee_info["totalNonBillableHours"]
+        }
     except Exception as e:
         print(f"Error fetching timesheets for employeeId: {employee_id}, Error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to fetch timesheets: {str(e)}")
