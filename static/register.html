@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Professional Time Sheet</title>
+    <title>Register - Professional Time Sheet</title>
     <link rel="icon" type="image/png" href="/static/jhs_logo.jpg">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -55,7 +55,7 @@
             50% { transform: translateY(-10px); }
         }
 
-        .login-container {
+        .register-container {
             background: white;
             padding: 3rem 2.5rem;
             border-radius: 20px;
@@ -74,7 +74,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .login-container h2 {
+        .register-container h2 {
             margin: 0 0 1.5rem 0;
             color: var(--text-dark);
             font-size: 2.2rem;
@@ -85,7 +85,7 @@
             gap: 0.5rem;
         }
 
-        .login-container h2 i {
+        .register-container h2 i {
             color: #667eea;
         }
 
@@ -136,7 +136,7 @@
             color: #667eea;
         }
 
-        .login-btn {
+        .register-btn {
             background: var(--success-gradient);
             color: white;
             border: none;
@@ -156,29 +156,29 @@
             letter-spacing: 0.5px;
         }
 
-        .login-btn:hover {
+        .register-btn:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow-medium);
         }
 
-        .login-btn:active {
+        .register-btn:active {
             transform: translateY(0);
         }
 
-        .register-link {
+        .login-link {
             margin-top: 1rem;
             font-size: 0.95rem;
             color: var(--text-light);
         }
 
-        .register-link a {
+        .login-link a {
             color: #667eea;
             text-decoration: none;
             font-weight: 500;
             transition: var(--transition);
         }
 
-        .register-link a:hover {
+        .login-link a:hover {
             text-decoration: underline;
             color: #764ba2;
         }
@@ -202,15 +202,44 @@
             75% { transform: translateX(5px); }
         }
 
+        .password-requirements {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: -1rem;
+            margin-bottom: 1.5rem;
+            text-align: left;
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .password-requirements li {
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .password-requirements li.valid {
+            color: #11998e;
+        }
+
+        .password-requirements li.invalid {
+            color: #e74c3c;
+        }
+
+        .password-requirements li i {
+            font-size: 0.8rem;
+        }
+
         /* Responsive */
         @media (max-width: 480px) {
-            .login-container {
+            .register-container {
                 margin: 1rem;
                 padding: 2rem 1.5rem;
                 border-radius: 15px;
             }
 
-            .login-container h2 {
+            .register-container h2 {
                 font-size: 1.8rem;
             }
 
@@ -219,22 +248,22 @@
                 font-size: 1rem;
             }
 
-            .login-btn {
+            .register-btn {
                 padding: 1rem;
                 font-size: 1rem;
             }
         }
 
         @media (max-width: 320px) {
-            .login-container {
+            .register-container {
                 padding: 1.5rem 1rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
+    <div class="register-container">
+        <h2><i class="fas fa-user-plus"></i> Register</h2>
         <div id="errorMessage" class="error-message"><i class="fas fa-exclamation-triangle"></i></div>
         <div class="form-group">
             <label>Employee Code</label>
@@ -244,53 +273,128 @@
         <div class="form-group">
             <label>Password</label>
             <i class="fas fa-lock"></i>
-            <input type="password" id="password" placeholder="e.g., JHS001">
+            <input type="password" id="password" placeholder="Enter password" oninput="validatePassword()">
         </div>
-        <button class="login-btn" onclick="login()"><i class="fas fa-arrow-right"></i> Login</button>
-        <div class="register-link">
-            Don't have an account? <a href="register.html">Register</a>
+        <div class="form-group">
+            <label>Confirm Password</label>
+            <i class="fas fa-lock"></i>
+            <input type="password" id="confirmPassword" placeholder="Confirm password" oninput="validateConfirmPassword()">
+        </div>
+        <ul class="password-requirements" id="passwordRequirements">
+            <li id="minLength"><i class="fas fa-check invalid"></i> Minimum 8 characters</li>
+            <li id="uppercase"><i class="fas fa-check invalid"></i> At least one uppercase letter</li>
+            <li id="lowercase"><i class="fas fa-check invalid"></i> At least one lowercase letter</li>
+            <li id="number"><i class="fas fa-check invalid"></i> At least one number</li>
+            <li id="special"><i class="fas fa-check invalid"></i> At least one special character</li>
+        </ul>
+        <button class="register-btn" onclick="register()"><i class="fas fa-arrow-right"></i> Register</button>
+        <div class="login-link">
+            Already have an account? <a href="login.html">Login</a>
         </div>
     </div>
 
     <script>
         const API_URL = '';
 
-        async function login() {
+        function validatePassword() {
+            const password = document.getElementById('password').value;
+            const minLength = document.getElementById('minLength');
+            const uppercase = document.getElementById('uppercase');
+            const lowercase = document.getElementById('lowercase');
+            const number = document.getElementById('number');
+            const special = document.getElementById('special');
+
+            updateRequirement(minLength, password.length >= 8);
+            updateRequirement(uppercase, /[A-Z]/.test(password));
+            updateRequirement(lowercase, /[a-z]/.test(password));
+            updateRequirement(number, /\d/.test(password));
+            updateRequirement(special, /[!@#$%^&*(),.?":{}|<>]/.test(password));
+
+            validateConfirmPassword();
+        }
+
+        function updateRequirement(element, isValid) {
+            if (isValid) {
+                element.classList.remove('invalid');
+                element.classList.add('valid');
+                element.querySelector('i').classList.remove('fa-check');
+                element.querySelector('i').classList.add('fa-check');
+            } else {
+                element.classList.remove('valid');
+                element.classList.add('invalid');
+                element.querySelector('i').classList.remove('fa-check');
+                element.querySelector('i').classList.add('fa-check');
+            }
+        }
+
+        function validateConfirmPassword() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            if (password !== confirmPassword) {
+                document.getElementById('confirmPassword').classList.add('invalid');
+            } else {
+                document.getElementById('confirmPassword').classList.remove('invalid');
+            }
+        }
+
+        async function register() {
             const empid = document.getElementById('empid').value.trim();
             const password = document.getElementById('password').value.trim();
-            
-            if (!empid || !password) {
-                showError('Please enter both Employee Code and Password');
+            const confirmPassword = document.getElementById('confirmPassword').value.trim();
+
+            if (!empid) {
+                showError('Please enter Employee Code');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showError('Passwords do not match');
+                return;
+            }
+
+            if (!validatePasswordStrength(password)) {
+                showError('Password does not meet the requirements');
                 return;
             }
 
             // Add loading state
-            const btn = document.querySelector('.login-btn');
+            const btn = document.querySelector('.register-btn');
             const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
             btn.disabled = true;
 
             try {
-                const response = await fetch(`${API_URL}/login`, {
+                const response = await fetch(`${API_URL}/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ empid, password })
                 });
                 const result = await response.json();
                 if (response.ok && result.success) {
-                    localStorage.setItem('access_token', result.access_token);
-                    localStorage.setItem('loggedInEmployeeId', empid);
-                    window.location.href = '/dashboard';
+                    showError('Registration successful! Please login.');
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 3000);
                 } else {
-                    showError(result.detail || 'Invalid Employee Code or Password');
+                    showError(result.detail || 'Registration failed');
                 }
             } catch (error) {
-                console.error('Login error:', error);
-                showError('Failed to login: ' + error.message);
+                console.error('Registration error:', error);
+                showError('Failed to register: ' + error.message);
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
+        }
+
+        function validatePasswordStrength(password) {
+            return (
+                password.length >= 8 &&
+                /[A-Z]/.test(password) &&
+                /[a-z]/.test(password) &&
+                /\d/.test(password) &&
+                /[!@#$%^&*(),.?":{}|<>]/.test(password)
+            );
         }
 
         function showError(message) {
@@ -304,11 +408,11 @@
             }
         }
 
-        // Allow Enter key to login
+        // Allow Enter key to register
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('password').addEventListener('keypress', function(e) {
+            document.getElementById('confirmPassword').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
-                    login();
+                    register();
                 }
             });
         });

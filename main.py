@@ -637,6 +637,10 @@ from bson.errors import InvalidId
 import hashlib
 from dotenv import load_dotenv
 import os
+import re
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__ident="2b",  bcrypt__rounds=12)
 
 # Load environment variables
 load_dotenv()
@@ -668,9 +672,14 @@ timesheets_collection = db["Timesheet_data"]
 sessions_collection = db["sessions"]
 employee_details_collection = db["Employee_details"]
 client_details_collection = db["Client_details"]
+users_collection = db["users"]
 
 # OAuth2 scheme for token-based authentication
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login", auto_error=False)
+
+class RegisterRequest(BaseModel):
+    empid: str
+    password: str
 
 # Pydantic models for request/response validation
 class TimesheetEntry(BaseModel):
@@ -760,6 +769,43 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 
 # Static file serving - Mount static directory
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.post("/register")
+async def register(request: RegisterRequest):
+    empid = request.empid.strip().upper()  # Normalize empid
+    password = request.password
+
+    # Password validation
+    if len(password) < 8:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must be at least 8 characters")
+    if not re.search(r'[A-Z]', password):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must contain at least one uppercase letter")
+    if not re.search(r'[a-z]', password):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must contain at least one lowercase letter")
+    if not re.search(r'\d', password):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must contain at least one number")
+    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must contain at least one special character")
+
+    # Check if employee exists in employees collection
+    employee = employee_details_collection.find_one({"EmpID": empid})
+    if not employee:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Employee does not exist")
+
+    # Check if user already exists in users collection
+    existing_user = users_collection.find_one({"empid": empid})
+    if existing_user:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already registered")
+
+    # Hash password and create user
+    hashed_password = pwd_context.hash(password)
+    user_data = {
+        "empid": empid,
+        "password": hashed_password
+    }
+    users_collection.insert_one(user_data)
+
+    return {"success": True, "detail": "Registration successful. Please login."}
 
 # Serve login.html as the root page
 @app.get("/", response_class=HTMLResponse)
