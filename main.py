@@ -1139,19 +1139,7 @@ async def save_timesheets(entries: List[TimesheetEntry], current_user: str = Dep
     employee_data = {}
     now_iso = datetime.utcnow().isoformat()
     
-    # Calculate summary hours
-    total_hours = 0
-    total_billable_hours = 0
-    total_non_billable_hours = 0
-    
     for timesheet in entries:
-        hours = float(timesheet.hours or 0)
-        total_hours += hours
-        if timesheet.billable == "Yes":
-            total_billable_hours += hours
-        elif timesheet.billable == "No":
-            total_non_billable_hours += hours
-
         employee_id = timesheet.employeeId
         week_period = timesheet.weekPeriod or "No Week"
 
@@ -1171,9 +1159,6 @@ async def save_timesheets(entries: List[TimesheetEntry], current_user: str = Dep
                 "feedback_it": timesheet.feedback_it or "",
                 "feedback_crm": timesheet.feedback_crm or "",
                 "feedback_others": timesheet.feedback_others or "",
-                "totalHours": total_hours,
-                "totalBillableHours": total_billable_hours,
-                "totalNonBillableHours": total_non_billable_hours,
                 "created_time": now_iso,
                 "updated_time": now_iso
             }
@@ -1191,7 +1176,6 @@ async def save_timesheets(entries: List[TimesheetEntry], current_user: str = Dep
             "reportingManagerEntry": timesheet.reportingManagerEntry or "",
             "activity": timesheet.activity or "",
             "hours": timesheet.hours or "",
-            "workingHours": timesheet.workingHours or "",
             "billable": timesheet.billable or "",
             "remarks": timesheet.remarks or "",
             "id": str(ObjectId()),
@@ -1232,6 +1216,23 @@ async def save_timesheets(entries: List[TimesheetEntry], current_user: str = Dep
                 if not week_found:
                     existing_data.append(new_week_obj)
             
+            # Recalculate totals from all entries
+            total_hours = 0
+            total_billable_hours = 0
+            total_non_billable_hours = 0
+            for week_obj in existing_data:
+                for week, entries in week_obj.items():
+                    for entry in entries:
+                        try:
+                            hours = float(entry['hours'] or 0)
+                        except ValueError:
+                            hours = 0
+                        total_hours += hours
+                        if entry.get('billable') == "Yes":
+                            total_billable_hours += hours
+                        elif entry.get('billable') == "No":
+                            total_non_billable_hours += hours
+
             # Update the document
             result = collection.update_one(
                 {"employeeId": employee_id},
@@ -1243,9 +1244,6 @@ async def save_timesheets(entries: List[TimesheetEntry], current_user: str = Dep
                     "partner": data["partner"],
                     "reportingManager": data["reportingManager"],
                     "department": data["department"],
-                    "totalHours": data["totalHours"],
-                    "totalBillableHours": data["totalBillableHours"],
-                    "totalNonBillableHours": data["totalNonBillableHours"],
                     "updated_time": now_iso,
                     "hits": data["hits"] or "",
                     "misses": data["misses"] or "",
@@ -1253,11 +1251,34 @@ async def save_timesheets(entries: List[TimesheetEntry], current_user: str = Dep
                     "feedback_it": data["feedback_it"] or "",
                     "feedback_crm": data["feedback_crm"] or "",
                     "feedback_others": data["feedback_others"] or "",
+                    "totalHours": total_hours,
+                    "totalBillableHours": total_billable_hours,
+                    "totalNonBillableHours": total_non_billable_hours
                 }}
             )
             print(f"Updated {result.modified_count} document(s)")
         else:
             print(f"Inserting new document for employeeId: {employee_id}")
+            # Calculate totals for new document
+            total_hours = 0
+            total_billable_hours = 0
+            total_non_billable_hours = 0
+            for week_obj in data["Data"]:
+                for week, entries in week_obj.items():
+                    for entry in entries:
+                        try:
+                            hours = float(entry['hours'] or 0)
+                        except ValueError:
+                            hours = 0
+                        total_hours += hours
+                        if entry.get('billable') == "Yes":
+                            total_billable_hours += hours
+                        elif entry.get('billable') == "No":
+                            total_non_billable_hours += hours
+
+            data["totalHours"] = total_hours
+            data["totalBillableHours"] = total_billable_hours
+            data["totalNonBillableHours"] = total_non_billable_hours
             data["created_time"] = now_iso
             result = collection.insert_one(data)
             print(f"Inserted document with ID: {result.inserted_id}")
