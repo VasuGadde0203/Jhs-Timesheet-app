@@ -622,7 +622,7 @@
 
 
 from fastapi import FastAPI, HTTPException, Depends, status, Request, Body
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -735,9 +735,19 @@ class UpdateTimesheetRequest(BaseModel):
     remarks: Optional[str] = None
 
 # Function to create JWT token
-def create_access_token(data: dict):
+# def create_access_token(data: dict):
+#     to_encode = data.copy()
+#     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+#     to_encode.update({"exp": expire})
+#     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+#     return encoded_jwt
+
+def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -989,38 +999,63 @@ async def serve_dashboard_page(request: Request):
 
 # API Routes (your existing endpoints remain unchanged)
 
+# @app.post("/login")
+# async def login(login_request: LoginRequest):
+#     employee = employee_details_collection.find_one({
+#         "EmpID": login_request.empid.strip()
+#     })
+#     if not employee:
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Employee ID or Password")
+    
+#     # Simple password validation - password should match empid (consider using proper password hashing in production)
+#     hashed_password = hashlib.sha256(login_request.password.encode()).hexdigest()
+#     hashed_empid = hashlib.sha256(login_request.empid.encode()).hexdigest()
+#     if hashed_password != hashed_empid:
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Employee ID or Password")
+    
+#     # Generate token
+#     access_token = create_access_token(data={"sub": login_request.empid})
+    
+#     # Store session
+#     session_data = {
+#         "employeeId": login_request.empid,
+#         "token": access_token,
+#         "created_at": datetime.utcnow(),
+#         "expires_at": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+#     }
+#     sessions_collection.insert_one(session_data)
+    
+#     return {
+#         "access_token": access_token,
+#         "token_type": "bearer",
+#         "success": True,
+#         "employeeId": login_request.empid
+#     }
+
 @app.post("/login")
-async def login(login_request: LoginRequest):
-    employee = employee_details_collection.find_one({
-        "EmpID": login_request.empid.strip()
-    })
-    if not employee:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Employee ID or Password")
-    
-    # Simple password validation - password should match empid (consider using proper password hashing in production)
-    hashed_password = hashlib.sha256(login_request.password.encode()).hexdigest()
-    hashed_empid = hashlib.sha256(login_request.empid.encode()).hexdigest()
-    if hashed_password != hashed_empid:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Employee ID or Password")
-    
-    # Generate token
-    access_token = create_access_token(data={"sub": login_request.empid})
-    
-    # Store session
-    session_data = {
-        "employeeId": login_request.empid,
-        "token": access_token,
-        "created_at": datetime.utcnow(),
-        "expires_at": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    }
-    sessions_collection.insert_one(session_data)
-    
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "success": True,
-        "employeeId": login_request.empid
-    }
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    empid = form_data.username.strip().upper()  # Use username as empid
+    password = form_data.password
+
+    if not empid or not password:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Employee Code and Password are required")
+
+    # Find user in users collection
+    user = users_collection.find_one({"empid": empid})
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Employee Code or Password")
+
+    # Verify password
+    if not pwd_context.verify(password, user["password"]):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Employee Code or Password")
+
+    # Generate JWT token
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": empid}, expires_delta=access_token_expires
+    )
+
+    return {"success": True, "access_token": access_token, "token_type": "bearer"}
 
 @app.post("/verify_session")
 async def verify_session(token: str = Depends(oauth2_scheme)):
