@@ -1191,6 +1191,7 @@ async def save_timesheets(entries: List[TimesheetEntry], current_user: str = Dep
             "reportingManagerEntry": timesheet.reportingManagerEntry or "",
             "activity": timesheet.activity or "",
             "hours": timesheet.hours or "",
+            "workingHours": timesheet.workingHours or "",
             "billable": timesheet.billable or "",
             "remarks": timesheet.remarks or "",
             "id": str(ObjectId()),
