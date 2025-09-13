@@ -39,6 +39,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         return;
     }
 
+    // Show loading indicator for employee data fetch
+    showLoading("Fetching Employee Data");
+
     // Initialize data
     if (loggedInEmployeeId) {
         employeeData = await fetchData('/employees');
@@ -1612,7 +1615,7 @@ async function showSection(section) {
 
     if (section === 'history') {
         try {
-            showLoading();
+            showLoading("Fetching History...");
             const token = localStorage.getItem('access_token');
             const response = await fetch(`${API_URL}/timesheets/${loggedInEmployeeId}`, {
                 headers: getHeaders()
