@@ -755,12 +755,14 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
 # Function to verify JWT token
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     if not token:
+        print("No token")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
     
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         employee_id: str = payload.get("sub")
         if employee_id is None:
+            print("No employee_id")
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
         
         # Verify session in database
@@ -771,10 +773,12 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         })
         
         if not session:
+            print("No session")
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Session expired or invalid")
             
         return employee_id
     except jwt.PyJWTError:
+        print("Invalid token")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
 # Static file serving - Mount static directory
