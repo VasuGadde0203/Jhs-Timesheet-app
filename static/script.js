@@ -44,12 +44,19 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Initialize data
     if (loggedInEmployeeId) {
-        employeeData = await fetchData('/employees');
-        clientData = await fetchData('/clients');
-        computeWeekOptions();
-        await populateEmployeeInfo();
-        addWeekSection();
-        showSection('timesheet');
+        try {
+            employeeData = await fetchData('/employees');
+            clientData = await fetchData('/clients');
+            computeWeekOptions();
+            await populateEmployeeInfo();
+            addWeekSection();
+            showSection('timesheet');
+        } catch (error) {
+            console.error('Error initializing data:', error);
+            showError('Failed to load employee data. Please try again.');
+        } finally {
+            hideLoading();
+        }
     }
 });
 
