@@ -237,12 +237,27 @@ function closePopup() {
     document.getElementById('successPopup').style.display = 'none';
 }
 
-function showLoading() {
-    document.getElementById('loadingBar').style.display = 'block';
+// function showLoading() {
+//     document.getElementById('loadingBar').style.display = 'block';
+// }
+
+// function hideLoading() {
+//     document.getElementById('loadingBar').style.display = 'none';
+// }
+
+function showLoading(text = "Saving...") {
+    const loadingBar = document.getElementById('loadingBar');
+    if (loadingBar) {
+        loadingBar.textContent = `${text}...`;
+        loadingBar.style.display = 'block';
+    }
 }
 
 function hideLoading() {
-    document.getElementById('loadingBar').style.display = 'none';
+    const loadingBar = document.getElementById('loadingBar');
+    if (loadingBar) {
+        loadingBar.style.display = 'none';
+    }
 }
 
 function fetchEmployeeData(empId) {
