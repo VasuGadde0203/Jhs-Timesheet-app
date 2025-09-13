@@ -1532,7 +1532,7 @@ async function saveDataToMongo() {
         const result = await response.json();
         hideLoading();
         showPopup('Timesheet saved successfully!');
-        clearTimesheet(false); // changed to false to avoid double reload 
+        clearTimesheet();
     } catch (error) {
         console.error('Error saving data:', error);
         hideLoading();
