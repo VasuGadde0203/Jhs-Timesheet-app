@@ -7,11 +7,15 @@ let weekOptions = [];
 let loggedInEmployeeId = localStorage.getItem('loggedInEmployeeId');
 const API_URL = '';
 
-// Add this right after const API_URL = '';
+const getHeaders = () => ({
+    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+    'Content-Type': 'application/json'
+});
+
 document.addEventListener('DOMContentLoaded', async function() {
     const token = localStorage.getItem('access_token');
     if (!token) {
-        window.location.href = '/';  // Redirect to login if no token
+        window.location.href = '/static/login.html'; // Consistent redirect path
         return;
     }
 
@@ -24,21 +28,60 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (!response.ok) {
             localStorage.removeItem('access_token');
             localStorage.removeItem('loggedInEmployeeId');
-            window.location.href = '/';
+            window.location.href = '/static/login.html';
             return;
         }
     } catch (error) {
         console.error('Session verification failed:', error);
         localStorage.removeItem('access_token');
         localStorage.removeItem('loggedInEmployeeId');
-        window.location.href = '/';
+        window.location.href = '/static/login.html';
         return;
     }
 
-    // Your existing code continues here...
-    await checkSession();  // This can stay, but it might be redundant now
-    // ... rest of your existing DOMContentLoaded code
+    // Initialize data
+    if (loggedInEmployeeId) {
+        employeeData = await fetchData('/employees');
+        clientData = await fetchData('/clients');
+        computeWeekOptions();
+        await populateEmployeeInfo();
+        addWeekSection();
+        showSection('timesheet');
+    }
 });
+
+// Add this right after const API_URL = '';
+// document.addEventListener('DOMContentLoaded', async function() {
+//     const token = localStorage.getItem('access_token');
+//     if (!token) {
+//         window.location.href = '/';  
+//         return;
+//     }
+
+//     // Verify session
+//     try {
+//         const response = await fetch('/verify_session', {
+//             method: 'POST',
+//             headers: { 'Authorization': `Bearer ${token}` }
+//         });
+//         if (!response.ok) {
+//             localStorage.removeItem('access_token');
+//             localStorage.removeItem('loggedInEmployeeId');
+//             window.location.href = '/';
+//             return;
+//         }
+//     } catch (error) {
+//         console.error('Session verification failed:', error);
+//         localStorage.removeItem('access_token');
+//         localStorage.removeItem('loggedInEmployeeId');
+//         window.location.href = '/';
+//         return;
+//     }
+
+//     // Your existing code continues here...
+//     await checkSession();  // This can stay, but it might be redundant now
+//     // ... rest of your existing DOMContentLoaded code
+// });
 
 async function checkSession() {
     const token = localStorage.getItem('access_token');
@@ -64,17 +107,46 @@ async function checkSession() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', async function() {
-    await checkSession();
-    if (loggedInEmployeeId) {
-        employeeData = await fetchData('/employees');
-        clientData = await fetchData('/clients');
-        computeWeekOptions();
-        await populateEmployeeInfo();
-        addWeekSection();
-        showSection('timesheet');
-    }
-});
+// document.addEventListener('DOMContentLoaded', async function() {
+//     await checkSession();
+//     if (loggedInEmployeeId) {
+//         employeeData = await fetchData('/employees');
+//         clientData = await fetchData('/clients');
+//         computeWeekOptions();
+//         await populateEmployeeInfo();
+//         addWeekSection();
+//         showSection('timesheet');
+//     }
+// });
+
+// async function fetchData(endpoint) {
+//     try {
+//         const token = localStorage.getItem('access_token');
+//         if (!token) {
+//             window.location.href = '/static/login.html';
+//             return [];
+//         }
+//         const response = await fetch(`${API_URL}${endpoint}`, {
+//             headers: { 
+//                 'Authorization': `Bearer ${token}`,
+//                 'Content-Type': 'application/json'
+//             }
+//         });
+//         if (!response.ok) {
+//             if (response.status === 401) {
+//                 localStorage.removeItem('access_token');
+//                 localStorage.removeItem('loggedInEmployeeId');
+//                 window.location.href = '/static/login.html';
+//             }
+//             throw new Error(`Failed to fetch ${endpoint}`);
+//         }
+//         return await response.json();
+//     } catch (error) {
+//         console.error(`Error fetching ${endpoint}:`, error);
+//         showError(`Error fetching ${endpoint.split('/')[1]} data. Please try again.`);
+//         return [];
+//     }
+// }
 
 async function fetchData(endpoint) {
     try {
@@ -84,10 +156,7 @@ async function fetchData(endpoint) {
             return [];
         }
         const response = await fetch(`${API_URL}${endpoint}`, {
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
+            headers: getHeaders()
         });
         if (!response.ok) {
             if (response.status === 401) {
@@ -1141,10 +1210,7 @@ async function exportHistoryToExcel() {
     try {
         const token = localStorage.getItem('access_token');
         const response = await fetch(`${API_URL}/timesheets/${loggedInEmployeeId}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
+            headers: getHeaders()
         });
         if (!response.ok) {
             throw new Error('Failed to fetch history for export');
@@ -1454,10 +1520,7 @@ async function saveDataToMongo() {
         const token = localStorage.getItem('access_token');
         const response = await fetch(`${API_URL}/save_timesheets`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
+            headers: getHeaders(),
             body: JSON.stringify(timesheetData)
         });
 
@@ -1501,10 +1564,7 @@ async function logout() {
         const token = localStorage.getItem('access_token');
         await fetch(`${API_URL}/logout`, {
             method: 'POST',
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
+            headers: getHeaders()
         });
     } catch (error) {
         console.error('Error during logout:', error);
@@ -1540,10 +1600,7 @@ async function showSection(section) {
             showLoading();
             const token = localStorage.getItem('access_token');
             const response = await fetch(`${API_URL}/timesheets/${loggedInEmployeeId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
+                headers: getHeaders()
             });
 
             if (!response.ok) {
@@ -1839,10 +1896,7 @@ async function loadHistory() {
     try {
         const token = localStorage.getItem('access_token');
         const response = await fetch(`${API_URL}/timesheets/${loggedInEmployeeId}`, {
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
+            headers: getHeaders()
         });
         if (!response.ok) {
             if (response.status === 401) {
@@ -2108,10 +2162,7 @@ async function updateHistoryRow(button, entryId) {
         if (!token) throw new Error('No token found');
         const response = await fetch(`${API_URL}/update_timesheet/${loggedInEmployeeId}/${entryId}`, {
             method: 'PUT',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
+            headers: getHeaders(),
             body: JSON.stringify(updatedEntry)
         });
         if (!response.ok) {
