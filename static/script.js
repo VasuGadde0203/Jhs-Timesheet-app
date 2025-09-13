@@ -1584,7 +1584,7 @@ function toggleNavMenu() {
 }
 
 async function logout() {
-    showLoading();
+    showLoading("Logging out...");
     try {
         const token = localStorage.getItem('access_token');
         await fetch(`${API_URL}/logout`, {
