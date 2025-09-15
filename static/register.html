@@ -69,7 +69,7 @@
             z-index: 1;
             animation: fadeInUp 0.6s ease-out;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            min-height: 500px; /* Ensure minimum height to accommodate all content */
+            min-height: 500px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -113,7 +113,7 @@
 
         .form-group input {
             width: 100%;
-            padding: 0.9rem 1.2rem 0.9rem 2.8rem;
+            padding: 0.9rem 2.8rem 0.9rem 2.8rem;
             border: 2px solid var(--border-color);
             border-radius: 10px;
             font-size: 1rem;
@@ -130,11 +130,23 @@
 
         .form-group i {
             position: absolute;
-            left: 1rem;
             top: 2.2rem;
             color: #a3b1bf;
             z-index: 1;
             transition: var(--transition);
+        }
+
+        .form-group i.fa-lock {
+            left: 1rem;
+        }
+
+        .form-group i.fa-eye, .form-group i.fa-eye-slash {
+            right: 1rem;
+            cursor: pointer;
+        }
+
+        .form-group i.fa-user {
+            left: 1rem;
         }
 
         .form-group:focus-within i {
@@ -159,7 +171,7 @@
             gap: 0.5rem;
             text-transform: uppercase;
             letter-spacing: 0.3px;
-            margin-top: auto; /* Push button to the bottom */
+            margin-top: auto;
         }
 
         .register-btn:hover {
@@ -175,7 +187,7 @@
             margin-top: 1rem;
             font-size: 0.95rem;
             color: var(--text-light);
-            padding-bottom: 1rem; /* Ensure space at the bottom */
+            padding-bottom: 1rem;
         }
 
         .login-link a {
@@ -254,7 +266,6 @@
             font-size: 0.7rem;
         }
 
-        /* Responsive Design */
         @media (max-width: 480px) {
             .register-container {
                 margin: 0.5rem;
@@ -271,13 +282,20 @@
             }
 
             .form-group input {
-                padding: 0.8rem 1rem 0.8rem 2.5rem;
+                padding: 0.8rem 2.5rem 0.8rem 2.5rem;
                 font-size: 0.95rem;
             }
 
             .form-group i {
                 top: 2rem;
+            }
+
+            .form-group i.fa-lock, .form-group i.fa-user {
                 left: 0.9rem;
+            }
+
+            .form-group i.fa-eye, .form-group i.fa-eye-slash {
+                right: 0.9rem;
             }
 
             .register-btn {
@@ -316,12 +334,19 @@
             }
 
             .form-group input {
-                padding: 0.7rem 0.9rem 0.7rem 2.2rem;
+                padding: 0.7rem 2.2rem 0.7rem 2.2rem;
+            }
+
+            .form-group i.fa-lock, .form-group i.fa-user {
+                left: 0.7rem;
+            }
+
+            .form-group i.fa-eye, .form-group i.fa-eye-slash {
+                right: 0.7rem;
             }
 
             .form-group i {
                 top: 1.8rem;
-                left: 0.7rem;
             }
 
             .register-btn {
@@ -359,11 +384,13 @@
                 <label>Password</label>
                 <i class="fas fa-lock"></i>
                 <input type="password" id="password" placeholder="Enter password" oninput="validatePassword()">
+                <i class="fas fa-eye toggle-password" onclick="togglePassword('password')"></i>
             </div>
             <div class="form-group">
                 <label>Confirm Password</label>
                 <i class="fas fa-lock"></i>
                 <input type="password" id="confirmPassword" placeholder="Confirm password" oninput="validateConfirmPassword()">
+                <i class="fas fa-eye toggle-password" onclick="togglePassword('confirmPassword')"></i>
             </div>
             <ul class="password-requirements" id="passwordRequirements">
                 <li id="minLength"><i class="fas fa-check invalid"></i> Minimum 8 characters</li>
@@ -422,6 +449,20 @@
                 confirmInput.classList.add('invalid');
             } else {
                 confirmInput.classList.remove('invalid');
+            }
+        }
+
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.nextElementSibling;
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
             }
         }
 
@@ -504,3 +545,5 @@
             });
         });
     </script>
+</body>
+</html>

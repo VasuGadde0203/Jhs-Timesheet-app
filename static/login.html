@@ -108,7 +108,7 @@
 
         .form-group input {
             width: 100%;
-            padding: 1.2rem 1rem 1.2rem 3.5rem;
+            padding: 1.2rem 3.5rem 1.2rem 3.5rem;
             border: 2px solid var(--border-color);
             border-radius: 15px;
             font-size: 1.1rem;
@@ -126,11 +126,19 @@
 
         .form-group i {
             position: absolute;
-            left: 1.2rem;
             top: 2.8rem;
             color: #bdc3c7;
             z-index: 1;
             transition: var(--transition);
+        }
+
+        .form-group i.fa-lock, .form-group i.fa-user {
+            left: 1.2rem;
+        }
+
+        .form-group i.fa-eye, .form-group i.fa-eye-slash {
+            right: 1.2rem;
+            cursor: pointer;
         }
 
         .form-group:focus-within i {
@@ -220,7 +228,6 @@
             to { opacity: 1; }
         }
 
-        /* Responsive */
         @media (max-width: 480px) {
             .login-container {
                 margin: 1rem;
@@ -238,8 +245,16 @@
             }
 
             .form-group input {
-                padding: 1rem 1rem 1rem 3rem;
+                padding: 1rem 3rem 1rem 3rem;
                 font-size: 1rem;
+            }
+
+            .form-group i.fa-lock, .form-group i.fa-user {
+                left: 1rem;
+            }
+
+            .form-group i.fa-eye, .form-group i.fa-eye-slash {
+                right: 1rem;
             }
 
             .login-btn {
@@ -254,7 +269,15 @@
             }
 
             .form-group input {
-                padding: 0.9rem 1rem 0.9rem 2.5rem;
+                padding: 0.9rem 2.5rem 0.9rem 2.5rem;
+            }
+
+            .form-group i.fa-lock, .form-group i.fa-user {
+                left: 0.8rem;
+            }
+
+            .form-group i.fa-eye, .form-group i.fa-eye-slash {
+                right: 0.8rem;
             }
         }
     </style>
@@ -272,6 +295,7 @@
             <label>Password</label>
             <i class="fas fa-lock"></i>
             <input type="password" id="password" placeholder="Enter your password">
+            <i class="fas fa-eye toggle-password" onclick="togglePassword('password')"></i>
         </div>
         <button class="login-btn" onclick="login()"><i class="fas fa-arrow-right"></i> Login</button>
         <div class="register-link">
@@ -281,6 +305,20 @@
 
     <script>
         const API_URL = '';
+
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.nextElementSibling;
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
 
         async function login() {
             const empid = document.getElementById('empid').value.trim();
@@ -299,7 +337,7 @@
             try {
                 const response = await fetch(`${API_URL}/login`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, // Changed to match OAuth2
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: new URLSearchParams({
                         username: empid,
                         password: password
