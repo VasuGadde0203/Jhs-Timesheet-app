@@ -1,4 +1,4 @@
-/* :root {
+:root {
     --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --secondary-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
     --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
@@ -271,9 +271,7 @@ body {
     border-radius: 15px;
     overflow: hidden;
     box-shadow: var(--shadow-light);
-    display: block;
-    overflow-x: auto;
-    min-width: 1000px;
+    min-width: 1000px; /* Minimum width for desktop */
     white-space: nowrap;
 }
 
@@ -287,6 +285,9 @@ body {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 2; /* Above content */
 }
 
 .timesheet-table td, .history-table td {
@@ -517,11 +518,11 @@ body {
     font-size: 0.9rem;
 }
 
-.col-narrow { width: 60px; max-width: 60px; }
-.col-medium { width: 120px; max-width: 120px; }
-.col-wide { width: 200px; max-width: 200px; }
-.col-client { width: 250px; max-width: 250px; }
-.col-project { width: 200px; max-width: 200px; }
+.col-narrow { width: 60px; }
+.col-medium { width: 120px; }
+.col-wide { width: 200px; }
+.col-client { width: 250px; }
+.col-project { width: 200px; }
 
 .validation-error {
     border-color: #e74c3c !important;
@@ -534,6 +535,7 @@ body {
     font-size: 0.8rem;
     margin-top: 0.25rem;
     font-style: italic;
+    text-align: left;
 }
 
 .error-message {
@@ -978,76 +980,88 @@ body {
     overflow-x: auto;
     max-width: 100%;
     -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-    position: relative; /* Ensure proper stacking context */
 }
 
-.timesheet-table,
-.history-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
-    background: white;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: var(--shadow-light);
-    min-width: 1000px; /* Minimum width for desktop */
-    display: table; /* Override previous block to ensure table structure */
-    table-layout: fixed; /* Ensure consistent column widths */
-}
-
+/* Update existing .timesheet-table th, .history-table th rule or add new */
 .timesheet-table th,
 .history-table th {
-    background: var(--dark-bg);
-    color: white;
-    padding: 1rem 0.75rem;
-    text-align: center;
-    font-weight: 600;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
     position: sticky;
     top: 0;
-    z-index: 2; /* Above content but below table wrapper */
+    z-index: 2;
+    background: var(--dark-bg); /* Retain background */
 }
 
-.timesheet-table td,
-.history-table td {
-    padding: 1rem 0.75rem;
-    text-align: center;
-    border-bottom: 1px solid var(--border-color);
-    vertical-align: middle;
-    white-space: nowrap;
-    transition: var(--transition);
-}
-
-/* Sticky Date column (first column) */
-.timesheet-table th.col-date,
+/* Sticky Date column (or Client if preferred) */
+/* .timesheet-table th.col-date,
 .timesheet-table td.col-date,
 .history-table th.col-date,
 .history-table td.col-date {
     position: sticky;
     left: 0;
-    z-index: 1; /* Above other cells but below header */
-    background: white; /* Match table background */
-    border-right: 1px solid var(--border-color); /* Visual separator */
-    min-width: 120px; /* Ensure enough space for content */
+    z-index: 1;
+    background: white; 
+    border-right: 1px solid var(--border-color);
+} */
+
+.timesheet-table th.col-date,
+.history-table th.col-date{
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--dark-bg);
+    color: white; /* Match header text */
+    /* border-right: 1px solid var(--border-color); */
+    min-width: 120px; /* Ensure enough space */
 }
 
-/* Sticky Client column (adjust left based on preceding columns) */
+.timesheet-table td.col-date,
+.history-table td.col-date {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: white;
+    color: var(--dark-bg); /* Match header text */
+    /* border-right: 1px solid var(--border-color); */
+    min-width: 120px; /* Ensure enough space */
+}
+
+/* Optional: Sticky Client column (uncomment if Client should be sticky instead) */
+
 .timesheet-table th.col-client,
+.history-table th.col-client {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--dark-bg);
+    color: white; /* Match header text */
+    /* border-right: 1px solid var(--border-color); */
+    min-width: 120px; /* Ensure enough space */
+}
+
+.timesheet-table td.col-client,
+.history-table td.col-client {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: white;
+    color: var(--dark-bg); /* Match header text */
+    /* border-right: 1px solid var(--border-color); */
+    min-width: 120px; /* Ensure enough space */
+}
+
+/* .timesheet-table th.col-client,
 .timesheet-table td.col-client,
 .history-table th.col-client,
 .history-table td.col-client {
     position: sticky;
-    left: 180px; /* S.No (60px) + Action (60px) + Date (120px) = 240px, adjust as needed */
+    left: 150px; 
     z-index: 1;
-    background: white;
+    background: black;
     border-right: 1px solid var(--border-color);
-    min-width: 250px; /* Match .col-client width */
-}
+} */
+*/
 
-/* Ensure input/select styling aligns with table cells */
+/* Update existing input/select rule or add new */
 .timesheet-table input,
 .timesheet-table select,
 .history-table input,
@@ -1060,11 +1074,6 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding: 0.75rem; /* Match td padding */
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    font-size: 0.9rem;
-    transition: var(--transition);
 }
 
 .col-client select,
@@ -1101,16 +1110,6 @@ body {
     .table-responsive {
         border: 1px solid var(--border-color); /* Visual cue for scrollable area */
     }
-    .timesheet-table,
-    .history-table {
-        min-width: 1000px; /* Maintain minimum width */
-    }
-    .timesheet-table th.col-client,
-    .timesheet-table td.col-client,
-    .history-table th.col-client,
-    .history-table td.col-client {
-        left: 150px; /* Adjust for narrower screens */
-    }
 }
 
 @media (max-width: 991px) and (min-width: 768px) {
@@ -1121,20 +1120,12 @@ body {
     .history-table {
         font-size: 0.95rem;
     }
-    .timesheet-table th,
-    .history-table th {
-        padding: 0.75rem 0.5rem; /* Reduce padding for smaller screens */
-    }
-    .timesheet-table td,
-    .history-table td {
-        padding: 0.75rem 0.5rem;
-    }
 }
 
 @media (max-width: 768px) {
     .timesheet-table,
     .history-table {
-        min-width: 1200px; /* Ensure full scroll on mobile */
+        min-width: 1200px; /* Ensure horizontal scroll */
     }
     .form-input,
     .timesheet-table input,
@@ -1147,12 +1138,6 @@ body {
     .col-client select {
         min-width: 150px;
     }
-    .timesheet-table th.col-client,
-    .timesheet-table td.col-client,
-    .history-table th.col-client,
-    .history-table td.col-client {
-        left: 120px; /* Adjust for mobile layout */
-    }
 }
 
 @media (max-width: 480px) {
@@ -1162,22 +1147,6 @@ body {
     .history-table input,
     .history-table select {
         font-size: 0.85rem;
-    }
-    .timesheet-table th,
-    .history-table th {
-        padding: 0.5rem 0.25rem;
-        font-size: 0.75rem;
-    }
-    .timesheet-table td,
-    .history-table td {
-        padding: 0.5rem 0.25rem;
-        font-size: 0.8rem;
-    }
-    .timesheet-table th.col-client,
-    .timesheet-table td.col-client,
-    .history-table th.col-client,
-    .history-table td.col-client {
-        left: 100px; /* Further adjust for small screens */
     }
 }
 
@@ -1192,10 +1161,197 @@ body {
     .col-client select {
         min-width: 250px;
     }
-    .timesheet-table th.col-client,
-    .timesheet-table td.col-client,
-    .history-table th.col-client,
-    .history-table td.col-client {
-        left: 180px; /* Reset to original for large screens */
+}
+
+.delete-btn {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
+
+.delete-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-medium);
+}
+
+
+.header {
+    background: var(--primary-gradient);
+    color: white;
+    padding: 3rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+
+.header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 10"><defs><pattern id="grain" width="100" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="10" fill="url(%23grain)"/></svg>');
+    opacity: 0.1;
+    animation: grainMove 5s infinite linear;
+}
+
+@keyframes grainMove {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(10px, 10px); }
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 3.5rem; /* Increased from 2.8rem for a bolder look */
+    font-weight: 700; /* Bolder weight for impact */
+    position: relative;
+    z-index: 1;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3), /* Main shadow */
+                 0 0 15px rgba(102, 126, 234, 0.5); /* Glow effect */
+    letter-spacing: 2px; /* Adds a premium feel */
+    text-transform: uppercase; /* Consistent with table headers */
+}
+
+.header .fas {
+    margin-right: 0.5rem;
+    animation: pulseIcon 2s infinite ease-in-out;
+}
+
+@keyframes pulseIcon {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.summary-section, .history-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+    padding: 2rem;
+    background: var(--light-bg);
+    border-radius: 15px;
+    border-left: 5px solid #e74c3c;
+    box-shadow: var(--shadow-light);
+}
+
+.summary-item {
+    text-align: center;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 10px;
+    box-shadow: var(--shadow-light);
+    transition: var(--transition);
+    animation: fadeInUp 0.5s ease-out forwards;
+    animation-delay: calc(0.1s * var(--index));
+}
+
+.summary-item:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-medium);
+}
+
+.summary-item h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-dark);
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.summary-item i {
+    margin-right: 0.5rem;
+    font-size: 1.2rem;
+    vertical-align: middle;
+}
+
+.total-hours .value, .total-hours i {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2ecc71; /* Green for total hours */
+    margin-top: 0.5rem;
+}
+
+.billable-hours .value, .billable-hours i {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #3498db; /* Blue for billable hours */
+    margin-top: 0.5rem;
+}
+
+.non-billable-hours .value, .non-billable-hours i {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #e74c3c; /* Red for non-billable hours */
+    margin-top: 0.5rem;
+}
+
+.summary-item:nth-child(1) { --index: 1; }
+.summary-item:nth-child(2) { --index: 2; }
+.summary-item:nth-child(3) { --index: 3; }
+
+@media (max-width: 768px) {
+    .summary-section, .history-summary {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1.5rem;
+    }
+
+    .summary-item {
+        padding: 1rem;
+    }
+
+    .summary-item .value {
+        font-size: 2rem;
+    }
+
+    .total-hours .value, .total-hours i {
+        font-size: 2rem;
+        color: #2ecc71;
+    }
+
+    .billable-hours .value, .billable-hours i {
+        font-size: 2rem;
+        color: #3498db;
+    }
+
+    .non-billable-hours .value, .non-billable-hours i {
+        font-size: 2rem;
+        color: #e74c3c;
+    }
+}
+
+@media (max-width: 480px) {
+    .summary-section, .history-summary {
+        padding: 1rem;
+    }
+
+    .summary-item {
+        padding: 0.75rem;
+    }
+
+    .summary-item .value {
+        font-size: 1.8rem;
+    }
+
+    .total-hours .value, .total-hours i {
+        font-size: 1.8rem;
+        color: #2ecc71;
+    }
+
+    .billable-hours .value, .billable-hours i {
+        font-size: 1.8rem;
+        color: #3498db;
+    }
+
+    .non-billable-hours .value, .non-billable-hours i {
+        font-size: 1.8rem;
+        color: #e74c3c;
     }
 }
