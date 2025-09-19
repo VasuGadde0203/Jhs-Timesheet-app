@@ -1928,18 +1928,22 @@ function addWeekSection() {
     tableWrapper.appendChild(table);
     section.appendChild(tableWrapper);
     
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'button-container';
+    
     const addRowBtn = document.createElement('button');
     addRowBtn.className = 'add-row-btn';
     addRowBtn.textContent = '+ Add New Entry';
     addRowBtn.onclick = () => addRow(sectionId);
-    section.appendChild(addRowBtn);
+    buttonContainer.appendChild(addRowBtn);
     
-    // Add "Paste Above Cell" button
     const pasteAboveBtn = document.createElement('button');
     pasteAboveBtn.className = 'paste-above-btn';
     pasteAboveBtn.textContent = 'Paste Above Cell';
     pasteAboveBtn.onclick = () => pasteAboveCell(sectionId);
-    section.appendChild(pasteAboveBtn);
+    buttonContainer.appendChild(pasteAboveBtn);
+    
+    section.appendChild(buttonContainer);
     
     sectionsDiv.appendChild(section);
     addRow(sectionId);
@@ -2055,14 +2059,51 @@ function pasteRow(button) {
 }
 
 // New function to paste above the "Add New Entry" row
+// function pasteAboveCell(sectionId) {
+//     if (!copiedData) {
+//         showPopup('No data copied to paste!', true);
+//         return;
+//     }
+//     const tbody = document.getElementById(`timesheetBody_${sectionId.split('_')[1]}`);
+//     const addRowBtn = tbody.nextElementSibling; // "Add New Entry" button
+//     if (!addRowBtn || !addRowBtn.classList.contains('add-row-btn')) {
+//         showPopup('No row to paste above!', true);
+//         return;
+//     }
+//     const rows = tbody.querySelectorAll('tr');
+//     if (rows.length === 0) {
+//         addRow(sectionId); // Add a new row if none exist
+//         return;
+//     }
+//     const lastRow = rows[rows.length - 1];
+//     const newRow = lastRow.cloneNode(true);
+//     const inputs = newRow.querySelectorAll('input, select');
+//     inputs.forEach((input, index) => {
+//         if (input.type === 'button' || input.classList.contains('copy-btn') || input.classList.contains('paste-btn')) return;
+//         const fieldKey = `field${index}`;
+//         if (copiedData[fieldKey] !== undefined) {
+//             input.value = copiedData[fieldKey];
+//             if (input.classList.contains('date-field')) validateDate(input);
+//             if (input.classList.contains('project-start') || input.classList.contains('project-end') ||
+//                 input.classList.contains('punch-in') || input.classList.contains('punch-out')) {
+//                 validateTimes(newRow);
+//                 calculateHours(newRow);
+//             }
+//             if (input.classList.contains('client-field')) handleClientChange(input);
+//             if (input.classList.contains('reporting-manager-field')) handleReportingManagerChange(input);
+//         }
+//     });
+//     tbody.insertBefore(newRow, addRowBtn.previousElementSibling.nextElementSibling); // Insert before "Add New Entry" row
+//     updateRowNumbers(tbody.id);
+//     updateSummary();
+//     showPopup('Row pasted above!');
+// }
+
+
 function pasteAboveCell(sectionId) {
-    if (!copiedData) {
-        showPopup('No data copied to paste!', true);
-        return;
-    }
     const tbody = document.getElementById(`timesheetBody_${sectionId.split('_')[1]}`);
-    const addRowBtn = tbody.nextElementSibling; // "Add New Entry" button
-    if (!addRowBtn || !addRowBtn.classList.contains('add-row-btn')) {
+    const addRowBtn = tbody.nextElementSibling; // "Add New Entry" button container
+    if (!addRowBtn || !addRowBtn.classList.contains('button-container')) {
         showPopup('No row to paste above!', true);
         return;
     }
@@ -2072,9 +2113,16 @@ function pasteAboveCell(sectionId) {
         return;
     }
     const lastRow = rows[rows.length - 1];
-    const newRow = lastRow.cloneNode(true);
-    const inputs = newRow.querySelectorAll('input, select');
+    copiedData = {};
+    const inputs = lastRow.querySelectorAll('input, select');
     inputs.forEach((input, index) => {
+        if (input.type === 'button' || input.classList.contains('copy-btn') || input.classList.contains('paste-btn')) return;
+        copiedData[`field${index}`] = input.type === 'select' ? input.value : input.value;
+    });
+
+    const newRow = lastRow.cloneNode(true);
+    const newInputs = newRow.querySelectorAll('input, select');
+    newInputs.forEach((input, index) => {
         if (input.type === 'button' || input.classList.contains('copy-btn') || input.classList.contains('paste-btn')) return;
         const fieldKey = `field${index}`;
         if (copiedData[fieldKey] !== undefined) {
@@ -2089,7 +2137,7 @@ function pasteAboveCell(sectionId) {
             if (input.classList.contains('reporting-manager-field')) handleReportingManagerChange(input);
         }
     });
-    tbody.insertBefore(newRow, addRowBtn.previousElementSibling.nextElementSibling); // Insert before "Add New Entry" row
+    tbody.insertBefore(newRow, addRowBtn);
     updateRowNumbers(tbody.id);
     updateSummary();
     showPopup('Row pasted above!');

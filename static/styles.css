@@ -1389,3 +1389,36 @@ body {
 .col-action {
     min-width: 120px; /* Ensure enough space for two buttons */
 }
+
+.button-container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.add-row-btn, .paste-above-btn {
+    background: var(--secondary-gradient);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: var(--transition);
+    box-shadow: var(--shadow-light);
+}
+
+.paste-above-btn {
+    background: var(--success-gradient);
+}
+
+.add-row-btn:hover, .paste-above-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-medium);
+}
+
+.col-action {
+    min-width: 120px; /* Ensure enough space for two buttons */
+}
