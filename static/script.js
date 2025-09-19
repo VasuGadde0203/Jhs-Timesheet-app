@@ -5,6 +5,7 @@ let clientData = [];
 let currentRow = null;
 let weekOptions = [];
 let loggedInEmployeeId = localStorage.getItem('loggedInEmployeeId');
+let copiedData = null; // Store copied row data
 const API_URL = '';
 
 const getHeaders = () => ({
@@ -60,39 +61,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 });
 
-// Add this right after const API_URL = '';
-// document.addEventListener('DOMContentLoaded', async function() {
-//     const token = localStorage.getItem('access_token');
-//     if (!token) {
-//         window.location.href = '/';  
-//         return;
-//     }
-
-//     // Verify session
-//     try {
-//         const response = await fetch('/verify_session', {
-//             method: 'POST',
-//             headers: { 'Authorization': `Bearer ${token}` }
-//         });
-//         if (!response.ok) {
-//             localStorage.removeItem('access_token');
-//             localStorage.removeItem('loggedInEmployeeId');
-//             window.location.href = '/';
-//             return;
-//         }
-//     } catch (error) {
-//         console.error('Session verification failed:', error);
-//         localStorage.removeItem('access_token');
-//         localStorage.removeItem('loggedInEmployeeId');
-//         window.location.href = '/';
-//         return;
-//     }
-
-//     // Your existing code continues here...
-//     await checkSession();  // This can stay, but it might be redundant now
-//     // ... rest of your existing DOMContentLoaded code
-// });
-
 async function checkSession() {
     const token = localStorage.getItem('access_token');
     if (!token) {
@@ -116,47 +84,6 @@ async function checkSession() {
         window.location.href = '/static/login.html';
     }
 }
-
-// document.addEventListener('DOMContentLoaded', async function() {
-//     await checkSession();
-//     if (loggedInEmployeeId) {
-//         employeeData = await fetchData('/employees');
-//         clientData = await fetchData('/clients');
-//         computeWeekOptions();
-//         await populateEmployeeInfo();
-//         addWeekSection();
-//         showSection('timesheet');
-//     }
-// });
-
-// async function fetchData(endpoint) {
-//     try {
-//         const token = localStorage.getItem('access_token');
-//         if (!token) {
-//             window.location.href = '/static/login.html';
-//             return [];
-//         }
-//         const response = await fetch(`${API_URL}${endpoint}`, {
-//             headers: { 
-//                 'Authorization': `Bearer ${token}`,
-//                 'Content-Type': 'application/json'
-//             }
-//         });
-//         if (!response.ok) {
-//             if (response.status === 401) {
-//                 localStorage.removeItem('access_token');
-//                 localStorage.removeItem('loggedInEmployeeId');
-//                 window.location.href = '/static/login.html';
-//             }
-//             throw new Error(`Failed to fetch ${endpoint}`);
-//         }
-//         return await response.json();
-//     } catch (error) {
-//         console.error(`Error fetching ${endpoint}:`, error);
-//         showError(`Error fetching ${endpoint.split('/')[1]} data. Please try again.`);
-//         return [];
-//     }
-// }
 
 async function fetchData(endpoint) {
     try {
@@ -247,13 +174,6 @@ function closePopup() {
     document.getElementById('successPopup').style.display = 'none';
 }
 
-// function showLoading() {
-//     document.getElementById('loadingBar').style.display = 'block';
-// }
-
-// function hideLoading() {
-//     document.getElementById('loadingBar').style.display = 'none';
-// }
 
 function showLoading(text = "Saving...") {
     const loadingBar = document.getElementById('loadingBar');
@@ -537,156 +457,156 @@ function calculateHours(row) {
     updateSummary();
 }
 
-function addWeekSection() {
-    sectionCount++;
-    const sectionsDiv = document.getElementById('timesheetSections');
-    const sectionId = `section_${sectionCount}`;
+// function addWeekSection() {
+//     sectionCount++;
+//     const sectionsDiv = document.getElementById('timesheetSections');
+//     const sectionId = `section_${sectionCount}`;
     
-    const section = document.createElement('div');
-    section.className = 'timesheet-section';
-    section.id = sectionId;
+//     const section = document.createElement('div');
+//     section.className = 'timesheet-section';
+//     section.id = sectionId;
     
-    const deleteBtn = document.createElement('button');
-    deleteBtn.className = 'delete-week-btn';
-    deleteBtn.textContent = 'Delete Week';
-    deleteBtn.onclick = () => deleteWeekSection(sectionId);
-    section.appendChild(deleteBtn);
+//     const deleteBtn = document.createElement('button');
+//     deleteBtn.className = 'delete-week-btn';
+//     deleteBtn.textContent = 'Delete Week';
+//     deleteBtn.onclick = () => deleteWeekSection(sectionId);
+//     section.appendChild(deleteBtn);
     
-    const weekPeriod = document.createElement('div');
-    weekPeriod.className = 'week-period form-group';
-    weekPeriod.innerHTML = `
-        <label>Week Period ${sectionCount}</label>
-    `;
-    const select = document.createElement('select');
-    select.id = `weekPeriod_${sectionCount}`;
-    select.onchange = () => {
-        updateSummary();
-        updateDateValidations(sectionId);
-        updateExistingRowDates(sectionId);
-    };
-    weekOptions.forEach(opt => {
-        const option = document.createElement('option');
-        option.value = opt.value;
-        option.textContent = opt.text;
-        select.appendChild(option);
-    });
-    if (weekOptions.length > 0) {
-        select.value = weekOptions[0].value;
-        setTimeout(() => {
-            select.onchange();
-        }, 100);
-    }
-    weekPeriod.appendChild(select);
-    section.appendChild(weekPeriod);
+//     const weekPeriod = document.createElement('div');
+//     weekPeriod.className = 'week-period form-group';
+//     weekPeriod.innerHTML = `
+//         <label>Week Period ${sectionCount}</label>
+//     `;
+//     const select = document.createElement('select');
+//     select.id = `weekPeriod_${sectionCount}`;
+//     select.onchange = () => {
+//         updateSummary();
+//         updateDateValidations(sectionId);
+//         updateExistingRowDates(sectionId);
+//     };
+//     weekOptions.forEach(opt => {
+//         const option = document.createElement('option');
+//         option.value = opt.value;
+//         option.textContent = opt.text;
+//         select.appendChild(option);
+//     });
+//     if (weekOptions.length > 0) {
+//         select.value = weekOptions[0].value;
+//         setTimeout(() => {
+//             select.onchange();
+//         }, 100);
+//     }
+//     weekPeriod.appendChild(select);
+//     section.appendChild(weekPeriod);
     
-    const tableWrapper = document.createElement('div');
-    tableWrapper.className = 'table-responsive';
-    const table = document.createElement('table');
-    table.className = 'timesheet-table';
-    table.innerHTML = `
-        <thead>
-            <tr>
-                <th class="col-narrow col-sno">S.No</th>
-                <th class="col-narrow col-action">Action</th>
-                <th class="col-medium col-date">Date</th>
-                <th class="col-wide col-location">Location of Work</th>
-                <th class="col-medium col-project-start">Project Start Time</th>
-                <th class="col-medium col-project-end">Project End Time</th>
-                <th class="col-medium col-punch-in">Punch In</th>
-                <th class="col-medium col-punch-out">Punch Out</th>
-                <th class="col-wide col-client">Client</th>
-                <th class="col-wide col-project">Project</th>
-                <th class="col-project col-project-code">Project Code</th>
-                <th class="col-wide col-reporting-manager">Reporting Manager</th>
-                <th class="col-wide col-activity">Activity</th>
-                <th class="col-narrow col-project-hours">Project Hours</th>
-                <th class="col-narrow col-working-hours">Working Hours</th>
-                <th class="col-medium col-billable">Billable</th>
-                <th class="col-wide col-remarks">Remarks</th>
-                <th class="col-narrow col-delete">Action</th>
-            </tr>
-        </thead>
-        <tbody id="timesheetBody_${sectionCount}"></tbody>
-    `;
-    tableWrapper.appendChild(table);
-    section.appendChild(tableWrapper);
+//     const tableWrapper = document.createElement('div');
+//     tableWrapper.className = 'table-responsive';
+//     const table = document.createElement('table');
+//     table.className = 'timesheet-table';
+//     table.innerHTML = `
+//         <thead>
+//             <tr>
+//                 <th class="col-narrow col-sno">S.No</th>
+//                 <th class="col-narrow col-action">Action</th>
+//                 <th class="col-medium col-date">Date</th>
+//                 <th class="col-wide col-location">Location of Work</th>
+//                 <th class="col-medium col-project-start">Project Start Time</th>
+//                 <th class="col-medium col-project-end">Project End Time</th>
+//                 <th class="col-medium col-punch-in">Punch In</th>
+//                 <th class="col-medium col-punch-out">Punch Out</th>
+//                 <th class="col-wide col-client">Client</th>
+//                 <th class="col-wide col-project">Project</th>
+//                 <th class="col-project col-project-code">Project Code</th>
+//                 <th class="col-wide col-reporting-manager">Reporting Manager</th>
+//                 <th class="col-wide col-activity">Activity</th>
+//                 <th class="col-narrow col-project-hours">Project Hours</th>
+//                 <th class="col-narrow col-working-hours">Working Hours</th>
+//                 <th class="col-medium col-billable">Billable</th>
+//                 <th class="col-wide col-remarks">Remarks</th>
+//                 <th class="col-narrow col-delete">Action</th>
+//             </tr>
+//         </thead>
+//         <tbody id="timesheetBody_${sectionCount}"></tbody>
+//     `;
+//     tableWrapper.appendChild(table);
+//     section.appendChild(tableWrapper);
     
-    const addRowBtn = document.createElement('button');
-    addRowBtn.className = 'add-row-btn';
-    addRowBtn.textContent = '+ Add New Entry';
-    addRowBtn.onclick = () => addRow(sectionId);
-    section.appendChild(addRowBtn);
+//     const addRowBtn = document.createElement('button');
+//     addRowBtn.className = 'add-row-btn';
+//     addRowBtn.textContent = '+ Add New Entry';
+//     addRowBtn.onclick = () => addRow(sectionId);
+//     section.appendChild(addRowBtn);
     
-    sectionsDiv.appendChild(section);
-    addRow(sectionId);
-    updateAllClientFields();
-    updateAllReportingManagerFields();
-    updateDateValidations(sectionId);
-}
+//     sectionsDiv.appendChild(section);
+//     addRow(sectionId);
+//     updateAllClientFields();
+//     updateAllReportingManagerFields();
+//     updateDateValidations(sectionId);
+// }
 
-function addRow(sectionId) {
-    const tbody = document.getElementById(`timesheetBody_${sectionId.split('_')[1]}`);
-    if (!tbody) return;
-    const rows = tbody.querySelectorAll('tr');
-    const rowCount = rows.length + 1;
+// function addRow(sectionId) {
+//     const tbody = document.getElementById(`timesheetBody_${sectionId.split('_')[1]}`);
+//     if (!tbody) return;
+//     const rows = tbody.querySelectorAll('tr');
+//     const rowCount = rows.length + 1;
     
-    const weekSelect = document.getElementById(`weekPeriod_${sectionId.split('_')[1]}`);
-    const selectedWeekValue = weekSelect.value;
-    const selectedWeek = weekOptions.find(opt => opt.value === selectedWeekValue);
+//     const weekSelect = document.getElementById(`weekPeriod_${sectionId.split('_')[1]}`);
+//     const selectedWeekValue = weekSelect.value;
+//     const selectedWeek = weekOptions.find(opt => opt.value === selectedWeekValue);
     
-    let defaultDate = new Date().toISOString().split('T')[0];
-    if (selectedWeek && selectedWeek.start) {
-        const weekStart = new Date(selectedWeek.start);
-        defaultDate = `${weekStart.getFullYear()}-${String(weekStart.getMonth() + 1).padStart(2, '0')}-${String(weekStart.getDate()).padStart(2, '0')}`;
-    } else if (weekOptions.length > 0) {
-        const firstWeek = weekOptions[0];
-        const weekStart = new Date(firstWeek.start);
-        defaultDate = `${weekStart.getFullYear()}-${String(weekStart.getMonth() + 1).padStart(2, '0')}-${String(weekStart.getDate()).padStart(2, '0')}`;
-    }
+//     let defaultDate = new Date().toISOString().split('T')[0];
+//     if (selectedWeek && selectedWeek.start) {
+//         const weekStart = new Date(selectedWeek.start);
+//         defaultDate = `${weekStart.getFullYear()}-${String(weekStart.getMonth() + 1).padStart(2, '0')}-${String(weekStart.getDate()).padStart(2, '0')}`;
+//     } else if (weekOptions.length > 0) {
+//         const firstWeek = weekOptions[0];
+//         const weekStart = new Date(firstWeek.start);
+//         defaultDate = `${weekStart.getFullYear()}-${String(weekStart.getMonth() + 1).padStart(2, '0')}-${String(weekStart.getDate()).padStart(2, '0')}`;
+//     }
     
-    console.log(`Adding row for section ${sectionId}, week: ${selectedWeekValue}, default date: ${defaultDate}`);
+//     console.log(`Adding row for section ${sectionId}, week: ${selectedWeekValue}, default date: ${defaultDate}`);
     
-    const row = document.createElement('tr');
-    row.innerHTML = `
-        <td class="col-sno" style="min-width: 60px;">${rowCount}</td>
-        <td class="col-action" style="min-width: 60px;"><button class="eye-btn" onclick="openModal(this)"><i class="fas fa-eye"></i></button></td>
-        <td class="col-date" style="min-width: 120px;"><input type="date" value="${defaultDate}" class="date-field form-input" onchange="validateDate(this); updateSummary()"></td>
-        <td class="col-location" style="min-width: 200px;"><select class="location-select form-input" onchange="updateSummary()">
-            <option value="Office">Office</option>
-            <option value="Client Site">Client Site</option>
-            <option value="Work From Home">Work From Home</option>
-            <option value="Field Work">Field Work</option>
-        </select></td>
-        <td class="col-project-start" style="min-width: 120px;"><input type="time" class="project-start form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
-        <td class="col-project-end" style="min-width: 120px;"><input type="time" class="project-end form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
-        <td class="col-punch-in" style="min-width: 120px;"><input type="time" class="punch-in form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
-        <td class="col-punch-out" style="min-width: 120px;"><input type="time" class="punch-out form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
-        <td class="col-client" style="min-width: 250px;"><select class="client-field client-select form-input" onchange="handleClientChange(this)" data-projects="[]"><option value="">Select Client</option></select></td>
-        <td class="col-project" style="min-width: 200px;"><input type="text" class="project-field form-input" placeholder="Enter Project" oninput="updateSummary()"></td>
-        <td class="col-project-code" style="min-width: 200px;"><input type="text" class="project-code form-input" readonly></td>
-        <td class="col-reporting-manager" style="min-width: 200px;"><select class="reporting-manager-field reporting-manager-select form-input" onchange="handleReportingManagerChange(this)"><option value="">Select Reporting Manager</option></select></td>
-        <td class="col-activity" style="min-width: 200px;"><input type="text" class="activity-field form-input" placeholder="Enter Activity" oninput="updateSummary()"></td>
-        <td class="col-project-hours" style="min-width: 80px;"><input type="number" class="project-hours-field form-input" readonly></td>
-        <td class="col-working-hours" style="min-width: 80px;"><input type="number" class="working-hours-field form-input" readonly></td>
-        <td class="col-billable" style="min-width: 120px;"><select class="billable-select form-input" onchange="updateSummary()">
-            <option value="Yes">Billable</option>
-            <option value="No">Non-Billable</option>
-        </select></td>
-        <td class="col-remarks" style="min-width: 200px;"><input type="text" class="remarks-field form-input" placeholder="Additional notes"></td>
-        <td class="col-delete" style="min-width: 80px;"><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td>
-    `;
+//     const row = document.createElement('tr');
+//     row.innerHTML = `
+//         <td class="col-sno" style="min-width: 60px;">${rowCount}</td>
+//         <td class="col-action" style="min-width: 60px;"><button class="eye-btn" onclick="openModal(this)"><i class="fas fa-eye"></i></button></td>
+//         <td class="col-date" style="min-width: 120px;"><input type="date" value="${defaultDate}" class="date-field form-input" onchange="validateDate(this); updateSummary()"></td>
+//         <td class="col-location" style="min-width: 200px;"><select class="location-select form-input" onchange="updateSummary()">
+//             <option value="Office">Office</option>
+//             <option value="Client Site">Client Site</option>
+//             <option value="Work From Home">Work From Home</option>
+//             <option value="Field Work">Field Work</option>
+//         </select></td>
+//         <td class="col-project-start" style="min-width: 120px;"><input type="time" class="project-start form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+//         <td class="col-project-end" style="min-width: 120px;"><input type="time" class="project-end form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+//         <td class="col-punch-in" style="min-width: 120px;"><input type="time" class="punch-in form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+//         <td class="col-punch-out" style="min-width: 120px;"><input type="time" class="punch-out form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+//         <td class="col-client" style="min-width: 250px;"><select class="client-field client-select form-input" onchange="handleClientChange(this)" data-projects="[]"><option value="">Select Client</option></select></td>
+//         <td class="col-project" style="min-width: 200px;"><input type="text" class="project-field form-input" placeholder="Enter Project" oninput="updateSummary()"></td>
+//         <td class="col-project-code" style="min-width: 200px;"><input type="text" class="project-code form-input" readonly></td>
+//         <td class="col-reporting-manager" style="min-width: 200px;"><select class="reporting-manager-field reporting-manager-select form-input" onchange="handleReportingManagerChange(this)"><option value="">Select Reporting Manager</option></select></td>
+//         <td class="col-activity" style="min-width: 200px;"><input type="text" class="activity-field form-input" placeholder="Enter Activity" oninput="updateSummary()"></td>
+//         <td class="col-project-hours" style="min-width: 80px;"><input type="number" class="project-hours-field form-input" readonly></td>
+//         <td class="col-working-hours" style="min-width: 80px;"><input type="number" class="working-hours-field form-input" readonly></td>
+//         <td class="col-billable" style="min-width: 120px;"><select class="billable-select form-input" onchange="updateSummary()">
+//             <option value="Yes">Billable</option>
+//             <option value="No">Non-Billable</option>
+//         </select></td>
+//         <td class="col-remarks" style="min-width: 200px;"><input type="text" class="remarks-field form-input" placeholder="Additional notes"></td>
+//         <td class="col-delete" style="min-width: 80px;"><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td>
+//     `;
 
-    tbody.appendChild(row);
-    updateAllClientFields();
-    updateAllReportingManagerFields();
+//     tbody.appendChild(row);
+//     updateAllClientFields();
+//     updateAllReportingManagerFields();
     
-    const dateInput = row.querySelector('.date-field');
-    if (dateInput) {
-        validateDate(dateInput);
-    }
+//     const dateInput = row.querySelector('.date-field');
+//     if (dateInput) {
+//         validateDate(dateInput);
+//     }
     
-    updateSummary();
-}
+//     updateSummary();
+// }
 
 function updateExistingRowDates(sectionId) {
     const tbody = document.getElementById(`timesheetBody_${sectionId.split('_')[1]}`);
@@ -918,21 +838,6 @@ function updateModalReportingManagerFields() {
     }
 }
 
-// function updateModalProjectCode() {
-//     const modalClientSelect = document.getElementById('modalInput7');
-//     const modalProjectCodeInput = document.getElementById('modalInput9');
-//     if (modalClientSelect.value === 'Type here') {
-//         modalProjectCodeInput.readOnly = false;
-//         modalProjectCodeInput.placeholder = 'Enter Project Code';
-//         modalProjectCodeInput.value = '';
-//     } else {
-//         const projects = fetchProjectData(document.getElementById('partner')?.value || '', document.getElementById('reportingManager')?.value || '');
-//         const project = projects.find(p => p['CLIENT NAME'] === modalClientSelect.value);
-//         modalProjectCodeInput.value = project ? project['PROJECT ID'] : '';
-//         modalProjectCodeInput.readOnly = true;
-//     }
-//     updateModalHours();
-// }
 
 function updateModalProjectCode() {
     const modalClientSelect = document.getElementById('modalInput7');
@@ -1021,33 +926,6 @@ function saveModalEntry() {
     closeModal();
     updateSummary();
 }
-
-// function updateSummary() {
-//     const sections = document.querySelectorAll('.timesheet-section');
-//     let totalHours = 0;
-//     let billableHours = 0;
-//     let nonBillableHours = 0;
-
-//     sections.forEach(section => {
-//         const rows = section.querySelectorAll('tbody tr');
-//         rows.forEach(row => {
-//             const hours = parseFloat(row.querySelector('.project-hours-field').value) || 0;
-//             totalHours += hours;
-//             if (row.querySelector('.billable-select').value === 'Yes') {
-//                 billableHours += hours;
-//             } else if (row.querySelector('.billable-select').value === 'No') {
-//                 nonBillableHours += hours;
-//             }
-//         });
-//     });
-
-//     const totalHoursElement = document.querySelector('.summary-section .total-hours .value');
-//     const billableHoursElement = document.querySelector('.summary-section .billable-hours .value');
-//     const nonBillableHoursElement = document.querySelector('.summary-section .non-billable-hours .value');
-//     if (totalHoursElement) totalHoursElement.textContent = totalHours.toFixed(2);
-//     if (billableHoursElement) billableHoursElement.textContent = billableHours.toFixed(2);
-//     if (nonBillableHoursElement) nonBillableHoursElement.textContent = nonBillableHours.toFixed(2);
-// }
 
 function updateSummary() {
     const sections = document.querySelectorAll('.timesheet-section');
@@ -1165,72 +1043,6 @@ function getEmployeeInfoForExport() {
     };
 }
 
-// async function exportHistoryToExcel() {
-//     try {
-//         const token = localStorage.getItem('access_token');
-//         const response = await fetch(`${API_URL}/timesheets/${loggedInEmployeeId}`, {
-//             headers: { 
-//                 'Authorization': `Bearer ${token}`,
-//                 'Content-Type': 'application/json'
-//             }
-//         });
-//         if (!response.ok) {
-//             throw new Error('Failed to fetch history for export');
-//         }
-//         const data = await response.json();
-//         const entries = Array.isArray(data.Data) ? data.Data : data.Data ? [data.Data] : [];
-
-//         const wb = XLSX.utils.book_new();
-//         const employeeInfo = getEmployeeInfoForExport();
-//         let allData = [];
-
-//         allData.push(employeeInfo);
-
-//         entries.forEach(entry => {
-//             const rowData = {
-//                 'Employee ID': employeeInfo['Employee ID'],
-//                 'Employee Name': employeeInfo['Employee Name'],
-//                 'Designation': employeeInfo['Designation'],
-//                 'Gender': employeeInfo['Gender'],
-//                 'Partner': employeeInfo['Partner'],
-//                 'Reporting Manager': employeeInfo['Reporting Manager'],
-//                 // 'Department': document.getElementById('department').value || '',
-//                 'Week Period': entry.weekPeriod || '',
-//                 'S.No': '',
-//                 'Date': entry.date || '',
-//                 'Location of Work': entry.location || '',
-//                 'Project Start Time': entry.projectStartTime || '',
-//                 'Project End Time': entry.projectEndTime || '',
-//                 'Punch In': entry.punchIn || '',
-//                 'Punch Out': entry.punchOut || '',
-//                 'Client': entry.client || '',
-//                 'Project': entry.project || '',
-//                 'Project Code': entry.projectCode || '',
-//                 'Reporting Manager Entry': entry.reportingManagerEntry || '',
-//                 'Activity': entry.activity || '',
-//                 'Project Hours': entry.hours || '',
-//                 'Working Hours': entry.workingHours || '',
-//                 'Billable': entry.billable || '',
-//                 'Remarks': entry.remarks || '',
-//                 '3 HITS': entry.hits || '',
-//                 '3 MISSES': entry.misses || '',
-//                 'FEEDBACK FOR HR': entry.feedback_hr || '',
-//                 'FEEDBACK FOR IT': entry.feedback_it || '',
-//                 'FEEDBACK FOR CRM': entry.feedback_crm || '',
-//                 'FEEDBACK FOR OTHERS': entry.feedback_others || ''
-//             };
-//             allData.push(rowData);
-//         });
-
-//         const ws = XLSX.utils.json_to_sheet(allData);
-//         XLSX.utils.book_append_sheet(wb, ws, 'History');
-//         XLSX.writeFile(wb, `History_${document.getElementById('employeeId').value || 'User'}_${new Date().toISOString().split('T')[0]}.xlsx`);
-//     } catch (error) {
-//         console.error('Error exporting history:', error);
-//         showPopup('Failed to export history: ' + error.message, true);
-//     }
-// }
-
 async function exportHistoryToExcel() {
     try {
         const token = localStorage.getItem('access_token');
@@ -1295,142 +1107,6 @@ async function exportHistoryToExcel() {
         showPopup('Failed to export history: ' + error.message, true);
     }
 }
-
-// async function saveDataToMongo() {
-//     showLoading();
-//     const employeeId = document.getElementById('employeeId').value.trim();
-//     if (!employeeId) {
-//         hideLoading();
-//         showPopup('Please enter Employee ID', true);
-//         return;
-//     }
-
-//     const timesheetData = [];
-//     const employeeDataObj = {
-//         employeeId: employeeId,
-//         employeeName: document.getElementById('employeeName').value || '',
-//         designation: document.getElementById('designation').value || '',
-//         gender: document.getElementById('gender').value || '',
-//         partner: document.getElementById('partner').value || '',
-//         reportingManager: document.getElementById('reportingManager').value || '',
-//         // department: document.getElementById('department').value || '',
-//         weekPeriod: '',
-//         date: '',
-//         location: '',
-//         projectStartTime: '',
-//         projectEndTime: '',
-//         punchIn: '',
-//         punchOut: '',
-//         client: '',
-//         project: '',
-//         projectCode: '',
-//         reportingManagerEntry: '',
-//         activity: '',
-//         hours: '',
-//         workingHours: '',
-//         billable: '',
-//         remarks: '',
-//         hits: document.getElementById('hits').value || '',
-//         misses: document.getElementById('misses').value || '',
-//         feedback_hr: document.getElementById('feedback_hr').value || '',
-//         feedback_it: document.getElementById('feedback_it').value || '',
-//         feedback_crm: document.getElementById('feedback_crm').value || '',
-//         feedback_others: document.getElementById('feedback_others').value || ''
-//     };
-
-//     const sections = document.querySelectorAll('.timesheet-section');
-//     let hasInvalidDates = false;
-//     sections.forEach(section => {
-//         const weekPeriod = section.querySelector('.week-period select').value || '';
-//         const rows = section.querySelectorAll('tbody tr');
-//         rows.forEach(row => {
-//             const inputs = row.querySelectorAll('input, select');
-//             if (inputs.length < 15) return;
-//             const dateInput = inputs[0];
-//             const selectedWeek = weekOptions.find(opt => opt.value === weekPeriod);
-//             if (selectedWeek) {
-//                 const inputDate = new Date(dateInput.value);
-//                 if (inputDate < selectedWeek.start || inputDate > selectedWeek.end) {
-//                     hasInvalidDates = true;
-//                     return;
-//                 }
-//             }
-//             const rowData = {
-//                 employeeId: employeeId,
-//                 employeeName: document.getElementById('employeeName').value || '',
-//                 designation: document.getElementById('designation').value || '',
-//                 gender: document.getElementById('gender').value || '',
-//                 partner: document.getElementById('partner').value || '',
-//                 reportingManager: document.getElementById('reportingManager').value || '',
-//                 // department: document.getElementById('department').value || '',
-//                 weekPeriod: weekPeriod,
-//                 date: inputs[0] ? inputs[0].value : '',
-//                 location: inputs[1] ? (inputs[1].value || inputs[1].querySelector('option:checked')?.value) : '',
-//                 projectStartTime: inputs[2] ? inputs[2].value : '',
-//                 projectEndTime: inputs[3] ? inputs[3].value : '',
-//                 punchIn: inputs[4] ? inputs[4].value : '',
-//                 punchOut: inputs[5] ? inputs[5].value : '',
-//                 client: inputs[6] ? (inputs[6].value || inputs[6].querySelector('option:checked')?.value || '') : '',
-//                 project: inputs[7] ? inputs[7].value : '',
-//                 projectCode: inputs[8] ? inputs[8].value : '',
-//                 reportingManagerEntry: inputs[9] ? (inputs[9].value || inputs[9].querySelector('option:checked')?.value || '') : '',
-//                 activity: inputs[10] ? inputs[10].value : '',
-//                 hours: inputs[11] ? inputs[11].value : '',
-//                 workingHours: inputs[12] ? inputs[12].value : '',
-//                 billable: inputs[13] ? inputs[13].value : '',
-//                 remarks: inputs[14] ? inputs[14].value : '',
-//                 hits: document.getElementById('hits').value || '',
-//                 misses: document.getElementById('misses').value || '',
-//                 feedback_hr: document.getElementById('feedback_hr').value || '',
-//                 feedback_it: document.getElementById('feedback_it').value || '',
-//                 feedback_crm: document.getElementById('feedback_crm').value || '',
-//                 feedback_others: document.getElementById('feedback_others').value || '',
-//             };
-//             timesheetData.push(rowData);
-//         });
-//     });
-
-//     if (hasInvalidDates) {
-//         hideLoading();
-//         showPopup('Please correct all dates to be within their respective week periods.', true);
-//         return;
-//     }
-
-//     if (timesheetData.length === 0) {
-//         timesheetData.push(employeeDataObj);
-//     }
-
-//     try {
-//         const token = localStorage.getItem('access_token');
-//         const response = await fetch(`${API_URL}/save_timesheets`, {
-//             method: 'POST',
-//             headers: { 
-//                 'Content-Type': 'application/json',
-//                 'Authorization': `Bearer ${token}`
-//             },
-//             body: JSON.stringify(timesheetData)
-//         });
-//         if (!response.ok) {
-//             const errorData = await response.json();
-//             throw new Error(`Failed to save data: ${errorData.detail || response.statusText}`);
-//         }
-//         const result = await response.json();
-//         if (result.success) {
-//             // showPopup(`Data stored successfully at ${new Date().toLocaleString()}!`);
-//             showPopup(`Data stored successfully`);
-//             setTimeout(() => {
-//                 window.location.reload();
-//             }, 3000);
-//         } else {
-//             showPopup('No data was saved to the database.', true);
-//         }
-//     } catch (error) {
-//         console.error('Error saving to MongoDB:', error);
-//         showPopup(`Failed to save timesheet data: ${error.message}`, true);
-//     } finally {
-//         hideLoading();
-//     }
-// }
 
 async function saveDataToMongo() {
     showLoading();
@@ -1601,18 +1277,6 @@ async function logout() {
     }
 }
 
-// async function showSection(section) {
-//     document.getElementById('timesheetSection').classList.remove('active');
-//     document.getElementById('historySection').classList.remove('active');
-//     document.getElementById('navMenu').classList.remove('active');
-    
-//     if (section === 'history') {
-//         await loadHistory();
-//         document.getElementById('historySection').classList.add('active');
-//     } else {
-//         document.getElementById('timesheetSection').classList.add('active');
-//     }
-// }
 
 async function showSection(section) {
     document.getElementById('timesheetSection').style.display = section === 'timesheet' ? 'block' : 'none';
@@ -1768,154 +1432,6 @@ async function showSection(section) {
         }
     }
 }
-
-// async function loadHistory() {
-//     try {
-//         const token = localStorage.getItem('access_token');
-//         const response = await fetch(`${API_URL}/timesheets/${loggedInEmployeeId}`, {
-//             headers: { 
-//                 'Authorization': `Bearer ${token}`,
-//                 'Content-Type': 'application/json'
-//             }
-//         });
-//         if (!response.ok) {
-//             if (response.status === 401) {
-//                 localStorage.removeItem('access_token');
-//                 localStorage.removeItem('loggedInEmployeeId');
-//                 window.location.href = 'login.html';
-//             }
-//             throw new Error('Failed to fetch history');
-//         }
-//         const data = await response.json();
-//         const entries = Array.isArray(data.Data) ? data.Data : data.Data ? [data.Data] : [];
-//         const historyContent = document.getElementById('historyContent');
-//         historyContent.innerHTML = '';
-
-//         if (entries.length === 0) {
-//             historyContent.innerHTML = '<p>No history found</p>';
-//             return;
-//         }
-
-//         let weekMap = new Map();
-//         entries.forEach(entry => {
-//             let week = entry.weekPeriod || 'Unknown';
-//             if (!weekMap.has(week)) {
-//                 weekMap.set(week, {entries: [], feedback: {
-//                     hits: entry.hits || '',
-//                     misses: entry.misses || '',
-//                     feedback_hr: entry.feedback_hr || '',
-//                     feedback_it: entry.feedback_it || '',
-//                     feedback_crm: entry.feedback_crm || '',
-//                     feedback_others: entry.feedback_others || ''
-//                 }});
-//             }
-//             weekMap.get(week).entries.push(entry);
-//         });
-
-//         for (let [week, weekData] of weekMap) {
-//             let weekDiv = document.createElement('div');
-//             weekDiv.className = 'history-week-section';
-//             weekDiv.innerHTML = `<h3>${week}</h3>`;
-
-//             let tableWrapper = document.createElement('div');
-//             tableWrapper.className = 'table-responsive';
-//             let table = document.createElement('table');
-//             table.className = 'history-table';
-//             table.innerHTML = `
-//                 <thead>
-//                     <tr>
-//                         <th class="col-narrow col-edit"><i class="fas fa-edit"></i> Edit</th>
-//                         <th class="col-medium col-date">Date</th>
-//                         <th class="col-wide col-location">Location</th>
-//                         <th class="col-medium col-project-start">Project Start</th>
-//                         <th class="col-medium col-project-end">Project End</th>
-//                         <th class="col-medium col-punch-in">Punch In</th>
-//                         <th class="col-medium col-punch-out">Punch Out</th>
-//                         <th class="col-wide col-client">Client</th>
-//                         <th class="col-wide col-project">Project</th>
-//                         <th class="col-project col-project-code">Project Code</th>
-//                         <th class="col-wide col-reporting-manager">Reporting Manager</th>
-//                         <th class="col-wide col-activity">Activity</th>
-//                         <th class="col-narrow col-project-hours">Project Hours</th>
-//                         <th class="col-narrow col-working-hours">Working Hours</th>
-//                         <th class="col-medium col-billable">Billable</th>
-//                         <th class="col-wide col-remarks">Remarks</th>
-//                         <th class="col-medium col-created-time">Created Time</th>
-//                         <th class="col-medium col-updated-time">Updated Time</th>
-//                     </tr>
-//                 </thead>
-//                 <tbody></tbody>
-//             `;
-//             tableWrapper.appendChild(table);
-//             weekDiv.appendChild(tableWrapper);
-
-//             let tbody = table.querySelector('tbody');
-
-//             weekData.entries.forEach(entry => {
-//                 const row = document.createElement('tr');
-//                 row.dataset.entryId = entry.id;
-//                 row.innerHTML = `
-//                     <td><button class="edit-btn" onclick="editHistoryRow(this, '${entry.id}')"><i class="fas fa-edit"></i></button></td>
-//                     <td>${entry.date || ''}</td>
-//                     <td>${entry.location || ''}</td>
-//                     <td>${entry.projectStartTime || ''}</td>
-//                     <td>${entry.projectEndTime || ''}</td>
-//                     <td>${entry.punchIn || ''}</td>
-//                     <td>${entry.punchOut || ''}</td>
-//                     <td>${entry.client || ''}</td>
-//                     <td>${entry.project || ''}</td>
-//                     <td>${entry.projectCode || ''}</td>
-//                     <td>${entry.reportingManagerEntry || ''}</td>
-//                     <td>${entry.activity || ''}</td>
-//                     <td>${entry.hours || ''}</td>
-//                     <td>${entry.workingHours || ''}</td>
-//                     <td>${entry.billable || ''}</td>
-//                     <td>${entry.remarks || ''}</td>
-//                     <td>${entry.created_time || ''}</td>
-//                     <td>${entry.updated_time || ''}</td>
-//                 `;
-//                 tbody.appendChild(row);
-//             });
-
-//             const feedbackDiv = document.createElement('div');
-//             feedbackDiv.className = 'feedback-section';
-//             feedbackDiv.innerHTML = `
-//                 <div class="feedback-item">
-//                     <label>3 HITS</label>
-//                     <textarea readonly rows="3">${weekData.feedback.hits}</textarea>
-//                 </div>
-//                 <div class="feedback-item">
-//                     <label>3 MISSES</label>
-//                     <textarea readonly rows="3">${weekData.feedback.misses}</textarea>
-//                 </div>
-//                 <div class="feedback-item">
-//                     <label>FEEDBACK FOR HR</label>
-//                     <textarea readonly rows="3">${weekData.feedback.feedback_hr}</textarea>
-//                 </div>
-//                 <div class="feedback-item">
-//                     <label>FEEDBACK FOR IT</label>
-//                     <textarea readonly rows="3">${weekData.feedback.feedback_it}</textarea>
-//                 </div>
-//                 <div class="feedback-item">
-//                     <label>FEEDBACK FOR CRM</label>
-//                     <textarea readonly rows="3">${weekData.feedback.feedback_crm}</textarea>
-//                 </div>
-//                 <div class="feedback-item">
-//                     <label>FEEDBACK FOR OTHERS</label>
-//                     <textarea readonly rows="3">${weekData.feedback.feedback_others}</textarea>
-//                 </div>
-//             `;
-//             weekDiv.appendChild(feedbackDiv);
-
-//             historyContent.appendChild(weekDiv);
-//         }
-//         updateAllClientFields();
-//         updateAllReportingManagerFields();
-//     } catch (error) {
-//         console.error('Error loading history:', error);
-//         showPopup('Failed to load history: Server error', true);
-//     }
-// }
 
 async function loadHistory() {
     try {
@@ -2337,3 +1853,246 @@ function confirmExit() {
     isExiting = true;
     logout();
 }
+
+function addWeekSection() {
+    sectionCount++;
+    const sectionsDiv = document.getElementById('timesheetSections');
+    const sectionId = `section_${sectionCount}`;
+    
+    const section = document.createElement('div');
+    section.className = 'timesheet-section';
+    section.id = sectionId;
+    
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'delete-week-btn';
+    deleteBtn.textContent = 'Delete Week';
+    deleteBtn.onclick = () => deleteWeekSection(sectionId);
+    section.appendChild(deleteBtn);
+    
+    const weekPeriod = document.createElement('div');
+    weekPeriod.className = 'week-period form-group';
+    weekPeriod.innerHTML = `
+        <label>Week Period ${sectionCount}</label>
+    `;
+    const select = document.createElement('select');
+    select.id = `weekPeriod_${sectionCount}`;
+    select.onchange = () => {
+        updateSummary();
+        updateDateValidations(sectionId);
+        updateExistingRowDates(sectionId);
+    };
+    weekOptions.forEach(opt => {
+        const option = document.createElement('option');
+        option.value = opt.value;
+        option.textContent = opt.text;
+        select.appendChild(option);
+    });
+    if (weekOptions.length > 0) {
+        select.value = weekOptions[0].value;
+        setTimeout(() => {
+            select.onchange();
+        }, 100);
+    }
+    weekPeriod.appendChild(select);
+    section.appendChild(weekPeriod);
+    
+    const tableWrapper = document.createElement('div');
+    tableWrapper.className = 'table-responsive';
+    const table = document.createElement('table');
+    table.className = 'timesheet-table';
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th class="col-narrow col-sno">S.No</th>
+                <th class="col-narrow col-action">Action</th>
+                <th class="col-medium col-date">Date</th>
+                <th class="col-wide col-location">Location of Work</th>
+                <th class="col-medium col-project-start">Project Start Time</th>
+                <th class="col-medium col-project-end">Project End Time</th>
+                <th class="col-medium col-punch-in">Punch In</th>
+                <th class="col-medium col-punch-out">Punch Out</th>
+                <th class="col-wide col-client">Client</th>
+                <th class="col-wide col-project">Project</th>
+                <th class="col-project col-project-code">Project Code</th>
+                <th class="col-wide col-reporting-manager">Reporting Manager</th>
+                <th class="col-wide col-activity">Activity</th>
+                <th class="col-narrow col-project-hours">Project Hours</th>
+                <th class="col-narrow col-working-hours">Working Hours</th>
+                <th class="col-medium col-billable">Billable</th>
+                <th class="col-wide col-remarks">Remarks</th>
+                <th class="col-narrow col-delete">Action</th>
+            </tr>
+        </thead>
+        <tbody id="timesheetBody_${sectionCount}"></tbody>
+    `;
+    tableWrapper.appendChild(table);
+    section.appendChild(tableWrapper);
+    
+    const addRowBtn = document.createElement('button');
+    addRowBtn.className = 'add-row-btn';
+    addRowBtn.textContent = '+ Add New Entry';
+    addRowBtn.onclick = () => addRow(sectionId);
+    section.appendChild(addRowBtn);
+    
+    // Add "Paste Above Cell" button
+    const pasteAboveBtn = document.createElement('button');
+    pasteAboveBtn.className = 'paste-above-btn';
+    pasteAboveBtn.textContent = 'Paste Above Cell';
+    pasteAboveBtn.onclick = () => pasteAboveCell(sectionId);
+    section.appendChild(pasteAboveBtn);
+    
+    sectionsDiv.appendChild(section);
+    addRow(sectionId);
+    updateAllClientFields();
+    updateAllReportingManagerFields();
+    updateDateValidations(sectionId);
+}
+
+function addRow(sectionId) {
+    const tbody = document.getElementById(`timesheetBody_${sectionId.split('_')[1]}`);
+    if (!tbody) return;
+    const rows = tbody.querySelectorAll('tr');
+    const rowCount = rows.length + 1;
+    
+    const weekSelect = document.getElementById(`weekPeriod_${sectionId.split('_')[1]}`);
+    const selectedWeekValue = weekSelect.value;
+    const selectedWeek = weekOptions.find(opt => opt.value === selectedWeekValue);
+    
+    let defaultDate = new Date().toISOString().split('T')[0];
+    if (selectedWeek && selectedWeek.start) {
+        const weekStart = new Date(selectedWeek.start);
+        defaultDate = `${weekStart.getFullYear()}-${String(weekStart.getMonth() + 1).padStart(2, '0')}-${String(weekStart.getDate()).padStart(2, '0')}`;
+    } else if (weekOptions.length > 0) {
+        const firstWeek = weekOptions[0];
+        const weekStart = new Date(firstWeek.start);
+        defaultDate = `${weekStart.getFullYear()}-${String(weekStart.getMonth() + 1).padStart(2, '0')}-${String(weekStart.getDate()).padStart(2, '0')}`;
+    }
+    
+    console.log(`Adding row for section ${sectionId}, week: ${selectedWeekValue}, default date: ${defaultDate}`);
+    
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td class="col-sno" style="min-width: 60px;">${rowCount}</td>
+        <td class="col-action" style="min-width: 120px;">
+            <button class="copy-btn" onclick="copyRow(this)"><i class="fas fa-copy"></i> Copy</button>
+            <button class="paste-btn" onclick="pasteRow(this)"><i class="fas fa-paste"></i> Paste</button>
+        </td>
+        <td class="col-date" style="min-width: 120px;"><input type="date" value="${defaultDate}" class="date-field form-input" onchange="validateDate(this); updateSummary()"></td>
+        <td class="col-location" style="min-width: 200px;"><select class="location-select form-input" onchange="updateSummary()">
+            <option value="Office">Office</option>
+            <option value="Client Site">Client Site</option>
+            <option value="Work From Home">Work From Home</option>
+            <option value="Field Work">Field Work</option>
+        </select></td>
+        <td class="col-project-start" style="min-width: 120px;"><input type="time" class="project-start form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+        <td class="col-project-end" style="min-width: 120px;"><input type="time" class="project-end form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+        <td class="col-punch-in" style="min-width: 120px;"><input type="time" class="punch-in form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+        <td class="col-punch-out" style="min-width: 120px;"><input type="time" class="punch-out form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+        <td class="col-client" style="min-width: 250px;"><select class="client-field client-select form-input" onchange="handleClientChange(this)" data-projects="[]"><option value="">Select Client</option></select></td>
+        <td class="col-project" style="min-width: 200px;"><input type="text" class="project-field form-input" placeholder="Enter Project" oninput="updateSummary()"></td>
+        <td class="col-project-code" style="min-width: 200px;"><input type="text" class="project-code form-input" readonly></td>
+        <td class="col-reporting-manager" style="min-width: 200px;"><select class="reporting-manager-field reporting-manager-select form-input" onchange="handleReportingManagerChange(this)"><option value="">Select Reporting Manager</option></select></td>
+        <td class="col-activity" style="min-width: 200px;"><input type="text" class="activity-field form-input" placeholder="Enter Activity" oninput="updateSummary()"></td>
+        <td class="col-project-hours" style="min-width: 80px;"><input type="number" class="project-hours-field form-input" readonly></td>
+        <td class="col-working-hours" style="min-width: 80px;"><input type="number" class="working-hours-field form-input" readonly></td>
+        <td class="col-billable" style="min-width: 120px;"><select class="billable-select form-input" onchange="updateSummary()">
+            <option value="Yes">Billable</option>
+            <option value="No">Non-Billable</option>
+        </select></td>
+        <td class="col-remarks" style="min-width: 200px;"><input type="text" class="remarks-field form-input" placeholder="Additional notes"></td>
+        <td class="col-delete" style="min-width: 80px;"><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td>
+    `;
+
+    tbody.appendChild(row);
+    updateAllClientFields();
+    updateAllReportingManagerFields();
+    
+    const dateInput = row.querySelector('.date-field');
+    if (dateInput) {
+        validateDate(dateInput);
+    }
+    
+    updateSummary();
+}
+
+// New function to copy row data
+function copyRow(button) {
+    const row = button.closest('tr');
+    copiedData = {};
+    const inputs = row.querySelectorAll('input, select');
+    inputs.forEach((input, index) => {
+        if (input.type === 'button' || input.classList.contains('copy-btn') || input.classList.contains('paste-btn')) return;
+        copiedData[`field${index}`] = input.type === 'select' ? input.value : input.value;
+    });
+    showPopup('Row data copied!');
+}
+
+// New function to paste row data
+function pasteRow(button) {
+    if (!copiedData) {
+        showPopup('No data copied to paste!', true);
+        return;
+    }
+    const row = button.closest('tr');
+    const inputs = row.querySelectorAll('input, select');
+    inputs.forEach((input, index) => {
+        if (input.type === 'button' || input.classList.contains('copy-btn') || input.classList.contains('paste-btn')) return;
+        const fieldKey = `field${index}`;
+        if (copiedData[fieldKey] !== undefined) {
+            input.value = copiedData[fieldKey];
+            if (input.classList.contains('date-field')) validateDate(input);
+            if (input.classList.contains('project-start') || input.classList.contains('project-end') ||
+                input.classList.contains('punch-in') || input.classList.contains('punch-out')) {
+                validateTimes(row);
+                calculateHours(row);
+            }
+            if (input.classList.contains('client-field')) handleClientChange(input);
+            if (input.classList.contains('reporting-manager-field')) handleReportingManagerChange(input);
+        }
+    });
+    updateSummary();
+    showPopup('Row data pasted!');
+}
+
+// New function to paste above the "Add New Entry" row
+function pasteAboveCell(sectionId) {
+    if (!copiedData) {
+        showPopup('No data copied to paste!', true);
+        return;
+    }
+    const tbody = document.getElementById(`timesheetBody_${sectionId.split('_')[1]}`);
+    const addRowBtn = tbody.nextElementSibling; // "Add New Entry" button
+    if (!addRowBtn || !addRowBtn.classList.contains('add-row-btn')) {
+        showPopup('No row to paste above!', true);
+        return;
+    }
+    const rows = tbody.querySelectorAll('tr');
+    if (rows.length === 0) {
+        addRow(sectionId); // Add a new row if none exist
+        return;
+    }
+    const lastRow = rows[rows.length - 1];
+    const newRow = lastRow.cloneNode(true);
+    const inputs = newRow.querySelectorAll('input, select');
+    inputs.forEach((input, index) => {
+        if (input.type === 'button' || input.classList.contains('copy-btn') || input.classList.contains('paste-btn')) return;
+        const fieldKey = `field${index}`;
+        if (copiedData[fieldKey] !== undefined) {
+            input.value = copiedData[fieldKey];
+            if (input.classList.contains('date-field')) validateDate(input);
+            if (input.classList.contains('project-start') || input.classList.contains('project-end') ||
+                input.classList.contains('punch-in') || input.classList.contains('punch-out')) {
+                validateTimes(newRow);
+                calculateHours(newRow);
+            }
+            if (input.classList.contains('client-field')) handleClientChange(input);
+            if (input.classList.contains('reporting-manager-field')) handleReportingManagerChange(input);
+        }
+    });
+    tbody.insertBefore(newRow, addRowBtn.previousElementSibling.nextElementSibling); // Insert before "Add New Entry" row
+    updateRowNumbers(tbody.id);
+    updateSummary();
+    showPopup('Row pasted above!');
+}
+
+// ... (keep remaining functions like deleteRow, updateRowNumbers, etc. unchanged)

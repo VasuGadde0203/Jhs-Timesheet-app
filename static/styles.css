@@ -1355,3 +1355,37 @@ body {
         color: #e74c3c;
     }
 }
+
+.copy-btn, .paste-btn, .paste-above-btn {
+    background: var(--secondary-gradient);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin: 0 0.25rem;
+    transition: var(--transition);
+    box-shadow: var(--shadow-light);
+    display: inline-block;
+    width: auto;
+}
+
+.copy-btn:hover, .paste-btn:hover, .paste-above-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-medium);
+}
+
+.paste-above-btn {
+    background: var(--success-gradient);
+    margin-top: 1rem;
+    display: block;
+    width: 100%;
+    max-width: 200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.col-action {
+    min-width: 120px; /* Ensure enough space for two buttons */
+}
