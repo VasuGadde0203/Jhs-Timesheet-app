@@ -2062,6 +2062,9 @@ function pasteAboveCell(sectionId) {
     const newRow = document.createElement('tr');
     newRow.innerHTML = lastRow.innerHTML; // Copy HTML structure and content
     
+    // Insert the new row into the DOM before validations
+    tbody.insertBefore(newRow, lastRow.nextSibling);
+    
     // Get inputs from the new row and last row
     const newInputs = newRow.querySelectorAll('input, select');
     const lastInputs = lastRow.querySelectorAll('input, select');
@@ -2075,17 +2078,19 @@ function pasteAboveCell(sectionId) {
         if (lastInputs[index]) {
             input.value = lastInputs[index].value; // Copy value from last row
             if (input.classList.contains('date-field')) {
-                // Adjust date to next day within the same week
                 const weekSelect = document.getElementById(`weekPeriod_${sectionId.split('_')[1]}`);
-                const selectedWeek = weekOptions.find(opt => opt.value === weekSelect.value);
-                if (selectedWeek) {
-                    const currentDate = new Date(input.value);
-                    const weekEnd = new Date(selectedWeek.end);
-                    if (currentDate < weekEnd) {
-                        currentDate.setDate(currentDate.getDate() + 1);
-                        input.value = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
+                if (weekSelect) {
+                    const selectedWeek = weekOptions.find(opt => opt.value === weekSelect.value);
+                    if (selectedWeek) {
+                        const currentDate = new Date(input.value);
+                        const weekEnd = new Date(selectedWeek.end);
+                        if (currentDate < weekEnd) {
+                            currentDate.setDate(currentDate.getDate() + 1);
+                            input.value = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
+                        }
+                        // Validate date after DOM insertion
+                        validateDate(input);
                     }
-                    validateDate(input);
                 }
             }
             if (input.classList.contains('project-start') || input.classList.contains('project-end') ||
@@ -2103,8 +2108,6 @@ function pasteAboveCell(sectionId) {
         }
     });
     
-    // Insert the new row before the last row
-    tbody.insertBefore(newRow, lastRow.nextSibling);
     updateRowNumbers(tbody.id);
     updateSummary();
     showPopup('Row duplicated above last row!');
