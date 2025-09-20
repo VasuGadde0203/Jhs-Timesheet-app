@@ -737,10 +737,442 @@
 
 
 
-from fastapi import FastAPI, HTTPException, Depends, status, Request, Body
+# from fastapi import FastAPI, HTTPException, Depends, status, Request, Body
+# from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+# from fastapi.middleware.cors import CORSMiddleware
+# from fastapi.responses import HTMLResponse, FileResponse
+# from fastapi.staticfiles import StaticFiles
+# from pydantic import BaseModel
+# from pymongo import MongoClient
+# from typing import List, Optional, Dict
+# from datetime import datetime, timedelta
+# import jwt
+# import secrets
+# from bson import ObjectId
+# from bson.errors import InvalidId
+# import hashlib
+# from dotenv import load_dotenv
+# import os
+# import re
+# from passlib.context import CryptContext
+
+# pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__ident="2b", bcrypt__rounds=12)
+
+# # Load environment variables
+# load_dotenv()
+
+# app = FastAPI(title="Professional Time Sheet API", version="1.0.0")
+
+# # CORS middleware - Update allow_origins for production security
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],  
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
+
+# # Generate a secure JWT secret key (use environment variable in production)
+# SECRET_KEY = os.getenv("SECRET_KEY", secrets.token_urlsafe(32))
+# ALGORITHM = "HS256"
+# ACCESS_TOKEN_EXPIRE_MINUTES = 1440
+
+# # MongoDB connection
+# MONGO_CONNECTION_STRING = os.getenv("MONGO_CONNECTION_STRING")
+# if not MONGO_CONNECTION_STRING:
+#     raise ValueError("MONGO_CONNECTION_STRING environment variable is required")
+
+# client = MongoClient(MONGO_CONNECTION_STRING)
+# db = client["Timesheets"]
+# timesheets_collection = db["Timesheet_data"]
+# sessions_collection = db["sessions"]
+# employee_details_collection = db["Employee_details"]
+# client_details_collection = db["Client_details"]
+# users_collection = db["users"]
+
+# # OAuth2 scheme for token-based authentication
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login", auto_error=False)
+
+# class RegisterRequest(BaseModel):
+#     empid: str
+#     password: str
+
+# # Pydantic models for request/response validation
+# class TimesheetEntry(BaseModel):
+#     employeeId: str
+#     employeeName: Optional[str] = None
+#     designation: Optional[str] = None
+#     gender: Optional[str] = None
+#     partner: Optional[str] = None
+#     reportingManager: Optional[str] = None
+#     department: Optional[str] = None
+#     weekPeriod: Optional[str] = None
+#     date: Optional[str] = None
+#     location: Optional[str] = None
+#     projectStartTime: Optional[str] = None
+#     projectEndTime: Optional[str] = None
+#     punchIn: Optional[str] = None
+#     punchOut: Optional[str] = None
+#     client: Optional[str] = None
+#     project: Optional[str] = None
+#     projectCode: Optional[str] = None
+#     reportingManagerEntry: Optional[str] = None
+#     activity: Optional[str] = None
+#     hours: Optional[str] = None
+#     workingHours: Optional[str] = None
+#     billable: Optional[str] = None
+#     remarks: Optional[str] = None
+#     hits: Optional[str] = None
+#     misses: Optional[str] = None
+#     feedback_hr: Optional[str] = None
+#     feedback_it: Optional[str] = None
+#     feedback_crm: Optional[str] = None
+#     feedback_others: Optional[str] = None
+
+# class LoginRequest(BaseModel):
+#     empid: str
+#     password: str
+
+# class UpdateTimesheetRequest(BaseModel):
+#     date: str
+#     location: Optional[str] = None
+#     projectStartTime: Optional[str] = None
+#     projectEndTime: Optional[str] = None
+#     punchIn: Optional[str] = None
+#     punchOut: Optional[str] = None
+#     client: Optional[str] = None
+#     project: Optional[str] = None
+#     projectCode: Optional[str] = None
+#     reportingManagerEntry: Optional[str] = None
+#     activity: Optional[str] = None
+#     hours: Optional[str] = None
+#     workingHours: Optional[str] = None
+#     billable: Optional[str] = None
+#     remarks: Optional[str] = None
+
+# def create_access_token(data: dict, expires_delta: timedelta = None):
+#     to_encode = data.copy()
+#     if expires_delta:
+#         expire = datetime.utcnow() + expires_delta
+#     else:
+#         expire = datetime.utcnow() + timedelta(minutes=15)
+#     to_encode.update({"exp": expire})
+#     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+#     return encoded_jwt
+
+# # Function to verify JWT token
+# async def get_current_user(token: str = Depends(oauth2_scheme)):
+#     if not token:
+#         print("No token")
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+    
+#     try:
+#         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+#         employee_id: str = payload.get("sub")
+#         if employee_id is None:
+#             print("No employee_id")
+#             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+        
+#         print(f"Token: {token}, Employee_id: {employee_id}")
+        
+#         # Verify session in database
+#         session = sessions_collection.find_one({
+#             "token": token, 
+#             "employeeId": employee_id,
+#             "expires_at": {"$gt": datetime.utcnow()}
+#         })
+        
+#         if not session:
+#             print("No session")
+#             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Session expired or invalid")
+            
+#         return employee_id
+#     except jwt.PyJWTError:
+#         print("Invalid token")
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+
+# # Static file serving - Mount static directory
+# app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# @app.get("/", response_class=HTMLResponse)
+# async def serve_home_page(request: Request):
+#     """Serve the home page, redirecting to dashboard if authenticated"""
+#     token = request.cookies.get("access_token") or request.headers.get("Authorization", "").replace("Bearer ", "")
+#     if token:
+#         try:
+#             employee_id = await get_current_user(token)
+#             return HTMLResponse(content=open("static/index.html", "r", encoding="utf-8").read())
+#         except HTTPException:
+#             pass
+#     # If no valid session, serve login page
+#     try:
+#         with open("static/login.html", "r", encoding="utf-8") as file:
+#             return HTMLResponse(content=file.read())
+#     except FileNotFoundError:
+#         return HTMLResponse(content="""
+#         <!DOCTYPE html>
+#         <html>
+#         <head>
+#             <title>Time Sheet - Login</title>
+#             <meta charset="UTF-8">
+#             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+#             <style>
+#                 body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f0f0f0; }
+#                 .container { max-width: 400px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+#                 input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
+#                 button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+#                 button:hover { background: #0056b3; }
+#                 .error { color: red; margin: 10px 0; }
+#             </style>
+#         </head>
+#         <body>
+#             <div class="container">
+#                 <h2>Login to Time Sheet</h2>
+#                 <form id="loginForm">
+#                     <input type="text" id="empid" placeholder="Employee ID" required>
+#                     <input type="password" id="password" placeholder="Password" required>
+#                     <button type="submit">Login</button>
+#                 </form>
+#                 <div id="errorMessage" class="error"></div>
+#             </div>
+#             <script>
+#                 document.getElementById('loginForm').addEventListener('submit', async (e) => {
+#                     e.preventDefault();
+#                     const empid = document.getElementById('empid').value;
+#                     const password = document.getElementById('password').value;
+#                     const errorDiv = document.getElementById('errorMessage');
+                    
+#                     try {
+#                         const response = await fetch('/login', {
+#                             method: 'POST',
+#                             headers: { 'Content-Type': 'application/json' },
+#                             body: JSON.stringify({ empid, password })
+#                         });
+#                         const result = await response.json();
+                        
+#                         if (response.ok && result.success) {
+#                             document.cookie = `access_token=${result.access_token}; path=/; max-age=${result.expires_in || 86400}`;
+#                             localStorage.setItem('loggedInEmployeeId', result.employeeId);
+#                             window.location.href = '/';
+#                         } else {
+#                             errorDiv.textContent = result.detail || 'Login failed';
+#                         }
+#                     } catch (error) {
+#                         errorDiv.textContent = 'Login error: ' + error.message;
+#                     }
+#                 });
+#             </script>
+#         </body>
+#         </html>
+#         """)
+
+# # Serve dashboard (index.html) for authenticated users
+# @app.get("/dashboard", response_class=HTMLResponse)
+# async def serve_dashboard_page(request: Request):
+#     """Serve the main timesheet dashboard for authenticated users"""
+#     token = request.cookies.get("access_token") or request.headers.get("Authorization", "").replace("Bearer ", "")
+#     if not token:
+#         return HTMLResponse(content="<script>window.location.href = '/';</script>")
+#     try:
+#         await get_current_user(token)
+#         with open("static/index.html", "r", encoding="utf-8") as file:
+#             return HTMLResponse(content=file.read())
+#     except HTTPException:
+#         return HTMLResponse(content="<script>window.location.href = '/';</script>")
+#     except FileNotFoundError:
+#         return HTMLResponse(content="""
+#         <!DOCTYPE html>
+#         <html>
+#         <head>
+#             <title>Time Sheet Dashboard</title>
+#             <meta charset="UTF-8">
+#             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+#             <style>
+#                 body { font-family: Arial, sans-serif; margin: 20px; }
+#                 .container { max-width: 1200px; margin: 0 auto; }
+#                 .header { background: #007bff; color: white; padding: 20px; border-radius: 5px; }
+#                 .welcome { font-size: 24px; margin-bottom: 10px; }
+#                 .nav { margin: 20px 0; }
+#                 .nav button { margin-right: 10px; padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
+#                 .nav button:hover { background: #218838; }
+#                 .content { background: #f8f9fa; padding: 20px; border-radius: 5px; }
+#                 .logout { position: fixed; top: 20px; right: 20px; padding: 10px 15px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; }
+#                 .logout:hover { background: #c82333; }
+#             </style>
+#         </head>
+#         <body>
+#             <button class="logout" onclick="logout()">Logout</button>
+#             <div class="container">
+#                 <div class="header">
+#                     <div class="welcome">Welcome to Time Sheet Dashboard</div>
+#                     <div id="employeeInfo"></div>
+#                 </div>
+#                 <div class="nav">
+#                     <button onclick="loadTimesheet()">Timesheet</button>
+#                     <button onclick="loadHistory()">History</button>
+#                 </div>
+#                 <div class="content" id="mainContent">
+#                     <h2>Welcome to your Time Sheet Portal</h2>
+#                     <p>Loading your timesheet data...</p>
+#                 </div>
+#             </div>
+#             <script>
+#                 const API_URL = '';
+#                 let currentUser = localStorage.getItem('loggedInEmployeeId');
+                
+#                 async function loadEmployeeInfo() {
+#                     try {
+#                         const token = document.cookie.split('; ').find(row => row.startsWith('access_token=')).split('=')[1];
+#                         const response = await fetch('/employees', {
+#                             headers: { 'Authorization': `Bearer ${token}` }
+#                         });
+#                         const employees = await response.json();
+#                         const userEmployee = employees.find(emp => emp.EmpID === currentUser);
+#                         if (userEmployee) {
+#                             document.getElementById('employeeInfo').innerHTML = 
+#                                 `<strong>${userEmployee['Emp Name'] || 'Employee'}</strong> - ${userEmployee['Designation Name'] || 'Position'}`;
+#                         }
+#                     } catch (error) {
+#                         console.error('Error loading employee info:', error);
+#                     }
+#                 }
+                
+#                 async function loadTimesheet() {
+#                     document.getElementById('mainContent').innerHTML = '<p>Loading timesheet...</p>';
+#                     try {
+#                         const token = document.cookie.split('; ').find(row => row.startsWith('access_token=')).split('=')[1];
+#                         const response = await fetch('/timesheets/' + currentUser, {
+#                             headers: { 'Authorization': `Bearer ${token}` }
+#                         });
+#                         const data = await response.json();
+#                         document.getElementById('mainContent').innerHTML = '<h2>Timesheet</h2><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+#                     } catch (error) {
+#                         document.getElementById('mainContent').innerHTML = '<p>Error loading timesheet: ' + error.message + '</p>';
+#                     }
+#                 }
+                
+#                 async function loadHistory() {
+#                     document.getElementById('mainContent').innerHTML = '<p>Loading history...</p>';
+#                     try {
+#                         const token = document.cookie.split('; ').find(row => row.startsWith('access_token=')).split('=')[1];
+#                         const response = await fetch('/timesheets/' + currentUser, {
+#                             headers: { 'Authorization': `Bearer ${token}` }
+#                         });
+#                         const data = await response.json();
+#                         document.getElementById('mainContent').innerHTML = '<h2>History</h2><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+#                     } catch (error) {
+#                         document.getElementById('mainContent').innerHTML = '<p>Error loading history: ' + error.message + '</p>';
+#                     }
+#                 }
+                
+#                 function logout() {
+#                     document.cookie = 'access_token=; Max-Age=0; path=/';
+#                     localStorage.removeItem('loggedInEmployeeId');
+#                     window.location.href = '/';
+#                 }
+                
+#                 if (!currentUser) {
+#                     window.location.href = '/';
+#                 } else {
+#                     loadEmployeeInfo();
+#                     loadTimesheet();
+#                 }
+#             </script>
+#         </body>
+#         </html>
+#         """)
+
+# @app.post("/register")
+# async def register(request: RegisterRequest):
+#     empid = request.empid.strip().upper()  # Normalize empid
+#     password = request.password
+
+#     # Password validation
+#     if len(password) < 8:
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must be at least 8 characters")
+#     if not re.search(r'[A-Z]', password):
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must contain at least one uppercase letter")
+#     if not re.search(r'[a-z]', password):
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must contain at least one lowercase letter")
+#     if not re.search(r'\d', password):
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must contain at least one number")
+#     if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must contain at least one special character")
+
+#     # Check if employee exists in employees collection
+#     employee = employee_details_collection.find_one({"EmpID": empid})
+#     if not employee:
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Employee does not exist")
+
+#     # Check if user already exists in users collection
+#     existing_user = users_collection.find_one({"empid": empid})
+#     if existing_user:
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already registered")
+
+#     # Hash password and create user
+#     hashed_password = pwd_context.hash(password)
+#     user_data = {
+#         "empid": empid,
+#         "password": hashed_password
+#     }
+#     users_collection.insert_one(user_data)
+
+#     return {"success": True, "detail": "Registration successful. Please login."}
+
+# @app.post("/login")
+# async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+#     empid = form_data.username.strip().upper()  # Use username as empid
+#     password = form_data.password
+
+#     if not empid or not password:
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Employee Code and Password are required")
+
+#     # Find user in users collection
+#     user = users_collection.find_one({"empid": empid})
+#     if not user:
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Employee Code or Password")
+
+#     # Verify password
+#     if not pwd_context.verify(password, user["password"]):
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Employee Code or Password")
+
+#     # Generate JWT token
+#     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+#     access_token = create_access_token(
+#         data={"sub": empid}, expires_delta=access_token_expires
+#     )
+
+#     # Store session in sessions_collection
+#     session_data = {
+#         "employeeId": empid,
+#         "token": access_token,
+#         "created_at": datetime.utcnow(),
+#         "expires_at": datetime.utcnow() + access_token_expires
+#     }
+#     sessions_collection.insert_one(session_data)
+
+#     return {"success": True, "access_token": access_token, "token_type": "bearer", "employeeId": empid, "expires_in": ACCESS_TOKEN_EXPIRE_MINUTES * 60}
+
+# @app.post("/verify_session")
+# async def verify_session(token: str = Depends(oauth2_scheme)):
+#     employee_id = await get_current_user(token)
+#     session = sessions_collection.find_one({"token": token, "employeeId": employee_id})
+#     if not session or session["expires_at"] < datetime.utcnow():
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Session expired or invalid")
+#     return {"message": "Session valid"}
+
+# @app.post("/logout")
+# async def logout(token: str = Depends(oauth2_scheme)):
+#     sessions_collection.delete_one({"token": token})
+#     response = {"message": "Logged out successfully"}
+#     response.set_cookie(key="access_token", value="", max_age=0, path="/")
+#     return response
+
+
+from fastapi import FastAPI, HTTPException, Depends, status, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from pymongo import MongoClient
@@ -766,7 +1198,7 @@ app = FastAPI(title="Professional Time Sheet API", version="1.0.0")
 # CORS middleware - Update allow_origins for production security
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify your frontend URL: ["https://your-frontend.com"]
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -797,7 +1229,6 @@ class RegisterRequest(BaseModel):
     empid: str
     password: str
 
-# Pydantic models for request/response validation
 class TimesheetEntry(BaseModel):
     employeeId: str
     employeeName: Optional[str] = None
@@ -860,7 +1291,6 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-# Function to verify JWT token
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     if not token:
         print("No token")
@@ -875,7 +1305,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         
         print(f"Token: {token}, Employee_id: {employee_id}")
         
-        # Verify session in database
         session = sessions_collection.find_one({
             "token": token, 
             "employeeId": employee_id,
@@ -891,203 +1320,46 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         print("Invalid token")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
-# Static file serving - Mount static directory
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# Define frontend path
+frontend_path = os.path.join(os.path.dirname(__file__), "static")
+print("Frontend path:", frontend_path)
+if os.path.exists(frontend_path):
+    print("Files in frontend:", os.listdir(frontend_path))
+else:
+    print(f"Frontend directory not found at: {frontend_path}")
 
-@app.get("/", response_class=HTMLResponse)
-async def serve_home_page(request: Request):
-    """Serve the home page, redirecting to dashboard if authenticated"""
-    token = request.cookies.get("access_token") or request.headers.get("Authorization", "").replace("Bearer ", "")
-    if token:
-        try:
-            employee_id = await get_current_user(token)
-            return HTMLResponse(content=open("static/index.html", "r", encoding="utf-8").read())
-        except HTTPException:
-            pass
-    # If no valid session, serve login page
-    try:
-        with open("static/login.html", "r", encoding="utf-8") as file:
-            return HTMLResponse(content=file.read())
-    except FileNotFoundError:
-        return HTMLResponse(content="""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Time Sheet - Login</title>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>
-                body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f0f0f0; }
-                .container { max-width: 400px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-                input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
-                button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
-                button:hover { background: #0056b3; }
-                .error { color: red; margin: 10px 0; }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h2>Login to Time Sheet</h2>
-                <form id="loginForm">
-                    <input type="text" id="empid" placeholder="Employee ID" required>
-                    <input type="password" id="password" placeholder="Password" required>
-                    <button type="submit">Login</button>
-                </form>
-                <div id="errorMessage" class="error"></div>
-            </div>
-            <script>
-                document.getElementById('loginForm').addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const empid = document.getElementById('empid').value;
-                    const password = document.getElementById('password').value;
-                    const errorDiv = document.getElementById('errorMessage');
-                    
-                    try {
-                        const response = await fetch('/login', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ empid, password })
-                        });
-                        const result = await response.json();
-                        
-                        if (response.ok && result.success) {
-                            document.cookie = `access_token=${result.access_token}; path=/; max-age=${result.expires_in || 86400}`;
-                            localStorage.setItem('loggedInEmployeeId', result.employeeId);
-                            window.location.href = '/';
-                        } else {
-                            errorDiv.textContent = result.detail || 'Login failed';
-                        }
-                    } catch (error) {
-                        errorDiv.textContent = 'Login error: ' + error.message;
-                    }
-                });
-            </script>
-        </body>
-        </html>
-        """)
+# Mount static files for assets
+app.mount("/static", StaticFiles(directory=frontend_path), name="static")
 
-# Serve dashboard (index.html) for authenticated users
-@app.get("/dashboard", response_class=HTMLResponse)
-async def serve_dashboard_page(request: Request):
-    """Serve the main timesheet dashboard for authenticated users"""
-    token = request.cookies.get("access_token") or request.headers.get("Authorization", "").replace("Bearer ", "")
-    if not token:
-        return HTMLResponse(content="<script>window.location.href = '/';</script>")
-    try:
-        await get_current_user(token)
-        with open("static/index.html", "r", encoding="utf-8") as file:
-            return HTMLResponse(content=file.read())
-    except HTTPException:
-        return HTMLResponse(content="<script>window.location.href = '/';</script>")
-    except FileNotFoundError:
-        return HTMLResponse(content="""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Time Sheet Dashboard</title>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>
-                body { font-family: Arial, sans-serif; margin: 20px; }
-                .container { max-width: 1200px; margin: 0 auto; }
-                .header { background: #007bff; color: white; padding: 20px; border-radius: 5px; }
-                .welcome { font-size: 24px; margin-bottom: 10px; }
-                .nav { margin: 20px 0; }
-                .nav button { margin-right: 10px; padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
-                .nav button:hover { background: #218838; }
-                .content { background: #f8f9fa; padding: 20px; border-radius: 5px; }
-                .logout { position: fixed; top: 20px; right: 20px; padding: 10px 15px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; }
-                .logout:hover { background: #c82333; }
-            </style>
-        </head>
-        <body>
-            <button class="logout" onclick="logout()">Logout</button>
-            <div class="container">
-                <div class="header">
-                    <div class="welcome">Welcome to Time Sheet Dashboard</div>
-                    <div id="employeeInfo"></div>
-                </div>
-                <div class="nav">
-                    <button onclick="loadTimesheet()">Timesheet</button>
-                    <button onclick="loadHistory()">History</button>
-                </div>
-                <div class="content" id="mainContent">
-                    <h2>Welcome to your Time Sheet Portal</h2>
-                    <p>Loading your timesheet data...</p>
-                </div>
-            </div>
-            <script>
-                const API_URL = '';
-                let currentUser = localStorage.getItem('loggedInEmployeeId');
-                
-                async function loadEmployeeInfo() {
-                    try {
-                        const token = document.cookie.split('; ').find(row => row.startsWith('access_token=')).split('=')[1];
-                        const response = await fetch('/employees', {
-                            headers: { 'Authorization': `Bearer ${token}` }
-                        });
-                        const employees = await response.json();
-                        const userEmployee = employees.find(emp => emp.EmpID === currentUser);
-                        if (userEmployee) {
-                            document.getElementById('employeeInfo').innerHTML = 
-                                `<strong>${userEmployee['Emp Name'] || 'Employee'}</strong> - ${userEmployee['Designation Name'] || 'Position'}`;
-                        }
-                    } catch (error) {
-                        console.error('Error loading employee info:', error);
-                    }
-                }
-                
-                async function loadTimesheet() {
-                    document.getElementById('mainContent').innerHTML = '<p>Loading timesheet...</p>';
-                    try {
-                        const token = document.cookie.split('; ').find(row => row.startsWith('access_token=')).split('=')[1];
-                        const response = await fetch('/timesheets/' + currentUser, {
-                            headers: { 'Authorization': `Bearer ${token}` }
-                        });
-                        const data = await response.json();
-                        document.getElementById('mainContent').innerHTML = '<h2>Timesheet</h2><pre>' + JSON.stringify(data, null, 2) + '</pre>';
-                    } catch (error) {
-                        document.getElementById('mainContent').innerHTML = '<p>Error loading timesheet: ' + error.message + '</p>';
-                    }
-                }
-                
-                async function loadHistory() {
-                    document.getElementById('mainContent').innerHTML = '<p>Loading history...</p>';
-                    try {
-                        const token = document.cookie.split('; ').find(row => row.startsWith('access_token=')).split('=')[1];
-                        const response = await fetch('/timesheets/' + currentUser, {
-                            headers: { 'Authorization': `Bearer ${token}` }
-                        });
-                        const data = await response.json();
-                        document.getElementById('mainContent').innerHTML = '<h2>History</h2><pre>' + JSON.stringify(data, null, 2) + '</pre>';
-                    } catch (error) {
-                        document.getElementById('mainContent').innerHTML = '<p>Error loading history: ' + error.message + '</p>';
-                    }
-                }
-                
-                function logout() {
-                    document.cookie = 'access_token=; Max-Age=0; path=/';
-                    localStorage.removeItem('loggedInEmployeeId');
-                    window.location.href = '/';
-                }
-                
-                if (!currentUser) {
-                    window.location.href = '/';
-                } else {
-                    loadEmployeeInfo();
-                    loadTimesheet();
-                }
-            </script>
-        </body>
-        </html>
-        """)
+@app.get("/", response_class=FileResponse)
+async def read_root():
+    index_path = os.path.join(frontend_path, "index.html")
+    if not os.path.exists(index_path):
+        print(f"Index file not found at: {index_path}")
+        raise HTTPException(status_code=404, detail="index.html not found")
+    return FileResponse(index_path, media_type="text/html")
+
+@app.get("/login", response_class=FileResponse)
+async def login_page():
+    login_path = os.path.join(frontend_path, "login.html")
+    if not os.path.exists(login_path):
+        print(f"Login file not found at: {login_path}")
+        raise HTTPException(status_code=404, detail="login.html not found")
+    return FileResponse(login_path, media_type="text/html")
+
+@app.get("/dashboard", response_class=FileResponse)
+async def dashboard_page():
+    index_path = os.path.join(frontend_path, "index.html")
+    if not os.path.exists(index_path):
+        print(f"Index file not found at: {index_path}")
+        raise HTTPException(status_code=404, detail="index.html not found")
+    return FileResponse(index_path, media_type="text/html")
 
 @app.post("/register")
 async def register(request: RegisterRequest):
-    empid = request.empid.strip().upper()  # Normalize empid
+    empid = request.empid.strip().upper()
     password = request.password
 
-    # Password validation
     if len(password) < 8:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must be at least 8 characters")
     if not re.search(r'[A-Z]', password):
@@ -1099,17 +1371,14 @@ async def register(request: RegisterRequest):
     if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must contain at least one special character")
 
-    # Check if employee exists in employees collection
     employee = employee_details_collection.find_one({"EmpID": empid})
     if not employee:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Employee does not exist")
 
-    # Check if user already exists in users collection
     existing_user = users_collection.find_one({"empid": empid})
     if existing_user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already registered")
 
-    # Hash password and create user
     hashed_password = pwd_context.hash(password)
     user_data = {
         "empid": empid,
@@ -1121,28 +1390,24 @@ async def register(request: RegisterRequest):
 
 @app.post("/login")
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    empid = form_data.username.strip().upper()  # Use username as empid
+    empid = form_data.username.strip().upper()
     password = form_data.password
 
     if not empid or not password:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Employee Code and Password are required")
 
-    # Find user in users collection
     user = users_collection.find_one({"empid": empid})
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Employee Code or Password")
 
-    # Verify password
     if not pwd_context.verify(password, user["password"]):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Employee Code or Password")
 
-    # Generate JWT token
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": empid}, expires_delta=access_token_expires
     )
 
-    # Store session in sessions_collection
     session_data = {
         "employeeId": empid,
         "token": access_token,
@@ -1164,9 +1429,7 @@ async def verify_session(token: str = Depends(oauth2_scheme)):
 @app.post("/logout")
 async def logout(token: str = Depends(oauth2_scheme)):
     sessions_collection.delete_one({"token": token})
-    response = {"message": "Logged out successfully"}
-    response.set_cookie(key="access_token", value="", max_age=0, path="/")
-    return response
+    return {"message": "Logged out successfully"}
 
 @app.get("/employees")
 async def get_employees(current_user: str = Depends(get_current_user)):
