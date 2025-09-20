@@ -1283,269 +1283,147 @@ async function showSection(section) {
     }
 }
 
-// async function loadHistory() {
-//     try {
-//         const token = localStorage.getItem('access_token');
-//         const response = await fetch(`${API_URL}/timesheets/${loggedInEmployeeId}`, {
-//             headers: getHeaders()
-//         });
-//         if (!response.ok) {
-//             if (response.status === 401) {
-//                 localStorage.removeItem('access_token');
-//                 localStorage.removeItem('loggedInEmployeeId');
-//                 window.location.href = 'login.html';
-//             }
-//             throw new Error(`Failed to fetch history: ${response.statusText}`);
-//         }
-//         const response_json = await response.json();
-//         console.log('Fetched history data:', response_json); // Debug log
-//         const historyContent = document.getElementById('historyContent');
-//         historyContent.innerHTML = '';
+async function loadHistory() {
+    try {
+        const token = localStorage.getItem('access_token');
+        const response = await fetch(`${API_URL}/timesheets/${loggedInEmployeeId}`, {
+            headers: getHeaders()
+        });
+        if (!response.ok) {
+            if (response.status === 401) {
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('loggedInEmployeeId');
+                window.location.href = 'login.html';
+            }
+            throw new Error(`Failed to fetch history: ${response.statusText}`);
+        }
+        const response_json = await response.json();
+        console.log('Fetched history data:', response_json); // Debug log
+        const historyContent = document.getElementById('historyContent');
+        historyContent.innerHTML = '';
 
-//         data = response_json.Data;
-//         if (!data || data.length === 0) {
-//             historyContent.innerHTML = '<p>No history found</p>';
-//             return;
-//         }
+        data = response_json.Data;
+        if (!data || data.length === 0) {
+            historyContent.innerHTML = '<p>No history found</p>';
+            return;
+        }
 
-//         // Group entries by weekPeriod
-//         let weekMap = new Map();
-//         data.forEach(entry => {
-//             const week = entry.weekPeriod;
-//             if (!weekMap.has(week)) {
-//                 weekMap.set(week, []);
-//             }
-//             weekMap.get(week).push(entry);
-//         });
+        // Group entries by weekPeriod
+        let weekMap = new Map();
+        data.forEach(entry => {
+            const week = entry.weekPeriod;
+            if (!weekMap.has(week)) {
+                weekMap.set(week, []);
+            }
+            weekMap.get(week).push(entry);
+        });
 
-//         for (let [week, weekEntries] of weekMap) {
-//             let weekDiv = document.createElement('div');
-//             weekDiv.className = 'history-week-section';
-//             weekDiv.innerHTML = `<h3>${week}</h3>`;
+        for (let [week, weekEntries] of weekMap) {
+            let weekDiv = document.createElement('div');
+            weekDiv.className = 'history-week-section';
+            weekDiv.innerHTML = `<h3>${week}</h3>`;
 
-//             let tableWrapper = document.createElement('div');
-//             tableWrapper.className = 'table-responsive';
+            let tableWrapper = document.createElement('div');
+            tableWrapper.className = 'table-responsive';
 
-//             let table = document.createElement('table');
-//             table.className = 'history-table';
-//             table.innerHTML = `
-//                 <thead>
-//                     <tr>
-//                         <th class="col-narrow col-edit"><i class="fas fa-edit"></i> Edit</th>
-//                         <th class="col-medium col-date">Date</th>
-//                         <th class="col-wide col-location">Location</th>
-//                         <th class="col-medium col-project-start">Project Start</th>
-//                         <th class="col-medium col-project-end">Project End</th>
-//                         <th class="col-medium col-punch-in">Punch In</th>
-//                         <th class="col-medium col-punch-out">Punch Out</th>
-//                         <th class="col-wide col-client">Client</th>
-//                         <th class="col-wide col-project">Project</th>
-//                         <th class="col-project col-project-code">Project Code</th>
-//                         <th class="col-wide col-reporting-manager">Reporting Manager</th>
-//                         <th class="col-wide col-activity">Activity</th>
-//                         <th class="col-narrow col-project-hours">Project Hours</th>
-//                         <th class="col-narrow col-working-hours">Working Hours</th>
-//                         <th class="col-medium col-billable">Billable</th>
-//                         <th class="col-wide col-remarks">Remarks</th>
-//                         <th class="col-medium col-created-time">Created Time</th>
-//                         <th class="col-medium col-updated-time">Updated Time</th>
-//                     </tr>
-//                 </thead>
-//                 <tbody></tbody>
-//             `;
-//             let tbody = table.querySelector('tbody');
+            let table = document.createElement('table');
+            table.className = 'history-table';
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th class="col-narrow col-edit"><i class="fas fa-edit"></i> Edit</th>
+                        <th class="col-medium col-date">Date</th>
+                        <th class="col-wide col-location">Location</th>
+                        <th class="col-medium col-project-start">Project Start</th>
+                        <th class="col-medium col-project-end">Project End</th>
+                        <th class="col-medium col-punch-in">Punch In</th>
+                        <th class="col-medium col-punch-out">Punch Out</th>
+                        <th class="col-wide col-client">Client</th>
+                        <th class="col-wide col-project">Project</th>
+                        <th class="col-project col-project-code">Project Code</th>
+                        <th class="col-wide col-reporting-manager">Reporting Manager</th>
+                        <th class="col-wide col-activity">Activity</th>
+                        <th class="col-narrow col-project-hours">Project Hours</th>
+                        <th class="col-narrow col-working-hours">Working Hours</th>
+                        <th class="col-medium col-billable">Billable</th>
+                        <th class="col-wide col-remarks">Remarks</th>
+                        <th class="col-medium col-created-time">Created Time</th>
+                        <th class="col-medium col-updated-time">Updated Time</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            `;
+            let tbody = table.querySelector('tbody');
 
-//             weekEntries.forEach(entry => {
-//                 const row = document.createElement('tr');
-//                 row.dataset.entryId = entry.id;
-//                 row.innerHTML = `
-//                     <td class="col-edit"><button class="edit-btn" onclick="editHistoryRow(this, '${entry.id}')"><i class="fas fa-edit"></i></button></td>
-//                     <td class="col-date">${entry.date || ''}</td>
-//                     <td class="col-location">${entry.location || ''}</td>
-//                     <td class="col-project-start">${entry.projectStartTime || ''}</td>
-//                     <td class="col-project-end">${entry.projectEndTime || ''}</td>
-//                     <td class="col-punch-in">${entry.punchIn || ''}</td>
-//                     <td class="col-punch-out">${entry.punchOut || ''}</td>
-//                     <td class="col-client">${entry.client || ''}</td>
-//                     <td class="col-project">${entry.project || ''}</td>
-//                     <td class="col-project-code">${entry.projectCode || ''}</td>
-//                     <td class="col-reporting-manager">${entry.reportingManagerEntry || ''}</td>
-//                     <td class="col-activity">${entry.activity || ''}</td>
-//                     <td class="col-project-hours">${entry.hours || ''}</td>
-//                     <td class="col-working-hours">${entry.workingHours || ''}</td>
-//                     <td class="col-billable">${entry.billable || ''}</td>
-//                     <td class="col-remarks">${entry.remarks || ''}</td>
-//                     <td class="col-created-time">${entry.created_time || ''}</td>
-//                     <td class="col-updated-time">${entry.updated_time || ''}</td>
-//                 `;
-//                 tbody.appendChild(row);
-//             });
-
-//             tableWrapper.appendChild(table);
-//             weekDiv.appendChild(tableWrapper);
-//             historyContent.appendChild(weekDiv);
-//         }
-
-//         // Render feedback only once at the end, using values from the first entry
-//         const firstEntry = data[0] || {};
-//         const feedbackDiv = document.createElement('div');
-//         feedbackDiv.className = 'feedback-section';
-//         feedbackDiv.innerHTML = `
-//             <div class="feedback-item">
-//                 <label>3 HITS</label>
-//                 <textarea readonly rows="3">${firstEntry.hits || ''}</textarea>
-//             </div>
-//             <div class="feedback-item">
-//                 <label>3 MISSES</label>
-//                 <textarea readonly rows="3">${firstEntry.misses || ''}</textarea>
-//             </div>
-//             <div class="feedback-item">
-//                 <label>FEEDBACK FOR HR</label>
-//                 <textarea readonly rows="3">${firstEntry.feedback_hr || ''}</textarea>
-//             </div>
-//             <div class="feedback-item">
-//                 <label>FEEDBACK FOR IT</label>
-//                 <textarea readonly rows="3">${firstEntry.feedback_it || ''}</textarea>
-//             </div>
-//             <div class="feedback-item">
-//                 <label>FEEDBACK FOR CRM</label>
-//                 <textarea readonly rows="3">${firstEntry.feedback_crm || ''}</textarea>
-//             </div>
-//             <div class="feedback-item">
-//                 <label>FEEDBACK FOR OTHERS</label>
-//                 <textarea readonly rows="3">${firstEntry.feedback_others || ''}</textarea>
-//             </div>
-//         `;
-//         historyContent.appendChild(feedbackDiv);
-
-//         updateAllClientFields();
-//         updateAllReportingManagerFields();
-//     } catch (error) {
-//         console.error('Error loading history:', error); // Debug log
-//         showPopup(`Failed to load history: ${error.message}`, true);
-//     }
-// }
-
-function loadHistory() {
-    fetch('/timesheets/' + employeeId)
-        .then(response => response.json())
-        .then(data => {
-            const historyDiv = document.getElementById('historyContent');
-            historyDiv.innerHTML = '';
-
-            data.forEach((weekData, index) => {
-                const section = document.createElement('div');
-                section.className = 'timesheet-section';
-                section.innerHTML = `<h3>Week ${index + 1}: ${weekData.weekPeriod}</h3>`;
-
-                const table = document.createElement('table');
-                table.className = 'timesheet-table';
-                table.innerHTML = `
-                    <thead>
-                        <tr>
-                            <th class="col-narrow col-sno">S.No</th>
-                            <th class="col-narrow col-action">Action</th>
-                            <th class="col-medium col-date">Date</th>
-                            <th class="col-wide col-location">Location of Work</th>
-                            <th class="col-medium col-project-start">Project Start Time</th>
-                            <th class="col-medium col-project-end">Project End Time</th>
-                            <th class="col-medium col-punch-in">Punch In</th>
-                            <th class="col-medium col-punch-out">Punch Out</th>
-                            <th class="col-wide col-client">Client</th>
-                            <th class="col-wide col-project">Project</th>
-                            <th class="col-project col-project-code">Project Code</th>
-                            <th class="col-wide col-reporting-manager">Reporting Manager</th>
-                            <th class="col-wide col-activity">Activity</th>
-                            <th class="col-narrow col-project-hours">Project Hours</th>
-                            <th class="col-narrow col-working-hours">Working Hours</th>
-                            <th class="col-medium col-billable">Billable</th>
-                            <th class="col-wide col-remarks">Remarks</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historyBody_${index + 1}"></tbody>
+            weekEntries.forEach(entry => {
+                const row = document.createElement('tr');
+                row.dataset.entryId = entry.id;
+                row.innerHTML = `
+                    <td class="col-edit"><button class="edit-btn" onclick="editHistoryRow(this, '${entry.id}')"><i class="fas fa-edit"></i></button></td>
+                    <td class="col-date">${entry.date || ''}</td>
+                    <td class="col-location">${entry.location || ''}</td>
+                    <td class="col-project-start">${entry.projectStartTime || ''}</td>
+                    <td class="col-project-end">${entry.projectEndTime || ''}</td>
+                    <td class="col-punch-in">${entry.punchIn || ''}</td>
+                    <td class="col-punch-out">${entry.punchOut || ''}</td>
+                    <td class="col-client">${entry.client || ''}</td>
+                    <td class="col-project">${entry.project || ''}</td>
+                    <td class="col-project-code">${entry.projectCode || ''}</td>
+                    <td class="col-reporting-manager">${entry.reportingManagerEntry || ''}</td>
+                    <td class="col-activity">${entry.activity || ''}</td>
+                    <td class="col-project-hours">${entry.hours || ''}</td>
+                    <td class="col-working-hours">${entry.workingHours || ''}</td>
+                    <td class="col-billable">${entry.billable || ''}</td>
+                    <td class="col-remarks">${entry.remarks || ''}</td>
+                    <td class="col-created-time">${entry.created_time || ''}</td>
+                    <td class="col-updated-time">${entry.updated_time || ''}</td>
                 `;
-                section.appendChild(table);
-
-                const tbody = table.querySelector('tbody');
-                weekData.entries.forEach((entry, entryIndex) => {
-                    const newRow = document.createElement('tr');
-                    newRow.innerHTML = `
-                        <td class="col-sno">${entryIndex + 1}</td>
-                        <td class="col-action">
-                            <button class="view-btn" title="View"><i class="fas fa-eye"></i></button>
-                        </td>
-                        <td>${entry.date || ''}</td>
-                        <td>${entry.location || ''}</td>
-                        <td>${entry.projectStart || ''}</td>
-                        <td>${entry.projectEnd || ''}</td>
-                        <td>${entry.punchIn || ''}</td>
-                        <td>${entry.punchOut || ''}</td>
-                        <td>${entry.client || ''}</td>
-                        <td>${entry.project || ''}</td>
-                        <td>${entry.projectCode || ''}</td>
-                        <td>${entry.reportingManager || ''}</td>
-                        <td>${entry.activity || ''}</td>
-                        <td>${entry.projectHours || ''}</td>
-                        <td>${entry.workingHours || ''}</td>
-                        <td>${entry.billable ? 'Yes' : 'No'}</td>
-                        <td>${entry.remarks || ''}</td>
-                    `;
-                    tbody.appendChild(newRow);
-
-                    const viewBtn = newRow.querySelector('.view-btn');
-                    viewBtn.onclick = () => {
-                        const modal = document.createElement('div');
-                        modal.className = 'modal';
-                        modal.innerHTML = `
-                            <div class="modal-content">
-                                <span class="close-btn">&times;</span>
-                                <h2>Entry Details</h2>
-                                <table>
-                                    <tr><td>Date:</td><td><input type="date" class="modal-date" value="${entry.date || ''}" readonly></td></tr>
-                                    <tr><td>Location:</td><td><input type="text" class="modal-location" value="${entry.location || ''}" readonly></td></tr>
-                                    <tr><td>Project Start:</td><td><input type="time" class="modal-project-start" value="${entry.projectStart || ''}" readonly></td></tr>
-                                    <tr><td>Project End:</td><td><input type="time" class="modal-project-end" value="${entry.projectEnd || ''}" readonly></td></tr>
-                                    <tr><td>Punch In:</td><td><input type="time" class="modal-punch-in" value="${entry.punchIn || ''}" readonly></td></tr>
-                                    <tr><td>Punch Out:</td><td><input type="time" class="modal-punch-out" value="${entry.punchOut || ''}" readonly></td></tr>
-                                    <tr><td>Client:</td><td><input type="text" class="modal-client" value="${entry.client || ''}" readonly></td></tr>
-                                    <tr><td>Project:</td><td><input type="text" class="modal-project" value="${entry.project || ''}" readonly></td></tr>
-                                    <tr><td>Project Code:</td><td><input type="text" class="modal-project-code" value="${entry.projectCode || ''}" readonly></td></tr>
-                                    <tr><td>Reporting Manager:</td><td><input type="text" class="modal-reporting-manager" value="${entry.reportingManager || ''}" readonly></td></tr>
-                                    <tr><td>Activity:</td><td><input type="text" class="modal-activity" value="${entry.activity || ''}" readonly></td></tr>
-                                    <tr><td>Project Hours:</td><td><input type="number" class="modal-project-hours" value="${entry.projectHours || ''}" readonly></td></tr>
-                                    <tr><td>Working Hours:</td><td><input type="number" class="modal-working-hours" value="${entry.workingHours || ''}" readonly></td></tr>
-                                    <tr><td>Billable:</td><td><input type="checkbox" class="modal-billable" ${entry.billable ? 'checked' : ''} disabled></td></tr>
-                                    <tr><td>Remarks:</td><td><input type="text" class="modal-remarks" value="${entry.remarks || ''}" readonly></td></tr>
-                                </table>
-                            </div>
-                        `;
-                        document.body.appendChild(modal);
-
-                        const closeBtn = modal.querySelector('.close-btn');
-                        closeBtn.onclick = () => document.body.removeChild(modal);
-                    };
-                });
-
-                historyDiv.appendChild(section);
+                tbody.appendChild(row);
             });
 
-            // Add feedback section if present
-            if (data[0] && data[0].feedback) {
-                const feedbackSection = document.createElement('div');
-                feedbackSection.className = 'feedback-section';
-                feedbackSection.innerHTML = `
-                    <h3>Feedback</h3>
-                    <p><strong>HITS:</strong> ${data[0].feedback.hits.join(', ') || 'N/A'}</p>
-                    <p><strong>MISSES:</strong> ${data[0].feedback.misses.join(', ') || 'N/A'}</p>
-                    <p><strong>HR Feedback:</strong> ${data[0].feedback.hr || 'N/A'}</p>
-                    <p><strong>IT Feedback:</strong> ${data[0].feedback.it || 'N/A'}</p>
-                    <p><strong>CRM Feedback:</strong> ${data[0].feedback.crm || 'N/A'}</p>
-                    <p><strong>Others Feedback:</strong> ${data[0].feedback.others || 'N/A'}</p>
-                `;
-                historyDiv.appendChild(feedbackSection);
-            }
-        })
-        .catch(error => showPopup('Error loading history: ' + error.message, true));
+            tableWrapper.appendChild(table);
+            weekDiv.appendChild(tableWrapper);
+            historyContent.appendChild(weekDiv);
+        }
+
+        // Render feedback only once at the end, using values from the first entry
+        const firstEntry = data[0] || {};
+        const feedbackDiv = document.createElement('div');
+        feedbackDiv.className = 'feedback-section';
+        feedbackDiv.innerHTML = `
+            <div class="feedback-item">
+                <label>3 HITS</label>
+                <textarea readonly rows="3">${firstEntry.hits || ''}</textarea>
+            </div>
+            <div class="feedback-item">
+                <label>3 MISSES</label>
+                <textarea readonly rows="3">${firstEntry.misses || ''}</textarea>
+            </div>
+            <div class="feedback-item">
+                <label>FEEDBACK FOR HR</label>
+                <textarea readonly rows="3">${firstEntry.feedback_hr || ''}</textarea>
+            </div>
+            <div class="feedback-item">
+                <label>FEEDBACK FOR IT</label>
+                <textarea readonly rows="3">${firstEntry.feedback_it || ''}</textarea>
+            </div>
+            <div class="feedback-item">
+                <label>FEEDBACK FOR CRM</label>
+                <textarea readonly rows="3">${firstEntry.feedback_crm || ''}</textarea>
+            </div>
+            <div class="feedback-item">
+                <label>FEEDBACK FOR OTHERS</label>
+                <textarea readonly rows="3">${firstEntry.feedback_others || ''}</textarea>
+            </div>
+        `;
+        historyContent.appendChild(feedbackDiv);
+
+        updateAllClientFields();
+        updateAllReportingManagerFields();
+    } catch (error) {
+        console.error('Error loading history:', error); // Debug log
+        showPopup(`Failed to load history: ${error.message}`, true);
+    }
 }
 
 function editHistoryRow(button, entryId) {
@@ -2022,189 +1900,72 @@ function addWeekSection() {
     updateDateValidations(sectionId);
 }
 
-// function addRow(sectionId) {
-//     const tbody = document.getElementById(`timesheetBody_${sectionId.split('_')[1]}`);
-//     if (!tbody) return;
-//     const rows = tbody.querySelectorAll('tr');
-//     const rowCount = rows.length + 1;
-    
-//     const weekSelect = document.getElementById(`weekPeriod_${sectionId.split('_')[1]}`);
-//     const selectedWeekValue = weekSelect.value;
-//     const selectedWeek = weekOptions.find(opt => opt.value === selectedWeekValue);
-    
-//     let defaultDate = new Date().toISOString().split('T')[0];
-//     if (selectedWeek && selectedWeek.start) {
-//         const weekStart = new Date(selectedWeek.start);
-//         defaultDate = `${weekStart.getFullYear()}-${String(weekStart.getMonth() + 1).padStart(2, '0')}-${String(weekStart.getDate()).padStart(2, '0')}`;
-//     } else if (weekOptions.length > 0) {
-//         const firstWeek = weekOptions[0];
-//         const weekStart = new Date(firstWeek.start);
-//         defaultDate = `${weekStart.getFullYear()}-${String(weekStart.getMonth() + 1).padStart(2, '0')}-${String(weekStart.getDate()).padStart(2, '0')}`;
-//     }
-    
-//     console.log(`Adding row for section ${sectionId}, week: ${selectedWeekValue}, default date: ${defaultDate}`);
-    
-//     const row = document.createElement('tr');
-//     row.innerHTML = `
-//         <td class="col-sno" style="min-width: 60px;">${rowCount}</td>
-//         <td class="col-action" style="min-width: 120px;">
-//             <button class="copy-btn" onclick="copyRow(this)"><i class="fas fa-copy"></i> Copy</button>
-//             <button class="paste-btn" onclick="pasteRow(this)"><i class="fas fa-paste"></i> Paste</button>
-//         </td>
-//         <td class="col-date" style="min-width: 120px;"><input type="date" value="${defaultDate}" class="date-field form-input" onchange="validateDate(this); updateSummary()"></td>
-//         <td class="col-location" style="min-width: 200px;"><select class="location-select form-input" onchange="updateSummary()">
-//             <option value="Office">Office</option>
-//             <option value="Client Site">Client Site</option>
-//             <option value="Work From Home">Work From Home</option>
-//             <option value="Field Work">Field Work</option>
-//         </select></td>
-//         <td class="col-project-start" style="min-width: 120px;"><input type="time" class="project-start form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
-//         <td class="col-project-end" style="min-width: 120px;"><input type="time" class="project-end form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
-//         <td class="col-punch-in" style="min-width: 120px;"><input type="time" class="punch-in form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
-//         <td class="col-punch-out" style="min-width: 120px;"><input type="time" class="punch-out form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
-//         <td class="col-client" style="min-width: 250px;"><select class="client-field client-select form-input" onchange="handleClientChange(this)" data-projects="[]"><option value="">Select Client</option></select></td>
-//         <td class="col-project" style="min-width: 200px;"><input type="text" class="project-field form-input" placeholder="Enter Project" oninput="updateSummary()"></td>
-//         <td class="col-project-code" style="min-width: 200px;"><input type="text" class="project-code form-input" readonly></td>
-//         <td class="col-reporting-manager" style="min-width: 200px;"><select class="reporting-manager-field reporting-manager-select form-input" onchange="handleReportingManagerChange(this)"><option value="">Select Reporting Manager</option></select></td>
-//         <td class="col-activity" style="min-width: 200px;"><input type="text" class="activity-field form-input" placeholder="Enter Activity" oninput="updateSummary()"></td>
-//         <td class="col-project-hours" style="min-width: 80px;"><input type="number" class="project-hours-field form-input" readonly></td>
-//         <td class="col-working-hours" style="min-width: 80px;"><input type="number" class="working-hours-field form-input" readonly></td>
-//         <td class="col-billable" style="min-width: 120px;"><select class="billable-select form-input" onchange="updateSummary()">
-//             <option value="Yes">Billable</option>
-//             <option value="No">Non-Billable</option>
-//         </select></td>
-//         <td class="col-remarks" style="min-width: 200px;"><input type="text" class="remarks-field form-input" placeholder="Additional notes"></td>
-//         <td class="col-delete" style="min-width: 80px;"><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td>
-//     `;
-
-//     tbody.appendChild(row);
-//     updateAllClientFields();
-//     updateAllReportingManagerFields();
-    
-//     const dateInput = row.querySelector('.date-field');
-//     if (dateInput) {
-//         validateDate(dateInput);
-//     }
-    
-//     updateSummary();
-// }
-
 function addRow(sectionId) {
     const tbody = document.getElementById(`timesheetBody_${sectionId.split('_')[1]}`);
-    if (!tbody) {
-        showPopup('Table body not found!', true);
-        return;
+    if (!tbody) return;
+    const rows = tbody.querySelectorAll('tr');
+    const rowCount = rows.length + 1;
+    
+    const weekSelect = document.getElementById(`weekPeriod_${sectionId.split('_')[1]}`);
+    const selectedWeekValue = weekSelect.value;
+    const selectedWeek = weekOptions.find(opt => opt.value === selectedWeekValue);
+    
+    let defaultDate = new Date().toISOString().split('T')[0];
+    if (selectedWeek && selectedWeek.start) {
+        const weekStart = new Date(selectedWeek.start);
+        defaultDate = `${weekStart.getFullYear()}-${String(weekStart.getMonth() + 1).padStart(2, '0')}-${String(weekStart.getDate()).padStart(2, '0')}`;
+    } else if (weekOptions.length > 0) {
+        const firstWeek = weekOptions[0];
+        const weekStart = new Date(firstWeek.start);
+        defaultDate = `${weekStart.getFullYear()}-${String(weekStart.getMonth() + 1).padStart(2, '0')}-${String(weekStart.getDate()).padStart(2, '0')}`;
     }
-
-    const newRow = document.createElement('tr');
-    newRow.innerHTML = `
-        <td class="col-sno"></td>
-        <td class="col-action">
-            <button class="view-btn" title="View/Edit"><i class="fas fa-eye"></i></button>
-            <button class="copy-btn" title="Copy"><i class="fas fa-copy"></i></button>
-            <button class="paste-btn" title="Paste"><i class="fas fa-paste"></i></button>
+    
+    console.log(`Adding row for section ${sectionId}, week: ${selectedWeekValue}, default date: ${defaultDate}`);
+    
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td class="col-sno" style="min-width: 60px;">${rowCount}</td>
+        <td class="col-action" style="min-width: 120px;">
+            <button class="copy-btn" onclick="copyRow(this)"><i class="fas fa-copy"></i> Copy</button>
+            <button class="paste-btn" onclick="pasteRow(this)"><i class="fas fa-paste"></i> Paste</button>
         </td>
-        <td><input type="date" class="date-field" onchange="validateDate(this); updateSummary();"></td>
-        <td><input type="text" class="location-field" onchange="updateSummary()"></td>
-        <td><input type="time" class="project-start" onchange="validateTimes(this.parentElement.parentElement); calculateHours(this.parentElement.parentElement); updateSummary()"></td>
-        <td><input type="time" class="project-end" onchange="validateTimes(this.parentElement.parentElement); calculateHours(this.parentElement.parentElement); updateSummary()"></td>
-        <td><input type="time" class="punch-in" onchange="validateTimes(this.parentElement.parentElement); calculateHours(this.parentElement.parentElement); updateSummary()"></td>
-        <td><input type="time" class="punch-out" onchange="validateTimes(this.parentElement.parentElement); calculateHours(this.parentElement.parentElement); updateSummary()"></td>
-        <td>
-            <select class="client-field" onchange="handleClientChange(this); updateSummary()">
-                <option value="">Select Client</option>
-                <!-- Client options populated by updateAllClientFields -->
-            </select>
-        </td>
-        <td><input type="text" class="project-field" readonly></td>
-        <td><input type="text" class="project-code-field" readonly></td>
-        <td>
-            <select class="reporting-manager-field" onchange="handleReportingManagerChange(this); updateSummary()">
-                <option value="">Select Reporting Manager</option>
-                <!-- Manager options populated by updateAllReportingManagerFields -->
-            </select>
-        </td>
-        <td><input type="text" class="activity-field" onchange="updateSummary()"></td>
-        <td><input type="number" class="project-hours-field" readonly></td>
-        <td><input type="number" class="working-hours-field" readonly></td>
-        <td><input type="checkbox" class="billable-field" onchange="updateSummary()"></td>
-        <td><input type="text" class="remarks-field" onchange="updateSummary()"></td>
-        <td><button class="delete-btn" title="Delete"><i class="fas fa-trash"></i></button></td>
+        <td class="col-date" style="min-width: 120px;"><input type="date" value="${defaultDate}" class="date-field form-input" onchange="validateDate(this); updateSummary()"></td>
+        <td class="col-location" style="min-width: 200px;"><select class="location-select form-input" onchange="updateSummary()">
+            <option value="Office">Office</option>
+            <option value="Client Site">Client Site</option>
+            <option value="Work From Home">Work From Home</option>
+            <option value="Field Work">Field Work</option>
+        </select></td>
+        <td class="col-project-start" style="min-width: 120px;"><input type="time" class="project-start form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+        <td class="col-project-end" style="min-width: 120px;"><input type="time" class="project-end form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+        <td class="col-punch-in" style="min-width: 120px;"><input type="time" class="punch-in form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+        <td class="col-punch-out" style="min-width: 120px;"><input type="time" class="punch-out form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+        <td class="col-client" style="min-width: 250px;"><select class="client-field client-select form-input" onchange="handleClientChange(this)" data-projects="[]"><option value="">Select Client</option></select></td>
+        <td class="col-project" style="min-width: 200px;"><input type="text" class="project-field form-input" placeholder="Enter Project" oninput="updateSummary()"></td>
+        <td class="col-project-code" style="min-width: 200px;"><input type="text" class="project-code form-input" readonly></td>
+        <td class="col-reporting-manager" style="min-width: 200px;"><select class="reporting-manager-field reporting-manager-select form-input" onchange="handleReportingManagerChange(this)"><option value="">Select Reporting Manager</option></select></td>
+        <td class="col-activity" style="min-width: 200px;"><input type="text" class="activity-field form-input" placeholder="Enter Activity" oninput="updateSummary()"></td>
+        <td class="col-project-hours" style="min-width: 80px;"><input type="number" class="project-hours-field form-input" readonly></td>
+        <td class="col-working-hours" style="min-width: 80px;"><input type="number" class="working-hours-field form-input" readonly></td>
+        <td class="col-billable" style="min-width: 120px;"><select class="billable-select form-input" onchange="updateSummary()">
+            <option value="Yes">Billable</option>
+            <option value="No">Non-Billable</option>
+        </select></td>
+        <td class="col-remarks" style="min-width: 200px;"><input type="text" class="remarks-field form-input" placeholder="Additional notes"></td>
+        <td class="col-delete" style="min-width: 80px;"><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td>
     `;
 
-    tbody.appendChild(newRow);
-    updateRowNumbers(tbody.id);
+    tbody.appendChild(row);
     updateAllClientFields();
     updateAllReportingManagerFields();
-    validateDate(newRow.querySelector('.date-field'));
-    updateDateValidations(sectionId);
-
-    // Add view/edit modal functionality
-    const viewBtn = newRow.querySelector('.view-btn');
-    viewBtn.onclick = () => {
-        const inputs = newRow.querySelectorAll('input, select');
-        const modal = document.createElement('div');
-        modal.className = 'modal';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <span class="close-btn">&times;</span>
-                <h2>Entry Details</h2>
-                <table>
-                    <tr><td>Date:</td><td><input type="date" class="modal-date" value="${inputs[2].value}"></td></tr>
-                    <tr><td>Location:</td><td><input type="text" class="modal-location" value="${inputs[3].value}"></td></tr>
-                    <tr><td>Project Start:</td><td><input type="time" class="modal-project-start" value="${inputs[4].value}"></td></tr>
-                    <tr><td>Project End:</td><td><input type="time" class="modal-project-end" value="${inputs[5].value}"></td></tr>
-                    <tr><td>Punch In:</td><td><input type="time" class="modal-punch-in" value="${inputs[6].value}"></td></tr>
-                    <tr><td>Punch Out:</td><td><input type="time" class="modal-punch-out" value="${inputs[7].value}"></td></tr>
-                    <tr><td>Client:</td><td><input type="text" class="modal-client" value="${inputs[8].value}"></td></tr>
-                    <tr><td>Project:</td><td><input type="text" class="modal-project" value="${inputs[9].value}"></td></tr>
-                    <tr><td>Project Code:</td><td><input type="text" class="modal-project-code" value="${inputs[10].value}"></td></tr>
-                    <tr><td>Reporting Manager:</td><td><input type="text" class="modal-reporting-manager" value="${inputs[11].value}"></td></tr>
-                    <tr><td>Activity:</td><td><input type="text" class="modal-activity" value="${inputs[12].value}"></td></tr>
-                    <tr><td>Project Hours:</td><td><input type="number" class="modal-project-hours" value="${inputs[13].value}" readonly></td></tr>
-                    <tr><td>Working Hours:</td><td><input type="number" class="modal-working-hours" value="${inputs[14].value}" readonly></td></tr>
-                    <tr><td>Billable:</td><td><input type="checkbox" class="modal-billable" ${inputs[15].checked ? 'checked' : ''}></td></tr>
-                    <tr><td>Remarks:</td><td><input type="text" class="modal-remarks" value="${inputs[16].value}"></td></tr>
-                </table>
-                <button class="save-btn">Save</button>
-            </div>
-        `;
-        document.body.appendChild(modal);
-
-        const closeBtn = modal.querySelector('.close-btn');
-        const saveBtn = modal.querySelector('.save-btn');
-        closeBtn.onclick = () => document.body.removeChild(modal);
-        saveBtn.onclick = () => {
-            inputs.forEach((input, idx) => {
-                if (input.type === 'checkbox') {
-                    input.checked = modal.querySelectorAll('input, select')[idx].checked;
-                } else {
-                    input.value = modal.querySelectorAll('input, select')[idx].value;
-                }
-            });
-            calculateHours(newRow);
-            updateSummary();
-            document.body.removeChild(modal);
-        };
-    };
-
-    // Add copy and paste functionality (unchanged)
-    const copyBtn = newRow.querySelector('.copy-btn');
-    copyBtn.onclick = () => copyRow(newRow);
-
-    const pasteBtn = newRow.querySelector('.paste-btn');
-    pasteBtn.onclick = () => pasteRow(newRow);
-
-    const deleteBtn = newRow.querySelector('.delete-btn');
-    deleteBtn.onclick = () => {
-        if (confirm('Are you sure you want to delete this row?')) {
-            newRow.remove();
-            updateRowNumbers(tbody.id);
-            updateSummary();
-        }
-    };
+    
+    const dateInput = row.querySelector('.date-field');
+    if (dateInput) {
+        validateDate(dateInput);
+    }
+    
+    updateSummary();
 }
-
 
 // New function to copy row data
 function copyRow(button) {
