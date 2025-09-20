@@ -1422,3 +1422,11 @@ body {
 .col-action {
     min-width: 120px; /* Ensure enough space for two buttons */
 }
+
+.col-add button {
+    padding: 5px;
+    margin: 2px;
+}
+.eye-btn i {
+    font-size: 16px;
+}

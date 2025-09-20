@@ -1331,6 +1331,7 @@ async function loadHistory() {
             table.innerHTML = `
                 <thead>
                     <tr>
+                        <td class="col-edit"><button class="eye-btn" onclick="openModal(this, true)"><i class="fas fa-eye"></i></button></td>
                         <th class="col-narrow col-edit"><i class="fas fa-edit"></i> Edit</th>
                         <th class="col-medium col-date">Date</th>
                         <th class="col-wide col-location">Location</th>
@@ -1802,170 +1803,170 @@ function confirmExit() {
 //     updateDateValidations(sectionId);
 // }
 
-function addWeekSection() {
-    sectionCount++;
-    const sectionsDiv = document.getElementById('timesheetSections');
-    const sectionId = `section_${sectionCount}`;
+// function addWeekSection() {
+//     sectionCount++;
+//     const sectionsDiv = document.getElementById('timesheetSections');
+//     const sectionId = `section_${sectionCount}`;
     
-    const section = document.createElement('div');
-    section.className = 'timesheet-section';
-    section.id = sectionId;
+//     const section = document.createElement('div');
+//     section.className = 'timesheet-section';
+//     section.id = sectionId;
     
-    const deleteBtn = document.createElement('button');
-    deleteBtn.className = 'delete-week-btn';
-    deleteBtn.textContent = 'Delete Week';
-    deleteBtn.onclick = () => deleteWeekSection(sectionId);
-    section.appendChild(deleteBtn);
+//     const deleteBtn = document.createElement('button');
+//     deleteBtn.className = 'delete-week-btn';
+//     deleteBtn.textContent = 'Delete Week';
+//     deleteBtn.onclick = () => deleteWeekSection(sectionId);
+//     section.appendChild(deleteBtn);
     
-    const weekPeriod = document.createElement('div');
-    weekPeriod.className = 'week-period form-group';
-    weekPeriod.innerHTML = `
-        <label>Week Period ${sectionCount}</label>
-    `;
-    const select = document.createElement('select');
-    select.id = `weekPeriod_${sectionCount}`;
-    select.onchange = () => {
-        updateSummary();
-        updateDateValidations(sectionId);
-        updateExistingRowDates(sectionId);
-    };
-    weekOptions.forEach(opt => {
-        const option = document.createElement('option');
-        option.value = opt.value;
-        option.textContent = opt.text;
-        select.appendChild(option);
-    });
-    if (weekOptions.length > 0) {
-        select.value = weekOptions[0].value;
-        setTimeout(() => {
-            select.onchange();
-        }, 100);
-    }
-    weekPeriod.appendChild(select);
-    section.appendChild(weekPeriod);
+//     const weekPeriod = document.createElement('div');
+//     weekPeriod.className = 'week-period form-group';
+//     weekPeriod.innerHTML = `
+//         <label>Week Period ${sectionCount}</label>
+//     `;
+//     const select = document.createElement('select');
+//     select.id = `weekPeriod_${sectionCount}`;
+//     select.onchange = () => {
+//         updateSummary();
+//         updateDateValidations(sectionId);
+//         updateExistingRowDates(sectionId);
+//     };
+//     weekOptions.forEach(opt => {
+//         const option = document.createElement('option');
+//         option.value = opt.value;
+//         option.textContent = opt.text;
+//         select.appendChild(option);
+//     });
+//     if (weekOptions.length > 0) {
+//         select.value = weekOptions[0].value;
+//         setTimeout(() => {
+//             select.onchange();
+//         }, 100);
+//     }
+//     weekPeriod.appendChild(select);
+//     section.appendChild(weekPeriod);
     
-    const tableWrapper = document.createElement('div');
-    tableWrapper.className = 'table-responsive';
-    const table = document.createElement('table');
-    table.className = 'timesheet-table';
-    table.innerHTML = `
-        <thead>
-            <tr>
-                <th class="col-narrow col-sno">S.No</th>
-                <th class="col-narrow col-action">Action</th>
-                <th class="col-medium col-date">Date</th>
-                <th class="col-wide col-location">Location of Work</th>
-                <th class="col-medium col-project-start">Project Start Time</th>
-                <th class="col-medium col-project-end">Project End Time</th>
-                <th class="col-medium col-punch-in">Punch In</th>
-                <th class="col-medium col-punch-out">Punch Out</th>
-                <th class="col-wide col-client">Client</th>
-                <th class="col-wide col-project">Project</th>
-                <th class="col-project col-project-code">Project Code</th>
-                <th class="col-wide col-reporting-manager">Reporting Manager</th>
-                <th class="col-wide col-activity">Activity</th>
-                <th class="col-narrow col-project-hours">Project Hours</th>
-                <th class="col-narrow col-working-hours">Working Hours</th>
-                <th class="col-medium col-billable">Billable</th>
-                <th class="col-wide col-remarks">Remarks</th>
-                <th class="col-narrow col-delete">Action</th>
-            </tr>
-        </thead>
-        <tbody id="timesheetBody_${sectionCount}"></tbody>
-    `;
-    tableWrapper.appendChild(table);
-    section.appendChild(tableWrapper);
+//     const tableWrapper = document.createElement('div');
+//     tableWrapper.className = 'table-responsive';
+//     const table = document.createElement('table');
+//     table.className = 'timesheet-table';
+//     table.innerHTML = `
+//         <thead>
+//             <tr>
+//                 <th class="col-narrow col-sno">S.No</th>
+//                 <th class="col-narrow col-action">Action</th>
+//                 <th class="col-medium col-date">Date</th>
+//                 <th class="col-wide col-location">Location of Work</th>
+//                 <th class="col-medium col-project-start">Project Start Time</th>
+//                 <th class="col-medium col-project-end">Project End Time</th>
+//                 <th class="col-medium col-punch-in">Punch In</th>
+//                 <th class="col-medium col-punch-out">Punch Out</th>
+//                 <th class="col-wide col-client">Client</th>
+//                 <th class="col-wide col-project">Project</th>
+//                 <th class="col-project col-project-code">Project Code</th>
+//                 <th class="col-wide col-reporting-manager">Reporting Manager</th>
+//                 <th class="col-wide col-activity">Activity</th>
+//                 <th class="col-narrow col-project-hours">Project Hours</th>
+//                 <th class="col-narrow col-working-hours">Working Hours</th>
+//                 <th class="col-medium col-billable">Billable</th>
+//                 <th class="col-wide col-remarks">Remarks</th>
+//                 <th class="col-narrow col-delete">Action</th>
+//             </tr>
+//         </thead>
+//         <tbody id="timesheetBody_${sectionCount}"></tbody>
+//     `;
+//     tableWrapper.appendChild(table);
+//     section.appendChild(tableWrapper);
     
-    const buttonContainer = document.createElement('div');
-    buttonContainer.className = 'button-container';
+//     const buttonContainer = document.createElement('div');
+//     buttonContainer.className = 'button-container';
     
-    const addRowBtn = document.createElement('button');
-    addRowBtn.className = 'add-row-btn';
-    addRowBtn.textContent = '+ Add New Entry';
-    addRowBtn.onclick = () => addRow(sectionId);
-    buttonContainer.appendChild(addRowBtn);
+//     const addRowBtn = document.createElement('button');
+//     addRowBtn.className = 'add-row-btn';
+//     addRowBtn.textContent = '+ Add New Entry';
+//     addRowBtn.onclick = () => addRow(sectionId);
+//     buttonContainer.appendChild(addRowBtn);
     
-    const pasteAboveBtn = document.createElement('button');
-    pasteAboveBtn.className = 'paste-above-btn';
-    pasteAboveBtn.textContent = 'Paste Above Cell';
-    pasteAboveBtn.onclick = () => pasteAboveCell(sectionId);
-    buttonContainer.appendChild(pasteAboveBtn);
+//     const pasteAboveBtn = document.createElement('button');
+//     pasteAboveBtn.className = 'paste-above-btn';
+//     pasteAboveBtn.textContent = 'Paste Above Cell';
+//     pasteAboveBtn.onclick = () => pasteAboveCell(sectionId);
+//     buttonContainer.appendChild(pasteAboveBtn);
     
-    section.appendChild(buttonContainer);
+//     section.appendChild(buttonContainer);
     
-    sectionsDiv.appendChild(section);
-    addRow(sectionId);
-    updateAllClientFields();
-    updateAllReportingManagerFields();
-    updateDateValidations(sectionId);
-}
+//     sectionsDiv.appendChild(section);
+//     addRow(sectionId);
+//     updateAllClientFields();
+//     updateAllReportingManagerFields();
+//     updateDateValidations(sectionId);
+// }
 
-function addRow(sectionId) {
-    const tbody = document.getElementById(`timesheetBody_${sectionId.split('_')[1]}`);
-    if (!tbody) return;
-    const rows = tbody.querySelectorAll('tr');
-    const rowCount = rows.length + 1;
+// function addRow(sectionId) {
+//     const tbody = document.getElementById(`timesheetBody_${sectionId.split('_')[1]}`);
+//     if (!tbody) return;
+//     const rows = tbody.querySelectorAll('tr');
+//     const rowCount = rows.length + 1;
     
-    const weekSelect = document.getElementById(`weekPeriod_${sectionId.split('_')[1]}`);
-    const selectedWeekValue = weekSelect.value;
-    const selectedWeek = weekOptions.find(opt => opt.value === selectedWeekValue);
+//     const weekSelect = document.getElementById(`weekPeriod_${sectionId.split('_')[1]}`);
+//     const selectedWeekValue = weekSelect.value;
+//     const selectedWeek = weekOptions.find(opt => opt.value === selectedWeekValue);
     
-    let defaultDate = new Date().toISOString().split('T')[0];
-    if (selectedWeek && selectedWeek.start) {
-        const weekStart = new Date(selectedWeek.start);
-        defaultDate = `${weekStart.getFullYear()}-${String(weekStart.getMonth() + 1).padStart(2, '0')}-${String(weekStart.getDate()).padStart(2, '0')}`;
-    } else if (weekOptions.length > 0) {
-        const firstWeek = weekOptions[0];
-        const weekStart = new Date(firstWeek.start);
-        defaultDate = `${weekStart.getFullYear()}-${String(weekStart.getMonth() + 1).padStart(2, '0')}-${String(weekStart.getDate()).padStart(2, '0')}`;
-    }
+//     let defaultDate = new Date().toISOString().split('T')[0];
+//     if (selectedWeek && selectedWeek.start) {
+//         const weekStart = new Date(selectedWeek.start);
+//         defaultDate = `${weekStart.getFullYear()}-${String(weekStart.getMonth() + 1).padStart(2, '0')}-${String(weekStart.getDate()).padStart(2, '0')}`;
+//     } else if (weekOptions.length > 0) {
+//         const firstWeek = weekOptions[0];
+//         const weekStart = new Date(firstWeek.start);
+//         defaultDate = `${weekStart.getFullYear()}-${String(weekStart.getMonth() + 1).padStart(2, '0')}-${String(weekStart.getDate()).padStart(2, '0')}`;
+//     }
     
-    console.log(`Adding row for section ${sectionId}, week: ${selectedWeekValue}, default date: ${defaultDate}`);
+//     console.log(`Adding row for section ${sectionId}, week: ${selectedWeekValue}, default date: ${defaultDate}`);
     
-    const row = document.createElement('tr');
-    row.innerHTML = `
-        <td class="col-sno" style="min-width: 60px;">${rowCount}</td>
-        <td class="col-action" style="min-width: 120px;">
-            <button class="copy-btn" onclick="copyRow(this)"><i class="fas fa-copy"></i> Copy</button>
-            <button class="paste-btn" onclick="pasteRow(this)"><i class="fas fa-paste"></i> Paste</button>
-        </td>
-        <td class="col-date" style="min-width: 120px;"><input type="date" value="${defaultDate}" class="date-field form-input" onchange="validateDate(this); updateSummary()"></td>
-        <td class="col-location" style="min-width: 200px;"><select class="location-select form-input" onchange="updateSummary()">
-            <option value="Office">Office</option>
-            <option value="Client Site">Client Site</option>
-            <option value="Work From Home">Work From Home</option>
-            <option value="Field Work">Field Work</option>
-        </select></td>
-        <td class="col-project-start" style="min-width: 120px;"><input type="time" class="project-start form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
-        <td class="col-project-end" style="min-width: 120px;"><input type="time" class="project-end form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
-        <td class="col-punch-in" style="min-width: 120px;"><input type="time" class="punch-in form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
-        <td class="col-punch-out" style="min-width: 120px;"><input type="time" class="punch-out form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
-        <td class="col-client" style="min-width: 250px;"><select class="client-field client-select form-input" onchange="handleClientChange(this)" data-projects="[]"><option value="">Select Client</option></select></td>
-        <td class="col-project" style="min-width: 200px;"><input type="text" class="project-field form-input" placeholder="Enter Project" oninput="updateSummary()"></td>
-        <td class="col-project-code" style="min-width: 200px;"><input type="text" class="project-code form-input" readonly></td>
-        <td class="col-reporting-manager" style="min-width: 200px;"><select class="reporting-manager-field reporting-manager-select form-input" onchange="handleReportingManagerChange(this)"><option value="">Select Reporting Manager</option></select></td>
-        <td class="col-activity" style="min-width: 200px;"><input type="text" class="activity-field form-input" placeholder="Enter Activity" oninput="updateSummary()"></td>
-        <td class="col-project-hours" style="min-width: 80px;"><input type="number" class="project-hours-field form-input" readonly></td>
-        <td class="col-working-hours" style="min-width: 80px;"><input type="number" class="working-hours-field form-input" readonly></td>
-        <td class="col-billable" style="min-width: 120px;"><select class="billable-select form-input" onchange="updateSummary()">
-            <option value="Yes">Billable</option>
-            <option value="No">Non-Billable</option>
-        </select></td>
-        <td class="col-remarks" style="min-width: 200px;"><input type="text" class="remarks-field form-input" placeholder="Additional notes"></td>
-        <td class="col-delete" style="min-width: 80px;"><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td>
-    `;
+//     const row = document.createElement('tr');
+//     row.innerHTML = `
+//         <td class="col-sno" style="min-width: 60px;">${rowCount}</td>
+//         <td class="col-action" style="min-width: 120px;">
+//             <button class="copy-btn" onclick="copyRow(this)"><i class="fas fa-copy"></i> Copy</button>
+//             <button class="paste-btn" onclick="pasteRow(this)"><i class="fas fa-paste"></i> Paste</button>
+//         </td>
+//         <td class="col-date" style="min-width: 120px;"><input type="date" value="${defaultDate}" class="date-field form-input" onchange="validateDate(this); updateSummary()"></td>
+//         <td class="col-location" style="min-width: 200px;"><select class="location-select form-input" onchange="updateSummary()">
+//             <option value="Office">Office</option>
+//             <option value="Client Site">Client Site</option>
+//             <option value="Work From Home">Work From Home</option>
+//             <option value="Field Work">Field Work</option>
+//         </select></td>
+//         <td class="col-project-start" style="min-width: 120px;"><input type="time" class="project-start form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+//         <td class="col-project-end" style="min-width: 120px;"><input type="time" class="project-end form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+//         <td class="col-punch-in" style="min-width: 120px;"><input type="time" class="punch-in form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+//         <td class="col-punch-out" style="min-width: 120px;"><input type="time" class="punch-out form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+//         <td class="col-client" style="min-width: 250px;"><select class="client-field client-select form-input" onchange="handleClientChange(this)" data-projects="[]"><option value="">Select Client</option></select></td>
+//         <td class="col-project" style="min-width: 200px;"><input type="text" class="project-field form-input" placeholder="Enter Project" oninput="updateSummary()"></td>
+//         <td class="col-project-code" style="min-width: 200px;"><input type="text" class="project-code form-input" readonly></td>
+//         <td class="col-reporting-manager" style="min-width: 200px;"><select class="reporting-manager-field reporting-manager-select form-input" onchange="handleReportingManagerChange(this)"><option value="">Select Reporting Manager</option></select></td>
+//         <td class="col-activity" style="min-width: 200px;"><input type="text" class="activity-field form-input" placeholder="Enter Activity" oninput="updateSummary()"></td>
+//         <td class="col-project-hours" style="min-width: 80px;"><input type="number" class="project-hours-field form-input" readonly></td>
+//         <td class="col-working-hours" style="min-width: 80px;"><input type="number" class="working-hours-field form-input" readonly></td>
+//         <td class="col-billable" style="min-width: 120px;"><select class="billable-select form-input" onchange="updateSummary()">
+//             <option value="Yes">Billable</option>
+//             <option value="No">Non-Billable</option>
+//         </select></td>
+//         <td class="col-remarks" style="min-width: 200px;"><input type="text" class="remarks-field form-input" placeholder="Additional notes"></td>
+//         <td class="col-delete" style="min-width: 80px;"><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td>
+//     `;
 
-    tbody.appendChild(row);
-    updateAllClientFields();
-    updateAllReportingManagerFields();
+//     tbody.appendChild(row);
+//     updateAllClientFields();
+//     updateAllReportingManagerFields();
     
-    const dateInput = row.querySelector('.date-field');
-    if (dateInput) {
-        validateDate(dateInput);
-    }
+//     const dateInput = row.querySelector('.date-field');
+//     if (dateInput) {
+//         validateDate(dateInput);
+//     }
     
-    updateSummary();
-}
+//     updateSummary();
+// }
 
 // New function to copy row data
 function copyRow(button) {
@@ -2111,4 +2112,292 @@ function pasteAboveCell(sectionId) {
     updateRowNumbers(tbody.id);
     updateSummary();
     showPopup('Row duplicated above last row!');
+}
+
+
+
+
+
+function addWeekSection() {
+    sectionCount++;
+    const sectionsDiv = document.getElementById('timesheetSections');
+    const sectionId = `section_${sectionCount}`;
+    
+    const section = document.createElement('div');
+    section.className = 'timesheet-section';
+    section.id = sectionId;
+    
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'delete-week-btn';
+    deleteBtn.textContent = 'Delete Week';
+    deleteBtn.onclick = () => deleteWeekSection(sectionId);
+    section.appendChild(deleteBtn);
+    
+    const weekPeriod = document.createElement('div');
+    weekPeriod.className = 'week-period form-group';
+    weekPeriod.innerHTML = `
+        <label>Week Period ${sectionCount}</label>
+    `;
+    const select = document.createElement('select');
+    select.id = `weekPeriod_${sectionCount}`;
+    select.onchange = () => {
+        updateSummary();
+        updateDateValidations(sectionId);
+        updateExistingRowDates(sectionId);
+    };
+    weekOptions.forEach(opt => {
+        const option = document.createElement('option');
+        option.value = opt.value;
+        option.textContent = opt.text;
+        select.appendChild(option);
+    });
+    if (weekOptions.length > 0) {
+        select.value = weekOptions[0].value;
+        setTimeout(() => {
+            select.onchange();
+        }, 100);
+    }
+    weekPeriod.appendChild(select);
+    section.appendChild(weekPeriod);
+    
+    const tableWrapper = document.createElement('div');
+    tableWrapper.className = 'table-responsive';
+    const table = document.createElement('table');
+    table.className = 'timesheet-table';
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th class="col-narrow col-sno">S.No</th>
+                <th class="col-narrow col-add">Add</th>
+                <th class="col-narrow col-action">Action</th>
+                <th class="col-medium col-date">Date</th>
+                <th class="col-wide col-location">Location of Work</th>
+                <th class="col-medium col-project-start">Project Start Time</th>
+                <th class="col-medium col-project-end">Project End Time</th>
+                <th class="col-medium col-punch-in">Punch In</th>
+                <th class="col-medium col-punch-out">Punch Out</th>
+                <th class="col-wide col-client">Client</th>
+                <th class="col-wide col-project">Project</th>
+                <th class="col-project col-project-code">Project Code</th>
+                <th class="col-wide col-reporting-manager">Reporting Manager</th>
+                <th class="col-wide col-activity">Activity</th>
+                <th class="col-narrow col-project-hours">Project Hours</th>
+                <th class="col-narrow col-working-hours">Working Hours</th>
+                <th class="col-medium col-billable">Billable</th>
+                <th class="col-wide col-remarks">Remarks</th>
+                <th class="col-narrow col-delete">Action</th>
+            </tr>
+        </thead>
+        <tbody id="timesheetBody_${sectionCount}"></tbody>
+    `;
+    tableWrapper.appendChild(table);
+    section.appendChild(tableWrapper);
+    
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'button-container';
+    
+    const addRowBtn = document.createElement('button');
+    addRowBtn.className = 'add-row-btn';
+    addRowBtn.textContent = '+ Add New Entry';
+    addRowBtn.onclick = () => addRow(sectionId);
+    buttonContainer.appendChild(addRowBtn);
+    
+    const pasteAboveBtn = document.createElement('button');
+    pasteAboveBtn.className = 'paste-above-btn';
+    pasteAboveBtn.textContent = 'Paste Above Cell';
+    pasteAboveBtn.onclick = () => pasteAboveCell(sectionId);
+    buttonContainer.appendChild(pasteAboveBtn);
+    
+    section.appendChild(buttonContainer);
+    
+    sectionsDiv.appendChild(section);
+    addRow(sectionId);
+    updateAllClientFields();
+    updateAllReportingManagerFields();
+    updateDateValidations(sectionId);
+}
+
+function addRow(sectionId) {
+    const tbody = document.getElementById(`timesheetBody_${sectionId.split('_')[1]}`);
+    if (!tbody) return;
+    const rows = tbody.querySelectorAll('tr');
+    const rowCount = rows.length + 1;
+    
+    const weekSelect = document.getElementById(`weekPeriod_${sectionId.split('_')[1]}`);
+    const selectedWeekValue = weekSelect.value;
+    const selectedWeek = weekOptions.find(opt => opt.value === selectedWeekValue);
+    
+    let defaultDate = new Date().toISOString().split('T')[0];
+    if (selectedWeek && selectedWeek.start) {
+        const weekStart = new Date(selectedWeek.start);
+        defaultDate = `${weekStart.getFullYear()}-${String(weekStart.getMonth() + 1).padStart(2, '0')}-${String(weekStart.getDate()).padStart(2, '0')}`;
+    } else if (weekOptions.length > 0) {
+        const firstWeek = weekOptions[0];
+        const weekStart = new Date(firstWeek.start);
+        defaultDate = `${weekStart.getFullYear()}-${String(weekStart.getMonth() + 1).padStart(2, '0')}-${String(weekStart.getDate()).padStart(2, '0')}`;
+    }
+    
+    console.log(`Adding row for section ${sectionId}, week: ${selectedWeekValue}, default date: ${defaultDate}`);
+    
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td class="col-sno" style="min-width: 60px;">${rowCount}</td>
+        <td class="col-add" style="min-width: 60px;"><button class="eye-btn" onclick="openModal(this, false)"><i class="fas fa-eye"></i></button></td>
+        <td class="col-action" style="min-width: 120px;">
+            <button class="copy-btn" onclick="copyRow(this)"><i class="fas fa-copy"></i> Copy</button>
+            <button class="paste-btn" onclick="pasteRow(this)"><i class="fas fa-paste"></i> Paste</button>
+        </td>
+        <td class="col-date" style="min-width: 120px;"><input type="date" value="${defaultDate}" class="date-field form-input" onchange="validateDate(this); updateSummary()"></td>
+        <td class="clo-location" style="min-width: 200px;"><select class="location-select form-input" onchange="updateSummary()">
+            <option value="Office">Office</option>
+            <option value="Client Site">Client Site</option>
+            <option value="Work From Home">Work From Home</option>
+            <option value="Field Work">Field Work</option>
+        </select></td>
+        <td class="col-project-start" style="min-width: 120px;"><input type="time" class="project-start form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+        <td class="col-project-end" style="min-width: 120px;"><input type="time" class="project-end form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+        <td class="col-punch-in" style="min-width: 120px;"><input type="time" class="punch-in form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+        <td class="col-punch-out" style="min-width: 120px;"><input type="time" class="punch-out form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
+        <td class="col-client" style="min-width: 250px;"><select class="client-field client-select form-input" onchange="handleClientChange(this)" data-projects="[]"><option value="">Select Client</option></select></td>
+        <td class="col-project" style="min-width: 200px;"><input type="text" class="project-field form-input" placeholder="Enter Project" oninput="updateSummary()"></td>
+        <td class="col-project-code" style="min-width: 200px;"><input type="text" class="project-code form-input" readonly></td>
+        <td class="col-reporting-manager" style="min-width: 200px;"><select class="reporting-manager-field reporting-manager-select form-input" onchange="handleReportingManagerChange(this)"><option value="">Select Reporting Manager</option></select></td>
+        <td class="col-activity" style="min-width: 200px;"><input type="text" class="activity-field form-input" placeholder="Enter Activity" oninput="updateSummary()"></td>
+        <td class="col-project-hours" style="min-width: 80px;"><input type="number" class="project-hours-field form-input" readonly></td>
+        <td class="col-working-hours" style="min-width: 80px;"><input type="number" class="working-hours-field form-input" readonly></td>
+        <td class="col-billable" style="min-width: 120px;"><select class="billable-select form-input" onchange="updateSummary()">
+            <option value="Yes">Billable</option>
+            <option value="No">Non-Billable</option>
+        </select></td>
+        <td class="col-remarks" style="min-width: 200px;"><input type="text" class="remarks-field form-input" placeholder="Additional notes"></td>
+        <td class="col-delete" style="min-width: 80px;"><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td>
+    `;
+
+    tbody.appendChild(row);
+    updateAllClientFields();
+    updateAllReportingManagerFields();
+    
+    const dateInput = row.querySelector('.date-field');
+    if (dateInput) {
+        validateDate(dateInput);
+    }
+    
+    updateSummary();
+}
+
+function openModal(button, isReadOnly) {
+    currentRow = button.closest('tr');
+    const inputs = currentRow.querySelectorAll('input, select');
+    const modal = document.getElementById('modalOverlay');
+    modal.style.display = 'flex';
+
+    const labels = [
+        'Date', 'Location of Work', 'Punch In', 'Punch Out', 'Project Start Time', 'Project End Time',
+        'Client', 'Project', 'Project Code', 'Reporting Manager', 'Activity', 'Project Hours', 'Working Hours', 'Billable', 'Remarks'
+    ];
+    
+    for (let i = 0; i < inputs.length; i++) {
+        const label = document.getElementById(`modalLabel${i + 1}`);
+        const input = document.getElementById(`modalInput${i + 1}`);
+        if (label && input) {
+            label.textContent = labels[i];
+            input.value = inputs[i].value || (inputs[i].tagName === 'SELECT' ? inputs[i].querySelector('option:checked')?.value : '');
+            input.readOnly = isReadOnly;
+            if (input.tagName === 'SELECT') {
+                input.disabled = isReadOnly;
+                if (i === 6) { // Client field
+                    const select = inputs[i];
+                    const relevantProjects = fetchProjectData(document.getElementById('partner')?.value || '', document.getElementById('reportingManager')?.value || '');
+                    input.innerHTML = '<option value="">Select Client</option>';
+                    relevantProjects.forEach(project => {
+                        const option = document.createElement('option');
+                        option.value = project['CLIENT NAME'];
+                        option.textContent = project['CLIENT NAME'];
+                        input.appendChild(option);
+                    });
+                    input.innerHTML += '<option value="Type here">Type here</option>';
+                    input.value = select.value || '';
+                    if (isReadOnly && input.value !== 'Type here') {
+                        input.innerHTML = `<option value="${input.value}" selected>${input.value}</option>`;
+                    }
+                } else if (i === 13) { // Billable field
+                    input.innerHTML = '<option value="Yes">Yes</option><option value="No">No</option>';
+                    input.value = inputs[i].value || 'Yes';
+                    if (isReadOnly) {
+                        input.innerHTML = `<option value="${input.value}" selected>${input.value}</option>`;
+                    }
+                }
+            }
+        }
+    }
+
+    // Disable all inputs if read-only mode
+    const modalInputs = modal.querySelectorAll('input, select');
+    modalInputs.forEach(input => {
+        input.readOnly = isReadOnly;
+        if (input.tagName === 'SELECT') input.disabled = isReadOnly;
+    });
+
+    // Update modal fields dynamically
+    updateModalClientFields();
+    updateModalReportingManagerFields();
+    validateModalDate(document.getElementById('modalInput1'));
+    updateModalHours();
+
+    // Set button behavior based on mode
+    const addBtn = document.getElementById('modalAddBtn');
+    const cancelBtn = document.getElementById('modalCancelBtn');
+    if (isReadOnly) {
+        addBtn.style.display = 'none';
+        cancelBtn.textContent = 'Close';
+    } else {
+        addBtn.style.display = 'inline-block';
+        cancelBtn.textContent = 'Cancel';
+        addBtn.onclick = saveModalEntry;
+    }
+    cancelBtn.onclick = closeModal;
+}
+
+
+async function saveModalEntry() {
+    if (!currentRow) return;
+    const modalInputs = document.querySelectorAll('#modalOverlay input, #modalOverlay select');
+    const rowInputs = currentRow.querySelectorAll('input, select');
+    
+    for (let i = 0; i < modalInputs.length; i++) {
+        if (rowInputs[i].tagName === 'INPUT' && rowInputs[i].type !== 'button') {
+            rowInputs[i].value = modalInputs[i].value;
+        } else if (rowInputs[i].tagName === 'SELECT') {
+            rowInputs[i].value = modalInputs[i].value;
+        }
+    }
+    calculateHours(currentRow);
+    validateDate(currentRow.querySelector('.date-field'));
+    
+    // Save to database
+    const section = currentRow.closest('.timesheet-section');
+    const weekPeriod = section.querySelector('.week-period select').value;
+    const rowData = {
+        employeeId: document.getElementById('employeeId').value,
+        weekPeriod: weekPeriod,
+        date: rowInputs[0].value,
+        location: rowInputs[1].value,
+        projectStartTime: rowInputs[2].value,
+        projectEndTime: rowInputs[3].value,
+        punchIn: rowInputs[4].value,
+        punchOut: rowInputs[5].value,
+        client: rowInputs[6].value,
+        project: rowInputs[7].value,
+        projectCode: rowInputs[8].value,
+        reportingManagerEntry: rowInputs[9].value,
+        activity: rowInputs[10].value,
+        hours: rowInputs[11].value,
+        workingHours: rowInputs[12].value,
+        billable: rowInputs[13].value,
+        remarks: rowInputs[14].value
+    };
+    await saveDataToMongo([rowData]); // Pass as array for consistency
+    
+    closeModal();
+    updateSummary();
 }
