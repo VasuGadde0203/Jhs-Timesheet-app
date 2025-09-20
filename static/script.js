@@ -1283,149 +1283,149 @@ async function showSection(section) {
     }
 }
 
-async function loadHistory() {
-    try {
-        const token = localStorage.getItem('access_token');
-        const response = await fetch(`${API_URL}/timesheets/${loggedInEmployeeId}`, {
-            headers: getHeaders()
-        });
-        if (!response.ok) {
-            if (response.status === 401) {
-                localStorage.removeItem('access_token');
-                localStorage.removeItem('loggedInEmployeeId');
-                window.location.href = 'login.html';
-            }
-            throw new Error(`Failed to fetch history: ${response.statusText}`);
-        }
-        const response_json = await response.json();
-        console.log('Fetched history data:', response_json); // Debug log
-        const historyContent = document.getElementById('historyContent');
-        historyContent.innerHTML = '';
+// async function loadHistory() {
+//     try {
+//         const token = localStorage.getItem('access_token');
+//         const response = await fetch(`${API_URL}/timesheets/${loggedInEmployeeId}`, {
+//             headers: getHeaders()
+//         });
+//         if (!response.ok) {
+//             if (response.status === 401) {
+//                 localStorage.removeItem('access_token');
+//                 localStorage.removeItem('loggedInEmployeeId');
+//                 window.location.href = 'login.html';
+//             }
+//             throw new Error(`Failed to fetch history: ${response.statusText}`);
+//         }
+//         const response_json = await response.json();
+//         console.log('Fetched history data:', response_json); // Debug log
+//         const historyContent = document.getElementById('historyContent');
+//         historyContent.innerHTML = '';
 
-        data = response_json.Data;
-        if (!data || data.length === 0) {
-            historyContent.innerHTML = '<p>No history found</p>';
-            return;
-        }
+//         data = response_json.Data;
+//         if (!data || data.length === 0) {
+//             historyContent.innerHTML = '<p>No history found</p>';
+//             return;
+//         }
 
-        // Group entries by weekPeriod
-        let weekMap = new Map();
-        data.forEach(entry => {
-            const week = entry.weekPeriod;
-            if (!weekMap.has(week)) {
-                weekMap.set(week, []);
-            }
-            weekMap.get(week).push(entry);
-        });
+//         // Group entries by weekPeriod
+//         let weekMap = new Map();
+//         data.forEach(entry => {
+//             const week = entry.weekPeriod;
+//             if (!weekMap.has(week)) {
+//                 weekMap.set(week, []);
+//             }
+//             weekMap.get(week).push(entry);
+//         });
 
-        for (let [week, weekEntries] of weekMap) {
-            let weekDiv = document.createElement('div');
-            weekDiv.className = 'history-week-section';
-            weekDiv.innerHTML = `<h3>${week}</h3>`;
+//         for (let [week, weekEntries] of weekMap) {
+//             let weekDiv = document.createElement('div');
+//             weekDiv.className = 'history-week-section';
+//             weekDiv.innerHTML = `<h3>${week}</h3>`;
 
-            let tableWrapper = document.createElement('div');
-            tableWrapper.className = 'table-responsive';
+//             let tableWrapper = document.createElement('div');
+//             tableWrapper.className = 'table-responsive';
 
-            let table = document.createElement('table');
-            table.className = 'history-table';
-            table.innerHTML = `
-                <thead>
-                    <tr>
-                        <td class="col-edit"><button class="eye-btn" onclick="openModal(this, true)"><i class="fas fa-eye"></i></button></td>
-                        <th class="col-narrow col-edit"><i class="fas fa-edit"></i> Edit</th>
-                        <th class="col-medium col-date">Date</th>
-                        <th class="col-wide col-location">Location</th>
-                        <th class="col-medium col-project-start">Project Start</th>
-                        <th class="col-medium col-project-end">Project End</th>
-                        <th class="col-medium col-punch-in">Punch In</th>
-                        <th class="col-medium col-punch-out">Punch Out</th>
-                        <th class="col-wide col-client">Client</th>
-                        <th class="col-wide col-project">Project</th>
-                        <th class="col-project col-project-code">Project Code</th>
-                        <th class="col-wide col-reporting-manager">Reporting Manager</th>
-                        <th class="col-wide col-activity">Activity</th>
-                        <th class="col-narrow col-project-hours">Project Hours</th>
-                        <th class="col-narrow col-working-hours">Working Hours</th>
-                        <th class="col-medium col-billable">Billable</th>
-                        <th class="col-wide col-remarks">Remarks</th>
-                        <th class="col-medium col-created-time">Created Time</th>
-                        <th class="col-medium col-updated-time">Updated Time</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            `;
-            let tbody = table.querySelector('tbody');
+//             let table = document.createElement('table');
+//             table.className = 'history-table';
+//             table.innerHTML = `
+//                 <thead>
+//                     <tr>
+//                         <td class="col-edit"><button class="eye-btn" onclick="openModal(this, true)"><i class="fas fa-eye"></i></button></td>
+//                         <th class="col-narrow col-edit"><i class="fas fa-edit"></i> Edit</th>
+//                         <th class="col-medium col-date">Date</th>
+//                         <th class="col-wide col-location">Location</th>
+//                         <th class="col-medium col-project-start">Project Start</th>
+//                         <th class="col-medium col-project-end">Project End</th>
+//                         <th class="col-medium col-punch-in">Punch In</th>
+//                         <th class="col-medium col-punch-out">Punch Out</th>
+//                         <th class="col-wide col-client">Client</th>
+//                         <th class="col-wide col-project">Project</th>
+//                         <th class="col-project col-project-code">Project Code</th>
+//                         <th class="col-wide col-reporting-manager">Reporting Manager</th>
+//                         <th class="col-wide col-activity">Activity</th>
+//                         <th class="col-narrow col-project-hours">Project Hours</th>
+//                         <th class="col-narrow col-working-hours">Working Hours</th>
+//                         <th class="col-medium col-billable">Billable</th>
+//                         <th class="col-wide col-remarks">Remarks</th>
+//                         <th class="col-medium col-created-time">Created Time</th>
+//                         <th class="col-medium col-updated-time">Updated Time</th>
+//                     </tr>
+//                 </thead>
+//                 <tbody></tbody>
+//             `;
+//             let tbody = table.querySelector('tbody');
 
-            weekEntries.forEach(entry => {
-                const row = document.createElement('tr');
-                row.dataset.entryId = entry.id;
-                row.innerHTML = `
-                    <td class="col-edit"><button class="edit-btn" onclick="editHistoryRow(this, '${entry.id}')"><i class="fas fa-edit"></i></button></td>
-                    <td class="col-date">${entry.date || ''}</td>
-                    <td class="col-location">${entry.location || ''}</td>
-                    <td class="col-project-start">${entry.projectStartTime || ''}</td>
-                    <td class="col-project-end">${entry.projectEndTime || ''}</td>
-                    <td class="col-punch-in">${entry.punchIn || ''}</td>
-                    <td class="col-punch-out">${entry.punchOut || ''}</td>
-                    <td class="col-client">${entry.client || ''}</td>
-                    <td class="col-project">${entry.project || ''}</td>
-                    <td class="col-project-code">${entry.projectCode || ''}</td>
-                    <td class="col-reporting-manager">${entry.reportingManagerEntry || ''}</td>
-                    <td class="col-activity">${entry.activity || ''}</td>
-                    <td class="col-project-hours">${entry.hours || ''}</td>
-                    <td class="col-working-hours">${entry.workingHours || ''}</td>
-                    <td class="col-billable">${entry.billable || ''}</td>
-                    <td class="col-remarks">${entry.remarks || ''}</td>
-                    <td class="col-created-time">${entry.created_time || ''}</td>
-                    <td class="col-updated-time">${entry.updated_time || ''}</td>
-                `;
-                tbody.appendChild(row);
-            });
+//             weekEntries.forEach(entry => {
+//                 const row = document.createElement('tr');
+//                 row.dataset.entryId = entry.id;
+//                 row.innerHTML = `
+//                     <td class="col-edit"><button class="edit-btn" onclick="editHistoryRow(this, '${entry.id}')"><i class="fas fa-edit"></i></button></td>
+//                     <td class="col-date">${entry.date || ''}</td>
+//                     <td class="col-location">${entry.location || ''}</td>
+//                     <td class="col-project-start">${entry.projectStartTime || ''}</td>
+//                     <td class="col-project-end">${entry.projectEndTime || ''}</td>
+//                     <td class="col-punch-in">${entry.punchIn || ''}</td>
+//                     <td class="col-punch-out">${entry.punchOut || ''}</td>
+//                     <td class="col-client">${entry.client || ''}</td>
+//                     <td class="col-project">${entry.project || ''}</td>
+//                     <td class="col-project-code">${entry.projectCode || ''}</td>
+//                     <td class="col-reporting-manager">${entry.reportingManagerEntry || ''}</td>
+//                     <td class="col-activity">${entry.activity || ''}</td>
+//                     <td class="col-project-hours">${entry.hours || ''}</td>
+//                     <td class="col-working-hours">${entry.workingHours || ''}</td>
+//                     <td class="col-billable">${entry.billable || ''}</td>
+//                     <td class="col-remarks">${entry.remarks || ''}</td>
+//                     <td class="col-created-time">${entry.created_time || ''}</td>
+//                     <td class="col-updated-time">${entry.updated_time || ''}</td>
+//                 `;
+//                 tbody.appendChild(row);
+//             });
 
-            tableWrapper.appendChild(table);
-            weekDiv.appendChild(tableWrapper);
-            historyContent.appendChild(weekDiv);
-        }
+//             tableWrapper.appendChild(table);
+//             weekDiv.appendChild(tableWrapper);
+//             historyContent.appendChild(weekDiv);
+//         }
 
-        // Render feedback only once at the end, using values from the first entry
-        const firstEntry = data[0] || {};
-        const feedbackDiv = document.createElement('div');
-        feedbackDiv.className = 'feedback-section';
-        feedbackDiv.innerHTML = `
-            <div class="feedback-item">
-                <label>3 HITS</label>
-                <textarea readonly rows="3">${firstEntry.hits || ''}</textarea>
-            </div>
-            <div class="feedback-item">
-                <label>3 MISSES</label>
-                <textarea readonly rows="3">${firstEntry.misses || ''}</textarea>
-            </div>
-            <div class="feedback-item">
-                <label>FEEDBACK FOR HR</label>
-                <textarea readonly rows="3">${firstEntry.feedback_hr || ''}</textarea>
-            </div>
-            <div class="feedback-item">
-                <label>FEEDBACK FOR IT</label>
-                <textarea readonly rows="3">${firstEntry.feedback_it || ''}</textarea>
-            </div>
-            <div class="feedback-item">
-                <label>FEEDBACK FOR CRM</label>
-                <textarea readonly rows="3">${firstEntry.feedback_crm || ''}</textarea>
-            </div>
-            <div class="feedback-item">
-                <label>FEEDBACK FOR OTHERS</label>
-                <textarea readonly rows="3">${firstEntry.feedback_others || ''}</textarea>
-            </div>
-        `;
-        historyContent.appendChild(feedbackDiv);
+//         // Render feedback only once at the end, using values from the first entry
+//         const firstEntry = data[0] || {};
+//         const feedbackDiv = document.createElement('div');
+//         feedbackDiv.className = 'feedback-section';
+//         feedbackDiv.innerHTML = `
+//             <div class="feedback-item">
+//                 <label>3 HITS</label>
+//                 <textarea readonly rows="3">${firstEntry.hits || ''}</textarea>
+//             </div>
+//             <div class="feedback-item">
+//                 <label>3 MISSES</label>
+//                 <textarea readonly rows="3">${firstEntry.misses || ''}</textarea>
+//             </div>
+//             <div class="feedback-item">
+//                 <label>FEEDBACK FOR HR</label>
+//                 <textarea readonly rows="3">${firstEntry.feedback_hr || ''}</textarea>
+//             </div>
+//             <div class="feedback-item">
+//                 <label>FEEDBACK FOR IT</label>
+//                 <textarea readonly rows="3">${firstEntry.feedback_it || ''}</textarea>
+//             </div>
+//             <div class="feedback-item">
+//                 <label>FEEDBACK FOR CRM</label>
+//                 <textarea readonly rows="3">${firstEntry.feedback_crm || ''}</textarea>
+//             </div>
+//             <div class="feedback-item">
+//                 <label>FEEDBACK FOR OTHERS</label>
+//                 <textarea readonly rows="3">${firstEntry.feedback_others || ''}</textarea>
+//             </div>
+//         `;
+//         historyContent.appendChild(feedbackDiv);
 
-        updateAllClientFields();
-        updateAllReportingManagerFields();
-    } catch (error) {
-        console.error('Error loading history:', error); // Debug log
-        showPopup(`Failed to load history: ${error.message}`, true);
-    }
-}
+//         updateAllClientFields();
+//         updateAllReportingManagerFields();
+//     } catch (error) {
+//         console.error('Error loading history:', error); // Debug log
+//         showPopup(`Failed to load history: ${error.message}`, true);
+//     }
+// }
 
 function editHistoryRow(button, entryId) {
     const row = button.closest('tr');
@@ -2400,4 +2400,170 @@ async function saveModalEntry() {
     
     closeModal();
     updateSummary();
+}
+
+function saveModalEntry() {
+    if (!currentRow) return;
+    const modalInputs = document.querySelectorAll('#modalOverlay input, #modalOverlay select');
+    const rowInputs = currentRow.querySelectorAll('input, select');
+    
+    for (let i = 0; i < modalInputs.length; i++) {
+        if (rowInputs[i].tagName === 'INPUT' && rowInputs[i].type !== 'button') {
+            rowInputs[i].value = modalInputs[i].value;
+        } else if (rowInputs[i].tagName === 'SELECT') {
+            rowInputs[i].value = modalInputs[i].value;
+        }
+    }
+    calculateHours(currentRow);
+    validateDate(currentRow.querySelector('.date-field'));
+    closeModal();
+    updateSummary();
+    // Removed database save - this now only updates the frontend row
+    // Global "Save" button will handle DB commit for all rows
+}
+
+
+async function loadHistory() {
+    try {
+        const token = localStorage.getItem('access_token');
+        const response = await fetch(`${API_URL}/timesheets/${loggedInEmployeeId}`, {
+            headers: getHeaders()
+        });
+        if (!response.ok) {
+            if (response.status === 401) {
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('loggedInEmployeeId');
+                window.location.href = 'login.html';
+            }
+            throw new Error(`Failed to fetch history: ${response.statusText}`);
+        }
+        const response_json = await response.json();
+        console.log('Fetched history data:', response_json); // Debug log
+        const historyContent = document.getElementById('historyContent');
+        historyContent.innerHTML = '';
+
+        data = response_json.Data;
+        if (!data || data.length === 0) {
+            historyContent.innerHTML = '<p>No history found</p>';
+            return;
+        }
+
+        // Group entries by weekPeriod
+        let weekMap = new Map();
+        data.forEach(entry => {
+            const week = entry.weekPeriod;
+            if (!weekMap.has(week)) {
+                weekMap.set(week, []);
+            }
+            weekMap.get(week).push(entry);
+        });
+
+        for (let [week, weekEntries] of weekMap) {
+            let weekDiv = document.createElement('div');
+            weekDiv.className = 'history-week-section';
+            weekDiv.innerHTML = `<h3>${week}</h3>`;
+
+            let tableWrapper = document.createElement('div');
+            tableWrapper.className = 'table-responsive';
+
+            let table = document.createElement('table');
+            table.className = 'history-table';
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th class="col-narrow col-sno">S.No</th>
+                        <th class="col-narrow col-action">Action</th>
+                        <th class="col-medium col-date">Date</th>
+                        <th class="col-wide col-location">Location</th>
+                        <th class="col-medium col-project-start">Project Start</th>
+                        <th class="col-medium col-project-end">Project End</th>
+                        <th class="col-medium col-punch-in">Punch In</th>
+                        <th class="col-medium col-punch-out">Punch Out</th>
+                        <th class="col-wide col-client">Client</th>
+                        <th class="col-wide col-project">Project</th>
+                        <th class="col-project col-project-code">Project Code</th>
+                        <th class="col-wide col-reporting-manager">Reporting Manager</th>
+                        <th class="col-wide col-activity">Activity</th>
+                        <th class="col-narrow col-project-hours">Project Hours</th>
+                        <th class="col-narrow col-working-hours">Working Hours</th>
+                        <th class="col-medium col-billable">Billable</th>
+                        <th class="col-wide col-remarks">Remarks</th>
+                        <th class="col-medium col-created-time">Created Time</th>
+                        <th class="col-medium col-updated-time">Updated Time</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            `;
+            let tbody = table.querySelector('tbody');
+
+            weekEntries.forEach((entry, rowIndex) => {
+                const row = document.createElement('tr');
+                row.dataset.entryId = entry.id;
+                row.innerHTML = `
+                    <td class="col-sno">${rowIndex + 1}</td>
+                    <td class="col-action"><button class="eye-btn" onclick="openModal(this, true)"><i class="fas fa-eye"></i></button></td>
+                    <td class="col-date">${entry.date || ''}</td>
+                    <td class="col-location">${entry.location || ''}</td>
+                    <td class="col-project-start">${entry.projectStartTime || ''}</td>
+                    <td class="col-project-end">${entry.projectEndTime || ''}</td>
+                    <td class="col-punch-in">${entry.punchIn || ''}</td>
+                    <td class="col-punch-out">${entry.punchOut || ''}</td>
+                    <td class="col-client">${entry.client || ''}</td>
+                    <td class="col-project">${entry.project || ''}</td>
+                    <td class="col-project-code">${entry.projectCode || ''}</td>
+                    <td class="col-reporting-manager">${entry.reportingManagerEntry || ''}</td>
+                    <td class="col-activity">${entry.activity || ''}</td>
+                    <td class="col-project-hours">${entry.hours || ''}</td>
+                    <td class="col-working-hours">${entry.workingHours || ''}</td>
+                    <td class="col-billable">${entry.billable || ''}</td>
+                    <td class="col-remarks">${entry.remarks || ''}</td>
+                    <td class="col-created-time">${entry.created_time || ''}</td>
+                    <td class="col-updated-time">${entry.updated_time || ''}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            tableWrapper.appendChild(table);
+            weekDiv.appendChild(tableWrapper);
+            historyContent.appendChild(weekDiv);
+        }
+
+        // Render feedback only once at the end, using values from the first entry
+        const firstEntry = data[0] || {};
+        const feedbackDiv = document.createElement('div');
+        feedbackDiv.className = 'feedback-section';
+        feedbackDiv.innerHTML = `
+            <div class="feedback-item">
+                <label>3 HITS</label>
+                <textarea readonly rows="3">${firstEntry.hits || ''}</textarea>
+            </div>
+            <div class="feedback-item">
+                <label>3 MISSES</label>
+                <textarea readonly rows="3">${firstEntry.misses || ''}</textarea>
+            </div>
+            <div class="feedback-item">
+                <label>FEEDBACK FOR HR</label>
+                <textarea readonly rows="3">${firstEntry.feedback_hr || ''}</textarea>
+            </div>
+            <div class="feedback-item">
+                <label>FEEDBACK FOR IT</label>
+                <textarea readonly rows="3">${firstEntry.feedback_it || ''}</textarea>
+            </div>
+            <div class="feedback-item">
+                <label>FEEDBACK FOR CRM</label>
+                <textarea readonly rows="3">${firstEntry.feedback_crm || ''}</textarea>
+            </div>
+            <div class="feedback-item">
+                <label>FEEDBACK FOR OTHERS</label>
+                <textarea readonly rows="3">${firstEntry.feedback_others || ''}</textarea>
+            </div>
+        `;
+        historyContent.appendChild(feedbackDiv);
+
+        updateAllClientFields();
+        updateAllReportingManagerFields();
+    } catch (error) {
+        console.error('Error loading history:', error); // Debug log
+        showPopup(`Failed to load history: ${error.message}`, true);
+    }
 }
