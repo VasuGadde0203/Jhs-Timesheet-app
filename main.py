@@ -1283,6 +1283,7 @@ class UpdateTimesheetRequest(BaseModel):
 
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
+    print(f"Expires delta: {expires_delta}")
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
@@ -1299,6 +1300,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         employee_id: str = payload.get("sub")
+        print(f"Decoded payload: {payload}")
         if employee_id is None:
             print("No employee_id")
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
@@ -1317,6 +1319,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
             
         return employee_id
     except jwt.PyJWTError:
+        print(f"Error decoding token: {token}")
         print("Invalid token")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 

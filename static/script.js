@@ -545,12 +545,12 @@ function validateModalDate(dateInput) {
     }
 
     const today = new Date();
-    const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+    const thirtyDaysAgo = new Date(today.getTime() - (60 * 24 * 60 * 60 * 1000));
     const sevenDaysAhead = new Date(today.getTime() + (7 * 24 * 60 * 60 * 1000));
     
     if (inputDate < thirtyDaysAgo || inputDate > sevenDaysAhead) {
         dateInput.classList.add('validation-error');
-        showValidationMessage(dateInput, 'Date must be within last 30 days to next 7 days');
+        showValidationMessage(dateInput, 'Date must be within last 60 days to next 7 days');
     }
 }
 
