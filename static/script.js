@@ -16,11 +16,11 @@ const getHeaders = () => ({
 document.addEventListener('DOMContentLoaded', async function() {
     const token = localStorage.getItem('access_token');
     if (!token) {
-        window.location.href = '/static/login.html'; // Consistent redirect path
+        window.location.href = '/login'; // Consistent redirect path
         return;
     }
 
-    // Verify session
+    // Verify session   
     try {
         const response = await fetch('/verify_session', {
             method: 'POST',
@@ -29,14 +29,14 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (!response.ok) {
             localStorage.removeItem('access_token');
             localStorage.removeItem('loggedInEmployeeId');
-            window.location.href = '/static/login.html';
+            window.location.href = '/login';
             return;
         }
     } catch (error) {
         console.error('Session verification failed:', error);
         localStorage.removeItem('access_token');
         localStorage.removeItem('loggedInEmployeeId');
-        window.location.href = '/static/login.html';
+        window.location.href = '/login';
         return;
     }
 

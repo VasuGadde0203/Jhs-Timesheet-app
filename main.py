@@ -1334,29 +1334,42 @@ else:
 # Mount static files for assets
 app.mount("/static", StaticFiles(directory=frontend_path), name="static")
 
+# @app.get("/", response_class=FileResponse)
+# async def read_root():
+#     index_path = os.path.join(frontend_path, "index.html")
+#     if not os.path.exists(index_path):
+#         print(f"Index file not found at: {index_path}")
+#         raise HTTPException(status_code=404, detail="index.html not found")
+#     return FileResponse(index_path, media_type="text/html")
+
+# @app.get("/login", response_class=FileResponse)
+# async def login_page():
+#     login_path = os.path.join(frontend_path, "login.html")
+#     if not os.path.exists(login_path):
+#         print(f"Login file not found at: {login_path}")
+#         raise HTTPException(status_code=404, detail="login.html not found")
+#     return FileResponse(login_path, media_type="text/html")
+
+# @app.get("/dashboard", response_class=FileResponse)
+# async def dashboard_page():
+#     index_path = os.path.join(frontend_path, "index.html")
+#     if not os.path.exists(index_path):
+#         print(f"Index file not found at: {index_path}")
+#         raise HTTPException(status_code=404, detail="index.html not found")
+#     return FileResponse(index_path, media_type="text/html")
+
 @app.get("/", response_class=FileResponse)
 async def read_root():
-    index_path = os.path.join(frontend_path, "index.html")
-    if not os.path.exists(index_path):
-        print(f"Index file not found at: {index_path}")
-        raise HTTPException(status_code=404, detail="index.html not found")
-    return FileResponse(index_path, media_type="text/html")
+    return FileResponse(os.path.join(frontend_path, "index.html"))
 
 @app.get("/login", response_class=FileResponse)
 async def login_page():
-    login_path = os.path.join(frontend_path, "login.html")
-    if not os.path.exists(login_path):
-        print(f"Login file not found at: {login_path}")
-        raise HTTPException(status_code=404, detail="login.html not found")
-    return FileResponse(login_path, media_type="text/html")
+    return FileResponse(os.path.join(frontend_path, "login.html"))
 
 @app.get("/dashboard", response_class=FileResponse)
 async def dashboard_page():
-    index_path = os.path.join(frontend_path, "index.html")
-    if not os.path.exists(index_path):
-        print(f"Index file not found at: {index_path}")
-        raise HTTPException(status_code=404, detail="index.html not found")
-    return FileResponse(index_path, media_type="text/html")
+    return FileResponse(os.path.join(frontend_path, "index.html"))
+
 
 @app.post("/register")
 async def register(request: RegisterRequest):

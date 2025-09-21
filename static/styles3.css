@@ -122,10 +122,12 @@ body {
 .header {
     background: var(--primary-gradient);
     color: white;
-    padding: 3rem 2rem;
+    padding: 2rem 1rem; /* Adjusted padding for mobile */
     text-align: center;
     position: relative;
     overflow: hidden;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
 }
 
 .header::before {
@@ -137,14 +139,34 @@ body {
     bottom: 0;
     background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 10"><defs><pattern id="grain" width="100" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="10" fill="url(%23grain)"/></svg>');
     opacity: 0.1;
+    animation: grainMove 5s infinite linear;
+}
+
+@keyframes grainMove {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(10px, 10px); }
 }
 
 .header h1 {
     margin: 0;
-    font-size: 2.8rem;
-    font-weight: 300;
+    font-size: 2.2rem; /* Reduced font size for mobile */
+    font-weight: 700;
     position: relative;
     z-index: 1;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3), 0 0 15px rgba(102, 126, 234, 0.5);
+    letter-spacing: 1px; /* Reduced letter spacing */
+    text-transform: uppercase;
+    overflow-wrap: break-word; /* Ensure long text wraps */
+}
+
+.header .fas {
+    margin-right: 0.5rem;
+    animation: pulseIcon 2s infinite ease-in-out;
+}
+
+@keyframes pulseIcon {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
 }
 
 .header p {
@@ -239,7 +261,7 @@ body {
     cursor: pointer;
     font-size: 0.9rem;
     position: absolute;
-    top: 1rem;
+    top: 3rem; /* Moved lower to avoid overlap with WEEK PERIOD */
     right: 1rem;
     transition: var(--transition);
     font-weight: 500;
@@ -251,16 +273,18 @@ body {
 }
 
 .week-period {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem; /* Increased margin for spacing */
     display: flex;
     align-items: center;
     gap: 1rem;
+    flex-wrap: wrap; /* Allow wrapping on small screens */
 }
 
 .week-period label {
     font-weight: 600;
     color: var(--text-dark);
     margin: 0;
+    font-size: 1rem; /* Ensure readability */
 }
 
 .timesheet-table, .history-table {
@@ -271,7 +295,7 @@ body {
     border-radius: 15px;
     overflow: hidden;
     box-shadow: var(--shadow-light);
-    min-width: 1000px; /* Minimum width for desktop */
+    min-width: 1000px;
     white-space: nowrap;
 }
 
@@ -287,7 +311,7 @@ body {
     white-space: nowrap;
     position: sticky;
     top: 0;
-    z-index: 2; /* Above content */
+    z-index: 2;
 }
 
 .timesheet-table td, .history-table td {
@@ -720,163 +744,249 @@ body {
     100% { transform: translate(-50%, -50%) scale(1); }
 }
 
-@media (max-width: 1200px) {
-    .container {
-        margin: 1rem;
-        border-radius: 15px;
-    }
-
-    .header {
-        padding: 2rem 1rem;
-    }
-
-    .header h1 {
-        font-size: 2.2rem;
-    }
+.table-responsive {
+    overflow-x: auto;
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
 }
 
-@media (max-width: 768px) {
-    .navbar {
-        padding: 1rem;
-    }
-
-    .nav-menu {
-        width: 100%;
-        left: 0;
-    }
-
-    .container {
-        margin: 0.5rem;
-        border-radius: 10px;
-    }
-
-    .header {
-        padding: 1.5rem 1rem;
-    }
-
-    .header h1 {
-        font-size: 1.8rem;
-    }
-
-    .header p {
-        font-size: 1rem;
-    }
-
-    .form-section, .history-section {
-        padding: 1.5rem;
-    }
-
-    .employee-info {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-        padding: 1.5rem;
-    }
-
-    .timesheet-section {
-        padding: 1.5rem;
-    }
-
-    .timesheet-table, .history-table {
-        font-size: 0.8rem;
-        min-width: 1000px;
-    }
-
-    .summary-section {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-        padding: 1.5rem;
-    }
-
-    .feedback-section {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-        padding: 1.5rem;
-    }
-
-    .export-section, .history-export-section {
-        padding: 1.5rem;
-        margin: 1rem 0;
-    }
-
-    .export-btn, .clear-btn {
-        display: block;
-        width: 100%;
-        margin: 0.5rem 0;
-    }
-
-    .col-client { width: 150px; }
-    .col-project { width: 120px; }
-
-    .modal-content {
-        grid-template-columns: 1fr;
-        width: 95%;
-        padding: 1.5rem;
-        gap: 1rem;
-    }
-
-    .modal-add-btn, .modal-cancel-btn {
-        width: 100%;
-        margin: 0.5rem 0;
-    }
-
-    .modal-cancel-btn {
-        margin-right: 0;
-    }
+.timesheet-table th,
+.history-table th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--dark-bg);
 }
 
-@media (max-width: 480px) {
-    .header h1 {
-        font-size: 1.5rem;
-    }
-
-    .form-section, .history-section {
-        padding: 1rem;
-    }
-
-    .employee-info {
-        padding: 1rem;
-    }
-
-    .timesheet-section {
-        padding: 1rem;
-    }
-
-    .summary-section {
-        padding: 1rem;
-    }
-
-    .feedback-section {
-        padding: 1rem;
-    }
-
-    .export-section, .history-export-section {
-        padding: 1rem;
-    }
-
-    .timesheet-table th, .history-table th {
-        padding: 0.5rem 0.25rem;
-        font-size: 0.75rem;
-    }
-
-    .timesheet-table td, .history-table td {
-        padding: 0.5rem 0.25rem;
-        font-size: 0.8rem;
-    }
-
-    .add-row-btn, .add-week-btn {
-        width: 100%;
-        padding: 1rem;
-    }
+.timesheet-table th.col-date,
+.history-table th.col-date {
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    background: var(--dark-bg);
+    color: white;
+    min-width: 120px;
 }
 
-@media (min-width: 1400px) {
-    .container {
-        max-width: 1600px;
-    }
+.timesheet-table td.col-date,
+.history-table td.col-date {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: white;
+    color: var(--dark-bg);
+    min-width: 120px;
+}
 
-    .employee-info {
-        grid-template-columns: repeat(3, 1fr);
-    }
+.timesheet-table th.col-client,
+.history-table th.col-client {
+    position: sticky;
+    left: 120px; /* Adjust based on col-date width */
+    z-index: 3;
+    background: var(--dark-bg);
+    color: white;
+    min-width: 120px;
+}
+
+.timesheet-table td.col-client,
+.history-table td.col-client {
+    position: sticky;
+    left: 120px;
+    z-index: 1;
+    background: white;
+    color: var(--dark-bg);
+    min-width: 120px;
+}
+
+.timesheet-table input,
+.timesheet-table select,
+.history-table input,
+.history-table select,
+.form-input {
+    width: 100%;
+    min-width: 150px;
+    max-width: 300px;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.col-client select,
+.col-client input {
+    min-width: 200px;
+}
+
+.timesheet-table input[type="number"],
+.history-table input[type="number"] {
+    min-width: 80px;
+    width: auto;
+}
+
+.timesheet-table input[type="date"],
+.timesheet-table input[type="time"],
+.history-table input[type="date"],
+.history-table input[type="time"] {
+    min-width: 140px;
+    width: auto;
+}
+
+.delete-btn {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
+
+.delete-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-medium);
+}
+
+.summary-section, .history-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+    padding: 2rem;
+    background: var(--light-bg);
+    border-radius: 15px;
+    border-left: 5px solid #e74c3c;
+    box-shadow: var(--shadow-light);
+}
+
+.summary-item {
+    text-align: center;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 10px;
+    box-shadow: var(--shadow-light);
+    transition: var(--transition);
+    animation: fadeInUp 0.5s ease-out forwards;
+    animation-delay: calc(0.1s * var(--index));
+}
+
+.summary-item:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-medium);
+}
+
+.summary-item h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-dark);
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.summary-item i {
+    margin-right: 0.5rem;
+    font-size: 1.2rem;
+    vertical-align: middle;
+}
+
+.total-hours .value, .total-hours i {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2ecc71;
+    margin-top: 0.5rem;
+}
+
+.billable-hours .value, .billable-hours i {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #3498db;
+    margin-top: 0.5rem;
+}
+
+.non-billable-hours .value, .non-billable-hours i {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #e74c3c;
+    margin-top: 0.5rem;
+}
+
+.summary-item:nth-child(1) { --index: 1; }
+.summary-item:nth-child(2) { --index: 2; }
+.summary-item:nth-child(3) { --index: 3; }
+
+.copy-btn, .paste-btn, .paste-above-btn {
+    background: var(--secondary-gradient);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin: 0 0.25rem;
+    transition: var(--transition);
+    box-shadow: var(--shadow-light);
+    display: inline-block;
+    width: auto;
+}
+
+.copy-btn:hover, .paste-btn:hover, .paste-above-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-medium);
+}
+
+.paste-above-btn {
+    background: var(--success-gradient);
+    margin-top: 1rem;
+    display: block;
+    width: 100%;
+    max-width: 200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.col-action {
+    min-width: 120px;
+}
+
+.button-container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.add-row-btn, .paste-above-btn {
+    background: var(--secondary-gradient);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: var(--transition);
+    box-shadow: var(--shadow-light);
+}
+
+.paste-above-btn {
+    background: var(--success-gradient);
+}
+
+.add-row-btn:hover, .paste-above-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-medium);
+}
+
+.col-action {
+    min-width: 120px;
+}
+
+.col-add button {
+    padding: 5px;
+    margin: 2px;
+}
+
+.eye-btn i {
+    font-size: 16px;
 }
 
 .logo-container {
@@ -890,32 +1000,6 @@ body {
     display: block;
     margin: 0 auto;
     transition: var(--transition);
-}
-
-@media (max-width: 768px) {
-    .jhs-logo {
-        max-width: 150px;
-    }
-}
-
-@media (max-width: 480px) {
-    .jhs-logo {
-        max-width: 120px;
-    }
-}
-
-.validation-error {
-    border-color: #e74c3c !important;
-    background-color: #fdf2f2 !important;
-    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1) !important;
-}
-
-.validation-message {
-    color: #e74c3c;
-    font-size: 0.8rem;
-    margin-top: 0.25rem;
-    font-style: italic;
-    text-align: left;
 }
 
 .exit-confirmation {
@@ -966,126 +1050,24 @@ body {
     box-shadow: var(--shadow-medium);
 }
 
-@keyframes popIn {
-    from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-}
-
 .history-week-section {
     margin-bottom: 2rem;
 }
 
-/* Add at the end of styles.css (before media queries) */
-.table-responsive {
-    overflow-x: auto;
-    max-width: 100%;
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-}
-
-/* Update existing .timesheet-table th, .history-table th rule or add new */
-.timesheet-table th,
-.history-table th {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    background: var(--dark-bg); /* Retain background */
-}
-
-/* Sticky Date column (or Client if preferred) */
-/* .timesheet-table th.col-date,
-.timesheet-table td.col-date,
-.history-table th.col-date,
-.history-table td.col-date {
-    position: sticky;
-    left: 0;
-    z-index: 1;
-    background: white; 
-    border-right: 1px solid var(--border-color);
-} */
-
-.timesheet-table th.col-date,
-.history-table th.col-date{
-    position: sticky;
-    left: 0;
-    z-index: 1;
-    background: var(--dark-bg);
-    color: white; /* Match header text */
-    /* border-right: 1px solid var(--border-color); */
-    min-width: 120px; /* Ensure enough space */
-}
-
-.timesheet-table td.col-date,
-.history-table td.col-date {
-    position: sticky;
-    left: 0;
-    z-index: 1;
-    background: white;
-    color: var(--dark-bg); /* Match header text */
-    /* border-right: 1px solid var(--border-color); */
-    min-width: 120px; /* Ensure enough space */
-}
-
-/* Optional: Sticky Client column (uncomment if Client should be sticky instead) */
-
-.timesheet-table th.col-client,
-.history-table th.col-client {
-    position: sticky;
-    left: 0;
-    z-index: 1;
-    background: var(--dark-bg);
-    color: white; /* Match header text */
-    /* border-right: 1px solid var(--border-color); */
-    min-width: 120px; /* Ensure enough space */
-}
-
-.timesheet-table td.col-client,
-.history-table td.col-client {
-    position: sticky;
-    left: 0;
-    z-index: 1;
-    background: white;
-    color: var(--dark-bg); /* Match header text */
-    /* border-right: 1px solid var(--border-color); */
-    min-width: 120px; /* Ensure enough space */
-}
-
-
-/* Update existing input/select rule or add new */
-.timesheet-table input,
-.timesheet-table select,
-.history-table input,
-.history-table select,
-.form-input {
-    width: 100%;
-    min-width: 150px;
-    max-width: 300px;
-    box-sizing: border-box;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.col-client select,
-.col-client input {
-    min-width: 200px; /* Wider for Client dropdown */
-}
-
-.timesheet-table input[type="number"],
-.history-table input[type="number"] {
-    min-width: 80px;
-    width: auto;
-}
-
-.timesheet-table input[type="date"],
-.timesheet-table input[type="time"],
-.history-table input[type="date"],
-.history-table input[type="time"] {
-    min-width: 140px;
-    width: auto;
-}
-
-/* Update existing media queries or add new */
 @media (max-width: 1200px) {
+    .container {
+        margin: 1rem;
+        border-radius: 15px;
+    }
+
+    .header {
+        padding: 1.5rem 1rem;
+    }
+
+    .header h1 {
+        font-size: 2rem; /* Further reduced for smaller screens */
+    }
+
     .form-input,
     .timesheet-table input,
     .timesheet-table select,
@@ -1097,7 +1079,7 @@ body {
         min-width: 180px;
     }
     .table-responsive {
-        border: 1px solid var(--border-color); /* Visual cue for scrollable area */
+        border: 1px solid var(--border-color);
     }
 }
 
@@ -1112,10 +1094,95 @@ body {
 }
 
 @media (max-width: 768px) {
-    .timesheet-table,
-    .history-table {
-        min-width: 1200px; /* Ensure horizontal scroll */
+    .navbar {
+        padding: 1rem;
     }
+
+    .nav-menu {
+        width: 100%;
+        left: 0;
+    }
+
+    .container {
+        margin: 0.5rem;
+        border-radius: 10px;
+    }
+
+    .header {
+        padding: 1rem 0.5rem; /* Further reduced padding */
+    }
+
+    .header h1 {
+        font-size: 1.6rem; /* Adjusted for mobile */
+        letter-spacing: 0.5px;
+        padding: 0 0.5rem; /* Add padding to prevent text cutoff */
+    }
+
+    .header p {
+        font-size: 1rem;
+    }
+
+    .form-section, .history-section {
+        padding: 1.5rem;
+    }
+
+    .employee-info {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1.5rem;
+    }
+
+    .timesheet-section {
+        padding: 1.5rem;
+    }
+
+    .timesheet-table, .history-table {
+        font-size: 0.8rem;
+        min-width: 1200px;
+    }
+
+    .summary-section {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1.5rem;
+    }
+
+    .feedback-section {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1.5rem;
+    }
+
+    .export-section, .history-export-section {
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+
+    .export-btn, .clear-btn {
+        display: block;
+        width: 100%;
+        margin: 0.5rem 0;
+    }
+
+    .col-client { width: 150px; }
+    .col-project { width: 120px; }
+
+    .modal-content {
+        grid-template-columns: 1fr;
+        width: 95%;
+        padding: 1.5rem;
+        gap: 1rem;
+    }
+
+    .modal-add-btn, .modal-cancel-btn {
+        width: 100%;
+        margin: 0.5rem 0;
+    }
+
+    .modal-cancel-btn {
+        margin-right: 0;
+    }
+
     .form-input,
     .timesheet-table input,
     .timesheet-table select,
@@ -1124,12 +1191,57 @@ body {
         min-width: 100px;
         font-size: 0.9rem;
     }
+
     .col-client select {
         min-width: 150px;
     }
 }
 
 @media (max-width: 480px) {
+    .header h1 {
+        font-size: 1.4rem; /* Smaller font for very small screens */
+        padding: 0 0.25rem;
+    }
+
+    .form-section, .history-section {
+        padding: 1rem;
+    }
+
+    .employee-info {
+        padding: 1rem;
+    }
+
+    .timesheet-section {
+        padding: 1rem;
+    }
+
+    .summary-section {
+        padding: 1rem;
+    }
+
+    .feedback-section {
+        padding: 1rem;
+    }
+
+    .export-section, .history-export-section {
+        padding: 1rem;
+    }
+
+    .timesheet-table th, .history-table th {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.75rem;
+    }
+
+    .timesheet-table td, .history-table td {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.8rem;
+    }
+
+    .add-row-btn, .add-week-btn {
+        width: 100%;
+        padding: 1rem;
+    }
+
     .form-input,
     .timesheet-table input,
     .timesheet-table select,
@@ -1152,270 +1264,12 @@ body {
     }
 }
 
-.delete-btn {
-    background: #e74c3c;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: var(--transition);
-}
-
-.delete-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-medium);
-}
-
-
-.header {
-    background: var(--primary-gradient);
-    color: white;
-    padding: 3rem 2rem;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
-}
-
-.header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 10"><defs><pattern id="grain" width="100" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="10" fill="url(%23grain)"/></svg>');
-    opacity: 0.1;
-    animation: grainMove 5s infinite linear;
-}
-
-@keyframes grainMove {
-    0% { transform: translate(0, 0); }
-    100% { transform: translate(10px, 10px); }
-}
-
-.header h1 {
-    margin: 0;
-    font-size: 3.5rem; /* Increased from 2.8rem for a bolder look */
-    font-weight: 700; /* Bolder weight for impact */
-    position: relative;
-    z-index: 1;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3), /* Main shadow */
-                 0 0 15px rgba(102, 126, 234, 0.5); /* Glow effect */
-    letter-spacing: 2px; /* Adds a premium feel */
-    text-transform: uppercase; /* Consistent with table headers */
-}
-
-.header .fas {
-    margin-right: 0.5rem;
-    animation: pulseIcon 2s infinite ease-in-out;
-}
-
-@keyframes pulseIcon {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-}
-
-.summary-section, .history-summary {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
-    margin: 2rem 0;
-    padding: 2rem;
-    background: var(--light-bg);
-    border-radius: 15px;
-    border-left: 5px solid #e74c3c;
-    box-shadow: var(--shadow-light);
-}
-
-.summary-item {
-    text-align: center;
-    padding: 1.5rem;
-    background: white;
-    border-radius: 10px;
-    box-shadow: var(--shadow-light);
-    transition: var(--transition);
-    animation: fadeInUp 0.5s ease-out forwards;
-    animation-delay: calc(0.1s * var(--index));
-}
-
-.summary-item:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-medium);
-}
-
-.summary-item h3 {
-    margin: 0 0 0.5rem 0;
-    color: var(--text-dark);
-    font-size: 1.1rem;
-    font-weight: 500;
-}
-
-.summary-item i {
-    margin-right: 0.5rem;
-    font-size: 1.2rem;
-    vertical-align: middle;
-}
-
-.total-hours .value, .total-hours i {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #2ecc71; /* Green for total hours */
-    margin-top: 0.5rem;
-}
-
-.billable-hours .value, .billable-hours i {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #3498db; /* Blue for billable hours */
-    margin-top: 0.5rem;
-}
-
-.non-billable-hours .value, .non-billable-hours i {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #e74c3c; /* Red for non-billable hours */
-    margin-top: 0.5rem;
-}
-
-.summary-item:nth-child(1) { --index: 1; }
-.summary-item:nth-child(2) { --index: 2; }
-.summary-item:nth-child(3) { --index: 3; }
-
-@media (max-width: 768px) {
-    .summary-section, .history-summary {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-        padding: 1.5rem;
+@media (min-width: 1400px) {
+    .container {
+        max-width: 1600px;
     }
 
-    .summary-item {
-        padding: 1rem;
+    .employee-info {
+        grid-template-columns: repeat(3, 1fr);
     }
-
-    .summary-item .value {
-        font-size: 2rem;
-    }
-
-    .total-hours .value, .total-hours i {
-        font-size: 2rem;
-        color: #2ecc71;
-    }
-
-    .billable-hours .value, .billable-hours i {
-        font-size: 2rem;
-        color: #3498db;
-    }
-
-    .non-billable-hours .value, .non-billable-hours i {
-        font-size: 2rem;
-        color: #e74c3c;
-    }
-}
-
-@media (max-width: 480px) {
-    .summary-section, .history-summary {
-        padding: 1rem;
-    }
-
-    .summary-item {
-        padding: 0.75rem;
-    }
-
-    .summary-item .value {
-        font-size: 1.8rem;
-    }
-
-    .total-hours .value, .total-hours i {
-        font-size: 1.8rem;
-        color: #2ecc71;
-    }
-
-    .billable-hours .value, .billable-hours i {
-        font-size: 1.8rem;
-        color: #3498db;
-    }
-
-    .non-billable-hours .value, .non-billable-hours i {
-        font-size: 1.8rem;
-        color: #e74c3c;
-    }
-}
-
-.copy-btn, .paste-btn, .paste-above-btn {
-    background: var(--secondary-gradient);
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    margin: 0 0.25rem;
-    transition: var(--transition);
-    box-shadow: var(--shadow-light);
-    display: inline-block;
-    width: auto;
-}
-
-.copy-btn:hover, .paste-btn:hover, .paste-above-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-medium);
-}
-
-.paste-above-btn {
-    background: var(--success-gradient);
-    margin-top: 1rem;
-    display: block;
-    width: 100%;
-    max-width: 200px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.col-action {
-    min-width: 120px; /* Ensure enough space for two buttons */
-}
-
-.button-container {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    gap: 1rem;
-    margin-top: 1rem;
-}
-
-.add-row-btn, .paste-above-btn {
-    background: var(--secondary-gradient);
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: var(--transition);
-    box-shadow: var(--shadow-light);
-}
-
-.paste-above-btn {
-    background: var(--success-gradient);
-}
-
-.add-row-btn:hover, .paste-above-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-medium);
-}
-
-.col-action {
-    min-width: 120px; /* Ensure enough space for two buttons */
-}
-
-.col-add button {
-    padding: 5px;
-    margin: 2px;
-}
-.eye-btn i {
-    font-size: 16px;
 }
