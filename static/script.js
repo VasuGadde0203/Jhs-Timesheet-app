@@ -407,9 +407,15 @@ function validateDate(dateInput) {
     if (!selectedWeek) return;
 
     const inputDateStr = dateInput.value;
-    const weekStartStr = selectedWeek.start.toISOString().split('T')[0];
-    const weekEndStr = selectedWeek.end.toISOString().split('T')[0];
+    // const weekStartStr = selectedWeek.start.toISOString().split('T')[0];
+    // const weekEndStr = selectedWeek.end.toISOString().split('T')[0];
 
+    // Use local date components to avoid UTC timezone shift
+    const weekStartStr = `${selectedWeek.start.getFullYear()}-${String(selectedWeek.start.getMonth() + 1).padStart(2, '0')}-${String(selectedWeek.start.getDate()).padStart(2, '0')}`;
+    const weekEndStr = `${selectedWeek.end.getFullYear()}-${String(selectedWeek.end.getMonth() + 1).padStart(2, '0')}-${String(selectedWeek.end.getDate()).padStart(2, '0')}`;
+
+    console.log('Validation check:', inputDateStr, weekStartStr, weekEndStr);
+    
     if (inputDateStr < weekStartStr || inputDateStr > weekEndStr) {
         dateInput.classList.add('validation-error');
         showValidationMessage(dateInput, 'Please select a date within the specified week only.');
@@ -439,8 +445,14 @@ function validateModalDate(dateInput) {
 
     const inputDateStr = dateInput.value;
     console.log("Selected week:", selectedWeek);
-    const weekStartStr = selectedWeek.start.toISOString().split('T')[0];
-    const weekEndStr = selectedWeek.end.toISOString().split('T')[0];
+    // const weekStartStr = selectedWeek.start.toISOString().split('T')[0];
+    // const weekEndStr = selectedWeek.end.toISOString().split('T')[0];
+
+    // Use local date components to avoid UTC timezone shift
+    const weekStartStr = `${selectedWeek.start.getFullYear()}-${String(selectedWeek.start.getMonth() + 1).padStart(2, '0')}-${String(selectedWeek.start.getDate()).padStart(2, '0')}`;
+    const weekEndStr = `${selectedWeek.end.getFullYear()}-${String(selectedWeek.end.getMonth() + 1).padStart(2, '0')}-${String(selectedWeek.end.getDate()).padStart(2, '0')}`;
+
+    console.log('Validation check:', inputDateStr, weekStartStr, weekEndStr);
 
     if (inputDateStr < weekStartStr || inputDateStr > weekEndStr) {
         dateInput.classList.add('validation-error');
