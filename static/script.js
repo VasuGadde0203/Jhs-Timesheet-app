@@ -438,6 +438,7 @@ function validateModalDate(dateInput) {
     if (!selectedWeek) return;
 
     const inputDateStr = dateInput.value;
+    console.log("Selected week:", selectedWeek);
     const weekStartStr = selectedWeek.start.toISOString().split('T')[0];
     const weekEndStr = selectedWeek.end.toISOString().split('T')[0];
 
