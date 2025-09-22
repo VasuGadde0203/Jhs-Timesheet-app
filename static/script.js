@@ -465,8 +465,8 @@ function saveModalEntry() {
     const modalProjectCodeField = modalInputs[8]; // Project code in modal
     const rowProjectCodeField = rowInputs[8]; // Project code in row
 
+    // If modal client field is an input (from "Type here"), ensure row client field is also an input
     if (modalClientField.tagName === 'INPUT' && modalClientField.value && modalClientField.value !== 'Type here') {
-        // If modal client field is an input (from "Type here"), replace row's select with input
         const input = document.createElement('input');
         input.type = 'text';
         input.className = 'client-field client-input form-input';
@@ -489,6 +489,9 @@ function saveModalEntry() {
         if (modalClientField.value) {
             customClients.add(modalClientField.value);
         }
+    } else if (modalClientField.value && modalClientField.value !== 'Type here') {
+        // If a predefined client is selected, ensure project code is updated
+        updateProjectCode(rowClientField);
     }
 
     calculateHours(currentRow);
