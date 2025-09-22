@@ -449,7 +449,8 @@ function saveModalEntry() {
     if (!currentRow) return;
     const modalInputs = document.querySelectorAll('#modalOverlay input, #modalOverlay select');
     const rowInputs = currentRow.querySelectorAll('input, select');
-    
+
+    // Copy modal inputs to row inputs
     for (let i = 0; i < modalInputs.length; i++) {
         if (rowInputs[i].tagName === 'INPUT' && rowInputs[i].type !== 'button') {
             rowInputs[i].value = modalInputs[i].value;
@@ -457,11 +458,44 @@ function saveModalEntry() {
             rowInputs[i].value = modalInputs[i].value;
         }
     }
+
+    // Handle custom client input from "Type here"
+    const modalClientField = modalInputs[6]; // Client field in modal
+    const rowClientField = rowInputs[6]; // Client field in row
+    const modalProjectCodeField = modalInputs[8]; // Project code in modal
+    const rowProjectCodeField = rowInputs[8]; // Project code in row
+
+    if (modalClientField.tagName === 'INPUT' && modalClientField.value && modalClientField.value !== 'Type here') {
+        // If modal client field is an input (from "Type here"), replace row's select with input
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'client-field client-input form-input';
+        input.value = modalClientField.value;
+        input.placeholder = 'Enter Client';
+        input.oninput = () => {
+            rowProjectCodeField.readOnly = false;
+            rowProjectCodeField.placeholder = 'Enter Project Code';
+            updateSummary();
+        };
+        rowClientField.replaceWith(input);
+
+        // Ensure project code field is editable and preserves the value
+        rowProjectCodeField.readOnly = false;
+        rowProjectCodeField.value = modalProjectCodeField.value;
+        rowProjectCodeField.placeholder = 'Enter Project Code';
+        rowProjectCodeField.oninput = updateSummary;
+
+        // Add custom client to customClients set for future dropdowns
+        if (modalClientField.value) {
+            customClients.add(modalClientField.value);
+        }
+    }
+
     calculateHours(currentRow);
     validateDate(currentRow.querySelector('.date-field'));
     closeModal();
     updateSummary();
-    updateAllClientFields(); // Refresh dropdowns
+    updateAllClientFields(); // Refresh dropdowns to include new custom client
 }
 
 function updateAllReportingManagerFields() {
