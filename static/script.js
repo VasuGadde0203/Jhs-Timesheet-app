@@ -1701,50 +1701,99 @@ function addRow(sectionId) {
     updateSummary();
 }
 
-function openModal(button, isReadOnly) {
+// function openModal(button, isReadOnly) {
+//     currentRow = button.closest('tr');
+//     const inputs = currentRow.querySelectorAll('input, select');
+//     const modal = document.getElementById('modalOverlay');
+//     modal.style.display = 'flex';
+
+//     const labels = [
+//         'Date', 'Location of Work', 'Punch In', 'Punch Out', 'Project Start Time', 'Project End Time',
+//         'Client', 'Project', 'Project Code', 'Reporting Manager', 'Activity', 'Project Hours', 'Working Hours', 'Billable', 'Remarks'
+//     ];
+    
+//     for (let i = 0; i < inputs.length; i++) {
+//         const label = document.getElementById(`modalLabel${i + 1}`);
+//         const input = document.getElementById(`modalInput${i + 1}`);
+//         if (label && input) {
+//             label.textContent = labels[i];
+//             input.value = inputs[i].value || (inputs[i].tagName === 'SELECT' ? inputs[i].querySelector('option:checked')?.value : '');
+//             input.readOnly = isReadOnly;
+//             if (input.tagName === 'SELECT') {
+//                 input.disabled = isReadOnly;
+//                 if (i === 13) { // Billable field
+//                     input.innerHTML = '<option value="Yes">Yes</option><option value="No">No</option>';
+//                     input.value = inputs[i].value || 'Yes';
+//                     if (isReadOnly) {
+//                         input.innerHTML = `<option value="${input.value}" selected>${input.value}</option>`;
+//                     }
+//                 }
+//             }
+//         }
+//     }
+
+//     // Disable all inputs if read-only mode
+//     const modalInputs = modal.querySelectorAll('input, select');
+//     modalInputs.forEach(input => {
+//         input.readOnly = isReadOnly;
+//         if (input.tagName === 'SELECT') input.disabled = isReadOnly;
+//     });
+
+//     // Update modal fields dynamically
+//     updateModalReportingManagerFields();
+//     validateModalDate(document.getElementById('modalInput1'));
+//     updateModalHours();
+
+//     // Set button behavior based on mode
+//     const addBtn = document.getElementById('modalAddBtn');
+//     const cancelBtn = document.getElementById('modalCancelBtn');
+//     if (isReadOnly) {
+//         addBtn.style.display = 'none';
+//         cancelBtn.textContent = 'Close';
+//     } else {
+//         addBtn.style.display = 'inline-block';
+//         cancelBtn.textContent = 'Cancel';
+//         addBtn.onclick = saveModalEntry;
+//     }
+//     cancelBtn.onclick = closeModal;
+// }
+
+function openModal(button, isReadOnly = false) {
     currentRow = button.closest('tr');
     const inputs = currentRow.querySelectorAll('input, select');
-    const modal = document.getElementById('modalOverlay');
-    modal.style.display = 'flex';
-
     const labels = [
-        'Date', 'Location of Work', 'Punch In', 'Punch Out', 'Project Start Time', 'Project End Time',
+        'Date', 'Location of Work', 'Project Start Time', 'Project End Time', 'Punch In', 'Punch Out',
         'Client', 'Project', 'Project Code', 'Reporting Manager', 'Activity', 'Project Hours', 'Working Hours', 'Billable', 'Remarks'
     ];
-    
     for (let i = 0; i < inputs.length; i++) {
         const label = document.getElementById(`modalLabel${i + 1}`);
         const input = document.getElementById(`modalInput${i + 1}`);
         if (label && input) {
             label.textContent = labels[i];
-            input.value = inputs[i].value || (inputs[i].tagName === 'SELECT' ? inputs[i].querySelector('option:checked')?.value : '');
-            input.readOnly = isReadOnly;
-            if (input.tagName === 'SELECT') {
-                input.disabled = isReadOnly;
-                if (i === 13) { // Billable field
-                    input.innerHTML = '<option value="Yes">Yes</option><option value="No">No</option>';
-                    input.value = inputs[i].value || 'Yes';
-                    if (isReadOnly) {
-                        input.innerHTML = `<option value="${input.value}" selected>${input.value}</option>`;
+            if (i === 6) { // Client field
+                input.type = 'text'; // Ensure it's a text input
+                input.value = inputs[i].value || '';
+                input.readOnly = isReadOnly;
+            } else {
+                input.value = inputs[i].value || (inputs[i].tagName === 'SELECT' ? inputs[i].querySelector('option:checked')?.value : '');
+                input.readOnly = isReadOnly;
+                if (input.tagName === 'SELECT') {
+                    input.disabled = isReadOnly;
+                    if (i === 13) { // Billable field
+                        input.innerHTML = '<option value="Yes">Yes</option><option value="No">No</option>';
+                        input.value = inputs[i].value || 'Yes';
+                        if (isReadOnly) {
+                            input.innerHTML = `<option value="${input.value}" selected>${input.value}</option>`;
+                        }
                     }
                 }
             }
         }
     }
-
-    // Disable all inputs if read-only mode
-    const modalInputs = modal.querySelectorAll('input, select');
-    modalInputs.forEach(input => {
-        input.readOnly = isReadOnly;
-        if (input.tagName === 'SELECT') input.disabled = isReadOnly;
-    });
-
-    // Update modal fields dynamically
+    document.getElementById('modalOverlay').style.display = 'flex';
     updateModalReportingManagerFields();
     validateModalDate(document.getElementById('modalInput1'));
     updateModalHours();
-
-    // Set button behavior based on mode
     const addBtn = document.getElementById('modalAddBtn');
     const cancelBtn = document.getElementById('modalCancelBtn');
     if (isReadOnly) {
