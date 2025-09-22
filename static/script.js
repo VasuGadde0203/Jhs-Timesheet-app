@@ -318,8 +318,8 @@ function updateAllClientFields() {
     const manager = document.getElementById('reportingManager')?.value || '';
     const relevantProjects = fetchProjectData(tl, manager);
 
-    // Collect custom clients from existing rows (inputs or selects not in predefined)
-    customClients.clear(); // Reset to avoid duplicates
+    // Collect custom clients
+    customClients.clear();
     sections.forEach(section => {
         const clientFields = section.querySelectorAll('.client-field');
         clientFields.forEach(field => {
@@ -330,55 +330,46 @@ function updateAllClientFields() {
         });
     });
 
+    // Update fields, skip inputs
     sections.forEach(section => {
         const clientFields = section.querySelectorAll('.client-field');
         clientFields.forEach(field => {
+            if (field.tagName === 'INPUT') {
+                const row = field.closest('tr');
+                const projectCodeInput = row.querySelector('.project-code');
+                projectCodeInput.readOnly = false;
+                projectCodeInput.placeholder = 'Enter Project Code';
+                return;
+            }
+
             const row = field.closest('tr');
             const projectCodeInput = row.querySelector('.project-code');
             const currentClientValue = field.value || field.querySelector('option:checked')?.value || '';
 
-            if (relevantProjects.length > 0 || customClients.size > 0) {
-                const select = document.createElement('select');
-                select.className = 'client-field client-select';
-                select.innerHTML = '<option value="">Select Client</option>';
-                relevantProjects.forEach(project => {
-                    const option = document.createElement('option');
-                    option.value = project['CLIENT NAME'];
-                    option.textContent = project['CLIENT NAME'];
-                    select.appendChild(option);
-                });
-                // Add custom clients as options
-                customClients.forEach(custom => {
-                    const option = document.createElement('option');
-                    option.value = custom;
-                    option.textContent = custom;
-                    select.appendChild(option);
-                });
-                select.innerHTML += '<option value="Type here">Type here</option>';
-                select.dataset.projects = JSON.stringify(relevantProjects);
-                select.onchange = () => handleClientChange(select);
-                if (currentClientValue && (relevantProjects.some(p => p['CLIENT NAME'] === currentClientValue) || customClients.has(currentClientValue) || currentClientValue === 'Type here')) {
-                    select.value = currentClientValue;
-                }
-                field.replaceWith(select);
-                projectCodeInput.readOnly = select.value !== 'Type here' && relevantProjects.some(p => p['CLIENT NAME'] === select.value);
-                updateProjectCode(select);
-            } else {
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.className = 'client-field client-input';
-                input.placeholder = 'Enter Client';
-                input.value = currentClientValue;
-                input.oninput = () => {
-                    projectCodeInput.readOnly = false;
-                    projectCodeInput.placeholder = 'Enter Project Code';
-                    updateSummary();
-                };
-                field.replaceWith(input);
-                projectCodeInput.readOnly = false;
-                projectCodeInput.placeholder = 'Enter Project Code';
-                projectCodeInput.oninput = updateSummary;
+            const select = document.createElement('select');
+            select.className = 'client-field client-select';
+            select.innerHTML = '<option value="">Select Client</option>';
+            relevantProjects.forEach(project => {
+                const option = document.createElement('option');
+                option.value = project['CLIENT NAME'];
+                option.textContent = project['CLIENT NAME'];
+                select.appendChild(option);
+            });
+            customClients.forEach(custom => {
+                const option = document.createElement('option');
+                option.value = custom;
+                option.textContent = custom;
+                select.appendChild(option);
+            });
+            select.innerHTML += '<option value="Type here">Type here</option>';
+            select.dataset.projects = JSON.stringify(relevantProjects);
+            select.onchange = () => handleClientChange(select);
+            if (currentClientValue && (relevantProjects.some(p => p['CLIENT NAME'] === currentClientValue) || customClients.has(currentClientValue) || currentClientValue === 'Type here')) {
+                select.value = currentClientValue;
             }
+            field.replaceWith(select);
+            projectCodeInput.readOnly = select.value !== 'Type here' && relevantProjects.some(p => p['CLIENT NAME'] === select.value);
+            updateProjectCode(select);
         });
     });
     updateModalClientFields();
@@ -445,14 +436,15 @@ function updateProjectCode(clientSelect) {
             projectCodeInput.value = project['PROJECT ID'];
             projectCodeInput.readOnly = true;
         } else {
-            // For custom clients, keep editable but retain any existing value
+            // For custom clients
             projectCodeInput.readOnly = false;
             projectCodeInput.placeholder = 'Enter Project Code';
-            // Don't clear value if already set
+            // Preserve existing value
         }
         updateSummary();
     }
-}// Call updateAllClientFields after saving modal to refresh dropdowns with new custom client
+}
+
 function saveModalEntry() {
     if (!currentRow) return;
     const modalInputs = document.querySelectorAll('#modalOverlay input, #modalOverlay select');
@@ -469,7 +461,7 @@ function saveModalEntry() {
     validateDate(currentRow.querySelector('.date-field'));
     closeModal();
     updateSummary();
-    updateAllClientFields(); // Refresh all client dropdowns to include new custom client
+    updateAllClientFields(); // Refresh dropdowns
 }
 
 function updateAllReportingManagerFields() {
