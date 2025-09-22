@@ -410,7 +410,7 @@ function validateDate(dateInput) {
     const weekStartStr = selectedWeek.start.toISOString().split('T')[0];
     const weekEndStr = selectedWeek.end.toISOString().split('T')[0];
 
-    if (inputDateStr < weekStartStr - 1 || inputDateStr > weekEndStr + 1) {
+    if (inputDateStr < weekStartStr || inputDateStr > weekEndStr) {
         dateInput.classList.add('validation-error');
         showValidationMessage(dateInput, 'Please select a date within the specified week only.');
     } else {
@@ -441,7 +441,7 @@ function validateModalDate(dateInput) {
     const weekStartStr = selectedWeek.start.toISOString().split('T')[0];
     const weekEndStr = selectedWeek.end.toISOString().split('T')[0];
 
-    if (inputDateStr < weekStartStr - 1 || inputDateStr > weekEndStr + 1) {
+    if (inputDateStr < weekStartStr || inputDateStr > weekEndStr) {
         dateInput.classList.add('validation-error');
         console.log('Validation error on modal date:', inputDateStr, weekStartStr, weekEndStr);
         showValidationMessage(dateInput, 'Please select a date within the specified week only.');
