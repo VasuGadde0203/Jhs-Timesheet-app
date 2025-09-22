@@ -215,6 +215,7 @@ async function populateEmployeeInfo() {
             const element = document.getElementById(id);
             if (element) element.value = value;
         });
+        updateAllClientFields();
         updateAllReportingManagerFields();
     }
 }
@@ -254,6 +255,250 @@ function getReportingManagers() {
         .map(e => e['ReportingEmpName'])
         .filter(m => m && typeof m === 'string' && m.trim()))];
     return managers;
+}
+
+let customClients = new Set(); // Global set to track unique custom clients
+
+// function updateAllClientFields() {
+//     const sections = document.querySelectorAll('.timesheet-section, .history-table');
+//     const tl = document.getElementById('partner')?.value || '';
+//     const manager = document.getElementById('reportingManager')?.value || '';
+//     const relevantProjects = fetchProjectData(tl, manager);
+    
+//     sections.forEach(section => {
+//         const clientFields = section.querySelectorAll('.client-field');
+//         clientFields.forEach(field => {
+//             const row = field.closest('tr');
+//             const projectCodeInput = row.querySelector('.project-code');
+//             const currentClientValue = field.value || field.querySelector('option:checked')?.value || '';
+            
+//             if (relevantProjects.length > 0) {
+//                 const select = document.createElement('select');
+//                 select.className = 'client-field client-select';
+//                 select.innerHTML = '<option value="">Select Client</option>';
+//                 relevantProjects.forEach(project => {
+//                     const option = document.createElement('option');
+//                     option.value = project['CLIENT NAME'];
+//                     option.textContent = project['CLIENT NAME'];
+//                     select.appendChild(option);
+//                 });
+//                 select.innerHTML += '<option value="Type here">Type here</option>';
+//                 select.dataset.projects = JSON.stringify(relevantProjects);
+//                 select.onchange = () => handleClientChange(select);
+//                 if (currentClientValue && (relevantProjects.some(p => p['CLIENT NAME'] === currentClientValue) || currentClientValue === 'Type here')) {
+//                     select.value = currentClientValue;
+//                 }
+//                 field.replaceWith(select);
+//                 projectCodeInput.readOnly = select.value !== 'Type here';
+//                 updateProjectCode(select);
+//             } else {
+//                 const input = document.createElement('input');
+//                 input.type = 'text';
+//                 input.className = 'client-field client-input';
+//                 input.placeholder = 'Enter Client';
+//                 input.value = currentClientValue;
+//                 input.oninput = () => {
+//                     projectCodeInput.readOnly = false;
+//                     projectCodeInput.placeholder = 'Enter Project Code';
+//                     updateSummary();
+//                 };
+//                 field.replaceWith(input);
+//                 projectCodeInput.readOnly = false;
+//                 projectCodeInput.placeholder = 'Enter Project Code';
+//                 projectCodeInput.oninput = updateSummary;
+//             }
+//         });
+//     });
+//     updateModalClientFields();
+// }
+
+function updateAllClientFields() {
+    const sections = document.querySelectorAll('.timesheet-section, .history-table');
+    const tl = document.getElementById('partner')?.value || '';
+    const manager = document.getElementById('reportingManager')?.value || '';
+    const relevantProjects = fetchProjectData(tl, manager);
+
+    // Collect custom clients
+    customClients.clear();
+    sections.forEach(section => {
+        const clientFields = section.querySelectorAll('.client-field');
+        clientFields.forEach(field => {
+            const value = field.value || field.querySelector('option:checked')?.value || '';
+            if (value && value !== 'Type here' && !relevantProjects.some(p => p['CLIENT NAME'] === value)) {
+                customClients.add(value);
+            }
+        });
+    });
+
+    // Update fields, skip inputs
+    sections.forEach(section => {
+        const clientFields = section.querySelectorAll('.client-field');
+        clientFields.forEach(field => {
+            if (field.tagName === 'INPUT') {
+                const row = field.closest('tr');
+                const projectCodeInput = row.querySelector('.project-code');
+                projectCodeInput.readOnly = false;
+                projectCodeInput.placeholder = 'Enter Project Code';
+                return;
+            }
+
+            const row = field.closest('tr');
+            const projectCodeInput = row.querySelector('.project-code');
+            const currentClientValue = field.value || field.querySelector('option:checked')?.value || '';
+
+            const select = document.createElement('select');
+            select.className = 'client-field client-select';
+            select.innerHTML = '<option value="">Select Client</option>';
+            relevantProjects.forEach(project => {
+                const option = document.createElement('option');
+                option.value = project['CLIENT NAME'];
+                option.textContent = project['CLIENT NAME'];
+                select.appendChild(option);
+            });
+            customClients.forEach(custom => {
+                const option = document.createElement('option');
+                option.value = custom;
+                option.textContent = custom;
+                select.appendChild(option);
+            });
+            select.innerHTML += '<option value="Type here">Type here</option>';
+            select.dataset.projects = JSON.stringify(relevantProjects);
+            select.onchange = () => handleClientChange(select);
+            if (currentClientValue && (relevantProjects.some(p => p['CLIENT NAME'] === currentClientValue) || customClients.has(currentClientValue) || currentClientValue === 'Type here')) {
+                select.value = currentClientValue;
+            }
+            field.replaceWith(select);
+            projectCodeInput.readOnly = select.value !== 'Type here' && relevantProjects.some(p => p['CLIENT NAME'] === select.value);
+            updateProjectCode(select);
+        });
+    });
+    updateModalClientFields();
+}
+
+function handleClientChange(select) {
+    if (!select) return;
+    const row = select.closest('tr');
+    const projectCodeInput = row.querySelector('.project-code');
+    if (select.value === 'Type here') {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'client-field client-input';
+        input.placeholder = 'Enter Client';
+        input.oninput = () => {
+            projectCodeInput.readOnly = false;
+            projectCodeInput.placeholder = 'Enter Project Code';
+            updateSummary();
+        };
+        select.replaceWith(input);
+        projectCodeInput.readOnly = false;
+        projectCodeInput.placeholder = 'Enter Project Code';
+        projectCodeInput.oninput = updateSummary;
+    } else {
+        updateProjectCode(select);
+    }
+}
+
+// function updateProjectCode(clientSelect) {
+//     if (!clientSelect) return;
+//     const row = clientSelect.closest('tr');
+//     const projectCodeInput = row.querySelector('.project-code');
+//     const selectedClient = clientSelect.value;
+    
+//     if (selectedClient === 'Type here') {
+//         projectCodeInput.readOnly = false;
+//         projectCodeInput.placeholder = 'Enter Project Code';
+//         projectCodeInput.value = '';
+//         projectCodeInput.oninput = updateSummary;
+//     } else {
+//         const projects = JSON.parse(clientSelect.dataset.projects || '[]');
+//         const project = projects.find(p => p['CLIENT NAME'] === selectedClient);
+//         projectCodeInput.value = project ? project['PROJECT ID'] : '';
+//         projectCodeInput.readOnly = true;
+//         updateSummary();
+//     }
+// }
+
+function updateProjectCode(clientSelect) {
+    if (!clientSelect) return;
+    const row = clientSelect.closest('tr');
+    const projectCodeInput = row.querySelector('.project-code');
+    const selectedClient = clientSelect.value;
+
+    if (selectedClient === 'Type here') {
+        projectCodeInput.readOnly = false;
+        projectCodeInput.placeholder = 'Enter Project Code';
+        projectCodeInput.value = '';
+        projectCodeInput.oninput = updateSummary;
+    } else {
+        const projects = JSON.parse(clientSelect.dataset.projects || '[]');
+        const project = projects.find(p => p['CLIENT NAME'] === selectedClient);
+        if (project) {
+            projectCodeInput.value = project['PROJECT ID'];
+            projectCodeInput.readOnly = true;
+        } else {
+            // For custom clients
+            projectCodeInput.readOnly = false;
+            projectCodeInput.placeholder = 'Enter Project Code';
+            // Preserve existing value
+        }
+        updateSummary();
+    }
+}
+
+function saveModalEntry() {
+    if (!currentRow) return;
+    const modalInputs = document.querySelectorAll('#modalOverlay input, #modalOverlay select');
+    const rowInputs = currentRow.querySelectorAll('input, select');
+
+    // Copy modal inputs to row inputs
+    for (let i = 0; i < modalInputs.length; i++) {
+        if (rowInputs[i].tagName === 'INPUT' && rowInputs[i].type !== 'button') {
+            rowInputs[i].value = modalInputs[i].value;
+        } else if (rowInputs[i].tagName === 'SELECT') {
+            rowInputs[i].value = modalInputs[i].value;
+        }
+    }
+
+    // Handle custom client input from "Type here"
+    const modalClientField = modalInputs[6]; // Client field in modal
+    const rowClientField = rowInputs[6]; // Client field in row
+    const modalProjectCodeField = modalInputs[8]; // Project code in modal
+    const rowProjectCodeField = rowInputs[8]; // Project code in row
+
+    // If modal client field is an input (from "Type here"), ensure row client field is also an input
+    if (modalClientField.tagName === 'INPUT' && modalClientField.value && modalClientField.value !== 'Type here') {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'client-field client-input form-input';
+        input.value = modalClientField.value;
+        input.placeholder = 'Enter Client';
+        input.oninput = () => {
+            rowProjectCodeField.readOnly = false;
+            rowProjectCodeField.placeholder = 'Enter Project Code';
+            updateSummary();
+        };
+        rowClientField.replaceWith(input);
+
+        // Ensure project code field is editable and preserves the value
+        rowProjectCodeField.readOnly = false;
+        rowProjectCodeField.value = modalProjectCodeField.value;
+        rowProjectCodeField.placeholder = 'Enter Project Code';
+        rowProjectCodeField.oninput = updateSummary;
+
+        // Add custom client to customClients set for future dropdowns
+        if (modalClientField.value) {
+            customClients.add(modalClientField.value);
+        }
+    } else if (modalClientField.value && modalClientField.value !== 'Type here') {
+        // If a predefined client is selected, ensure project code is updated
+        updateProjectCode(rowClientField);
+    }
+
+    calculateHours(currentRow);
+    validateDate(currentRow.querySelector('.date-field'));
+    closeModal();
+    updateSummary();
+    updateAllClientFields(); // Refresh dropdowns to include new custom client
 }
 
 function updateAllReportingManagerFields() {
@@ -406,11 +651,11 @@ function validateDate(dateInput) {
     const selectedWeek = weekOptions.find(opt => opt.value === weekSelect.value);
     if (!selectedWeek) return;
 
-    const inputDateStr = dateInput.value;
-    const weekStartStr = selectedWeek.start.toISOString().split('T')[0];
-    const weekEndStr = selectedWeek.end.toISOString().split('T')[0];
+    const inputDate = new Date(dateInput.value);
+    const weekStart = new Date(selectedWeek.start);
+    const weekEnd = new Date(selectedWeek.end);
 
-    if (inputDateStr < weekStartStr || inputDateStr > weekEndStr) {
+    if (inputDate < weekStart || inputDate > weekEnd) {
         dateInput.classList.add('validation-error');
         showValidationMessage(dateInput, 'Please select a date within the specified week only.');
     } else {
@@ -419,14 +664,12 @@ function validateDate(dateInput) {
     }
 
     const today = new Date();
-    const sixtyDaysAgo = new Date(today.getTime() - (60 * 24 * 60 * 60 * 1000));
+    const thirtyDaysAgo = new Date(today.getTime() - (60 * 24 * 60 * 60 * 1000));
     const sevenDaysAhead = new Date(today.getTime() + (7 * 24 * 60 * 60 * 1000));
-    const sixtyDaysAgoStr = sixtyDaysAgo.toISOString().split('T')[0];
-    const sevenDaysAheadStr = sevenDaysAhead.toISOString().split('T')[0];
     
-    if (inputDateStr < sixtyDaysAgoStr || inputDateStr > sevenDaysAheadStr) {
+    if (inputDate < thirtyDaysAgo || inputDate > sevenDaysAhead) {
         dateInput.classList.add('validation-error');
-        showValidationMessage(dateInput, 'Date must be within last 60 days to next 7 days');
+        showValidationMessage(dateInput, 'Date must be within last 30 days to next 7 days');
     }
 }
 
@@ -437,11 +680,11 @@ function validateModalDate(dateInput) {
     const selectedWeek = weekOptions.find(opt => opt.value === weekSelect.value);
     if (!selectedWeek) return;
 
-    const inputDateStr = dateInput.value;
-    const weekStartStr = selectedWeek.start.toISOString().split('T')[0];
-    const weekEndStr = selectedWeek.end.toISOString().split('T')[0];
+    const inputDate = new Date(dateInput.value);
+    const weekStart = new Date(selectedWeek.start);
+    const weekEnd = new Date(selectedWeek.end);
 
-    if (inputDateStr < weekStartStr || inputDateStr > weekEndStr) {
+    if (inputDate < weekStart || inputDate > weekEnd) {
         dateInput.classList.add('validation-error');
         showValidationMessage(dateInput, 'Please select a date within the specified week only.');
     } else {
@@ -450,12 +693,10 @@ function validateModalDate(dateInput) {
     }
 
     const today = new Date();
-    const sixtyDaysAgo = new Date(today.getTime() - (60 * 24 * 60 * 60 * 1000));
+    const thirtyDaysAgo = new Date(today.getTime() - (60 * 24 * 60 * 60 * 1000));
     const sevenDaysAhead = new Date(today.getTime() + (7 * 24 * 60 * 60 * 1000));
-    const sixtyDaysAgoStr = sixtyDaysAgo.toISOString().split('T')[0];
-    const sevenDaysAheadStr = sevenDaysAhead.toISOString().split('T')[0];
     
-    if (inputDateStr < sixtyDaysAgoStr || inputDateStr > sevenDaysAheadStr) {
+    if (inputDate < thirtyDaysAgo || inputDate > sevenDaysAhead) {
         dateInput.classList.add('validation-error');
         showValidationMessage(dateInput, 'Date must be within last 60 days to next 7 days');
     }
@@ -521,13 +762,26 @@ function openModal(button) {
             input.value = inputs[i].value || '';
             
             if (input.tagName === 'SELECT') {
-                if (i === 13) {
+                if (i === 6) {
+                    const select = inputs[i];
+                    const relevantProjects = fetchProjectData(document.getElementById('partner')?.value || '', document.getElementById('reportingManager')?.value || '');
+                    input.innerHTML = '<option value="">Select Client</option>';
+                    relevantProjects.forEach(project => {
+                        const option = document.createElement('option');
+                        option.value = project['CLIENT NAME'];
+                        option.textContent = project['CLIENT NAME'];
+                        input.appendChild(option);
+                    });
+                    input.innerHTML += '<option value="Type here">Type here</option>';
+                    input.value = select.value || '';
+                } else if (i === 13) {
                     input.value = inputs[i].value || 'Yes';
                 }
             }
         }
     }
     document.getElementById('modalOverlay').style.display = 'flex';
+    updateModalClientFields();
     updateModalReportingManagerFields();
     validateModalDate(document.getElementById('modalInput1'));
     updateModalHours();
@@ -536,6 +790,24 @@ function openModal(button) {
 function closeModal() {
     document.getElementById('modalOverlay').style.display = 'none';
     currentRow = null;
+}
+
+function updateModalClientFields() {
+    const modalClientSelect = document.getElementById('modalInput7');
+    const relevantProjects = fetchProjectData(document.getElementById('partner')?.value || '', document.getElementById('reportingManager')?.value || '');
+    modalClientSelect.innerHTML = '<option value="">Select Client</option>';
+    relevantProjects.forEach(project => {
+        const option = document.createElement('option');
+        option.value = project['CLIENT NAME'];
+        option.textContent = project['CLIENT NAME'];
+        modalClientSelect.appendChild(option);
+    });
+    modalClientSelect.innerHTML += '<option value="Type here">Type here</option>';
+    if (currentRow) {
+        const clientField = currentRow.querySelector('.client-field');
+        modalClientSelect.value = clientField.value || clientField.querySelector('option:checked')?.value || '';
+    }
+    modalClientSelect.onchange = updateModalProjectCode; // Ensure this is set
 }
 
 function updateModalReportingManagerFields() {
@@ -564,6 +836,43 @@ function updateModalReportingManagerFields() {
     }
 }
 
+
+function updateModalProjectCode() {
+    const modalClientSelect = document.getElementById('modalInput7');
+    const modalProjectCodeInput = document.getElementById('modalInput9');
+    if (!modalClientSelect || !modalProjectCodeInput) return;
+
+    if (modalClientSelect.value === 'Type here') {
+        // Replace dropdown with text input
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'client-field client-input form-input';
+        input.placeholder = 'Enter Client';
+        input.id = 'modalInput7';
+        input.oninput = () => {
+            modalProjectCodeInput.readOnly = false;
+            modalProjectCodeInput.placeholder = 'Enter Project Code';
+            updateModalHours();
+        };
+        modalClientSelect.replaceWith(input);
+
+        // Make project code field editable
+        modalProjectCodeInput.readOnly = false;
+        modalProjectCodeInput.placeholder = 'Enter Project Code';
+        modalProjectCodeInput.value = '';
+        modalProjectCodeInput.oninput = updateModalHours;
+    } else {
+        // Update project code based on selected client
+        const projects = fetchProjectData(
+            document.getElementById('partner')?.value || '',
+            document.getElementById('reportingManager')?.value || ''
+        );
+        const project = projects.find(p => p['CLIENT NAME'] === modalClientSelect.value);
+        modalProjectCodeInput.value = project ? project['PROJECT ID'] : '';
+        modalProjectCodeInput.readOnly = true;
+        updateModalHours();
+    }
+}
 
 function updateModalHours() {
     if (!currentRow) return;
@@ -598,6 +907,25 @@ function updateModalHours() {
     document.getElementById('modalInput13').value = workingHours;
 }
 
+// function saveModalEntry() {
+//     if (!currentRow) return;
+//     const modalInputs = document.querySelectorAll('#modalOverlay input, #modalOverlay select');
+//     const rowInputs = currentRow.querySelectorAll('input, select');
+    
+//     for (let i = 0; i < modalInputs.length; i++) {
+//         if (rowInputs[i].tagName === 'INPUT' && rowInputs[i].type !== 'button') {
+//             rowInputs[i].value = modalInputs[i].value;
+//         } else if (rowInputs[i].tagName === 'SELECT') {
+//             rowInputs[i].value = modalInputs[i].value;
+//         }
+//     }
+//     calculateHours(currentRow);
+//     validateDate(currentRow.querySelector('.date-field'));
+//     closeModal();
+//     updateSummary();
+// }
+
+// Call updateAllClientFields after saving modal to refresh dropdowns with new custom client
 function saveModalEntry() {
     if (!currentRow) return;
     const modalInputs = document.querySelectorAll('#modalOverlay input, #modalOverlay select');
@@ -614,6 +942,7 @@ function saveModalEntry() {
     validateDate(currentRow.querySelector('.date-field'));
     closeModal();
     updateSummary();
+    updateAllClientFields(); // Refresh all client dropdowns to include new custom client
 }
 
 function updateSummary() {
@@ -843,8 +1172,6 @@ async function saveDataToMongo() {
 
     const sections = document.querySelectorAll('.timesheet-section');
     let hasInvalidDates = false;
-    let hasMissingFields = false;
-    let errorMessages = [];
     sections.forEach(section => {
         const weekPeriod = section.querySelector('.week-period select').value || '';
         const rows = section.querySelectorAll('tbody tr');
@@ -861,14 +1188,6 @@ async function saveDataToMongo() {
                 }
             }
             console.log("Inputs:", inputs);
-            const client = inputs[6] ? (inputs[6].value || inputs[6].querySelector('option:checked')?.value || '') : '';
-            const project = inputs[7] ? inputs[7].value : '';
-            const projectCode = inputs[8] ? inputs[8].value : '';
-            if (!client || !project || !projectCode) {
-                hasMissingFields = true;
-                errorMessages.push(`Row missing required fields: Client, Project, or Project Code.`);
-                return;
-            }
             const rowData = {
                 employeeId: employeeId,
                 employeeName: document.getElementById('employeeName').value || '',
@@ -883,9 +1202,9 @@ async function saveDataToMongo() {
                 projectEndTime: inputs[3] ? inputs[3].value : '',
                 punchIn: inputs[4] ? inputs[4].value : '',
                 punchOut: inputs[5] ? inputs[5].value : '',
-                client: client,
-                project: project,
-                projectCode: projectCode,
+                client: inputs[6] ? (inputs[6].value || inputs[6].querySelector('option:checked')?.value || '') : '',
+                project: inputs[7] ? inputs[7].value : '',
+                projectCode: inputs[8] ? inputs[8].value : '',
                 reportingManagerEntry: inputs[9] ? (inputs[9].value || inputs[9].querySelector('option:checked')?.value || '') : '',
                 activity: inputs[10] ? inputs[10].value : '',
                 hours: inputs[11] ? inputs[11].value : '',
@@ -909,12 +1228,6 @@ async function saveDataToMongo() {
     if (hasInvalidDates) {
         hideLoading();
         showPopup('Please correct all dates to be within their respective week periods.', true);
-        return;
-    }
-
-    if (hasMissingFields) {
-        hideLoading();
-        showPopup(errorMessages.join('\n'), true);
         return;
     }
 
@@ -1181,9 +1494,10 @@ function editHistoryRow(button, entryId) {
     cells[4].innerHTML = `<input type="time" value="${data.projectEndTime}" class="project-end form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))">`;
     cells[5].innerHTML = `<input type="time" value="${data.punchIn}" class="punch-in form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))">`;
     cells[6].innerHTML = `<input type="time" value="${data.punchOut}" class="punch-out form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))">`;
-    cells[7].innerHTML = `<input type="text" value="${data.client}" class="client-field form-input">`;
+    cells[7].innerHTML = `<select class="client-field client-select form-input" data-projects="[]" onchange="handleClientChange(this)"><option value="">Select Client</option></select>`;
+    cells[7].querySelector('select').value = data.client;
     cells[8].innerHTML = `<input type="text" value="${data.project}" class="project-field form-input">`;
-    cells[9].innerHTML = `<input type="text" value="${data.projectCode}" class="project-code form-input">`;
+    cells[9].innerHTML = `<input type="text" value="${data.projectCode}" class="project-code form-input" readonly>`;
     cells[10].innerHTML = `<select class="reporting-manager-field reporting-manager-select form-input" onchange="handleReportingManagerChange(this)"><option value="">Select Reporting Manager</option></select>`;
     cells[10].querySelector('select').value = data.reportingManagerEntry;
     cells[11].innerHTML = `<input type="text" value="${data.activity}" class="activity-field form-input">`;
@@ -1196,6 +1510,7 @@ function editHistoryRow(button, entryId) {
     cells[15].innerHTML = `<input type="text" value="${data.remarks}" class="remarks-field form-input">`;
     cells[16].innerHTML = data.created_time;
     cells[17].innerHTML = data.updated_time;
+    updateAllClientFields();
     updateAllReportingManagerFields();
 }
 
@@ -1204,6 +1519,7 @@ function cancelEdit(button) {
     row.innerHTML = row.dataset.originalHtml;
     delete row.dataset.originalHtml;
     delete row.dataset.entryId;
+    updateAllClientFields();
     updateAllReportingManagerFields();
 }
 
@@ -1445,6 +1761,7 @@ function pasteRow(button) {
                 validateTimes(row);
                 calculateHours(row);
             }
+            if (input.classList.contains('client-field')) handleClientChange(input);
             if (input.classList.contains('reporting-manager-field')) handleReportingManagerChange(input);
         }
     });
@@ -1506,6 +1823,10 @@ function pasteAboveCell(sectionId) {
                 input.classList.contains('punch-in') || input.classList.contains('punch-out')) {
                 validateTimes(newRow);
                 calculateHours(newRow);
+            }
+            if (input.classList.contains('client-field')) {
+                input.dataset.projects = lastInputs[index].dataset.projects; // Copy project data
+                handleClientChange(input);
             }
             if (input.classList.contains('reporting-manager-field')) {
                 handleReportingManagerChange(input);
@@ -1616,6 +1937,7 @@ function addWeekSection() {
     
     sectionsDiv.appendChild(section);
     addRow(sectionId);
+    updateAllClientFields();
     updateAllReportingManagerFields();
     updateDateValidations(sectionId);
 }
@@ -1661,10 +1983,10 @@ function addRow(sectionId) {
         <td class="col-project-end" style="min-width: 120px;"><input type="time" class="project-end form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
         <td class="col-punch-in" style="min-width: 120px;"><input type="time" class="punch-in form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
         <td class="col-punch-out" style="min-width: 120px;"><input type="time" class="punch-out form-input" onchange="validateTimes(this.closest('tr')); calculateHours(this.closest('tr'))"></td>
-        <td class="col-client" style="min-width: 250px;"><input type="text" class="client-field form-input" placeholder="Enter Client" oninput="updateSummary()"></td>
+        <td class="col-client" style="min-width: 250px;"><select class="client-field client-select form-input" onchange="handleClientChange(this)" data-projects="[]"><option value="">Select Client</option></select></td>
         <td class="col-project" style="min-width: 200px;"><input type="text" class="project-field form-input" placeholder="Enter Project" oninput="updateSummary()"></td>
-        <td class="col-project-code" style="min-width: 200px;"><input type="text" class="project-code form-input" placeholder="Enter Project Code" oninput="updateSummary()"></td>
-        <td class="col-reporting-manager" style="min-width: 200px;"><select class="reporting-manager-field reporting-manager-select form-input" onchange="handleReportingManagerChange(this)" data-projects="[]"><option value="">Select Reporting Manager</option></select></td>
+        <td class="col-project-code" style="min-width: 200px;"><input type="text" class="project-code form-input" readonly></td>
+        <td class="col-reporting-manager" style="min-width: 200px;"><select class="reporting-manager-field reporting-manager-select form-input" onchange="handleReportingManagerChange(this)"><option value="">Select Reporting Manager</option></select></td>
         <td class="col-activity" style="min-width: 200px;"><input type="text" class="activity-field form-input" placeholder="Enter Activity" oninput="updateSummary()"></td>
         <td class="col-project-hours" style="min-width: 80px;"><input type="number" class="project-hours-field form-input" readonly></td>
         <td class="col-working-hours" style="min-width: 80px;"><input type="number" class="working-hours-field form-input" readonly></td>
@@ -1677,6 +1999,7 @@ function addRow(sectionId) {
     `;
 
     tbody.appendChild(row);
+    updateAllClientFields();
     updateAllReportingManagerFields();
     
     const dateInput = row.querySelector('.date-field');
@@ -1707,7 +2030,22 @@ function openModal(button, isReadOnly) {
             input.readOnly = isReadOnly;
             if (input.tagName === 'SELECT') {
                 input.disabled = isReadOnly;
-                if (i === 13) { // Billable field
+                if (i === 6) { // Client field
+                    const select = inputs[i];
+                    const relevantProjects = fetchProjectData(document.getElementById('partner')?.value || '', document.getElementById('reportingManager')?.value || '');
+                    input.innerHTML = '<option value="">Select Client</option>';
+                    relevantProjects.forEach(project => {
+                        const option = document.createElement('option');
+                        option.value = project['CLIENT NAME'];
+                        option.textContent = project['CLIENT NAME'];
+                        input.appendChild(option);
+                    });
+                    input.innerHTML += '<option value="Type here">Type here</option>';
+                    input.value = select.value || '';
+                    if (isReadOnly && input.value !== 'Type here') {
+                        input.innerHTML = `<option value="${input.value}" selected>${input.value}</option>`;
+                    }
+                } else if (i === 13) { // Billable field
                     input.innerHTML = '<option value="Yes">Yes</option><option value="No">No</option>';
                     input.value = inputs[i].value || 'Yes';
                     if (isReadOnly) {
@@ -1726,6 +2064,7 @@ function openModal(button, isReadOnly) {
     });
 
     // Update modal fields dynamically
+    updateModalClientFields();
     updateModalReportingManagerFields();
     validateModalDate(document.getElementById('modalInput1'));
     updateModalHours();
@@ -1946,6 +2285,7 @@ async function loadHistory() {
         `;
         historyContent.appendChild(feedbackDiv);
 
+        updateAllClientFields();
         updateAllReportingManagerFields();
     } catch (error) {
         console.error('Error loading history:', error); // Debug log
