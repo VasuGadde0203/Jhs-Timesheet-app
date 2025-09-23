@@ -1309,6 +1309,93 @@ function updateDateValidations(sectionId) {
     dateInputs.forEach(input => validateDate(input));
 }
 
+// function validateTimes(row, isModal = false) {
+//     let isValid = true;
+//     let errorMessage = '';
+
+//     if (isModal) {
+//         const projectStart = document.getElementById('modalInput5').value;
+//         const projectEnd = document.getElementById('modalInput6').value;
+//         const punchIn = document.getElementById('modalInput3').value;
+//         const punchOut = document.getElementById('modalInput4').value;
+
+//         if (projectStart && projectEnd) {
+//             const [startH, startM] = projectStart.split(':').map(Number);
+//             const [endH, endM] = projectEnd.split(':').map(Number);
+//             const startMinutes = startH * 60 + startM;
+//             const endMinutes = endH * 60 + endM;
+//             if (endMinutes <= startMinutes) {
+//                 isValid = false;
+//                 errorMessage = 'Project End Time must be later than Project Start Time.';
+//                 document.getElementById('modalInput6').classList.add('validation-error');
+//                 showValidationMessage(document.getElementById('modalInput6'), errorMessage);
+//             } else {
+//                 document.getElementById('modalInput6').classList.remove('validation-error');
+//                 clearValidationMessage(document.getElementById('modalInput6'));
+//             }
+//         }
+
+//         if (punchIn && punchOut) {
+//             const [inH, inM] = punchIn.split(':').map(Number);
+//             const [outH, outM] = punchOut.split(':').map(Number);
+//             const inMinutes = inH * 60 + inM;
+//             const outMinutes = outH * 60 + outM;
+//             if (outMinutes <= inMinutes) {
+//                 isValid = false;
+//                 errorMessage = errorMessage || 'Punch Out must be later than Punch In.';
+//                 document.getElementById('modalInput4').classList.add('validation-error');
+//                 showValidationMessage(document.getElementById('modalInput4'), errorMessage);
+//             } else {
+//                 document.getElementById('modalInput4').classList.remove('validation-error');
+//                 clearValidationMessage(document.getElementById('modalInput4'));
+//             }
+//         }
+//     } else {
+//         const projectStart = row.querySelector('.project-start')?.value;
+//         const projectEnd = row.querySelector('.project-end')?.value;
+//         const punchIn = row.querySelector('.punch-in')?.value;
+//         const punchOut = row.querySelector('.punch-out')?.value;
+
+//         if (projectStart && projectEnd) {
+//             const [startH, startM] = projectStart.split(':').map(Number);
+//             const [endH, endM] = projectEnd.split(':').map(Number);
+//             const startMinutes = startH * 60 + startM;
+//             const endMinutes = endH * 60 + endM;
+//             if (endMinutes <= startMinutes) {
+//                 isValid = false;
+//                 errorMessage = 'Project End Time must be later than Project Start Time.';
+//                 row.querySelector('.project-end').classList.add('validation-error');
+//                 showValidationMessage(row.querySelector('.project-end'), errorMessage);
+//             } else {
+//                 row.querySelector('.project-end').classList.remove('validation-error');
+//                 clearValidationMessage(row.querySelector('.project-end'));
+//             }
+//         }
+
+//         if (punchIn && punchOut) {
+//             const [inH, inM] = punchIn.split(':').map(Number);
+//             const [outH, outM] = punchOut.split(':').map(Number);
+//             const inMinutes = inH * 60 + inM;
+//             const outMinutes = outH * 60 + outM;
+//             if (outMinutes <= inMinutes) {
+//                 isValid = false;
+//                 errorMessage = errorMessage || 'Punch Out must be later than Punch In.';
+//                 row.querySelector('.punch-out').classList.add('validation-error');
+//                 showValidationMessage(row.querySelector('.punch-out'), errorMessage);
+//             } else {
+//                 row.querySelector('.punch-out').classList.remove('validation-error');
+//                 clearValidationMessage(row.querySelector('.punch-out'));
+//             }
+//         }
+//     }
+
+//     if (!isValid && errorMessage) {
+//         showPopup(errorMessage, true);
+//     }
+
+//     return isValid;
+// }
+
 function validateTimes(row, isModal = false) {
     let isValid = true;
     let errorMessage = '';
@@ -1322,8 +1409,9 @@ function validateTimes(row, isModal = false) {
         if (projectStart && projectEnd) {
             const [startH, startM] = projectStart.split(':').map(Number);
             const [endH, endM] = projectEnd.split(':').map(Number);
-            const startMinutes = startH * 60 + startM;
-            const endMinutes = endH * 60 + endM;
+            let startMinutes = startH * 60 + startM;
+            let endMinutes = endH * 60 + endM;
+            if (endMinutes < startMinutes) endMinutes += 24 * 60; // Handle next day
             if (endMinutes <= startMinutes) {
                 isValid = false;
                 errorMessage = 'Project End Time must be later than Project Start Time.';
@@ -1338,8 +1426,9 @@ function validateTimes(row, isModal = false) {
         if (punchIn && punchOut) {
             const [inH, inM] = punchIn.split(':').map(Number);
             const [outH, outM] = punchOut.split(':').map(Number);
-            const inMinutes = inH * 60 + inM;
-            const outMinutes = outH * 60 + outM;
+            let inMinutes = inH * 60 + inM;
+            let outMinutes = outH * 60 + outM;
+            if (outMinutes < inMinutes) outMinutes += 24 * 60; // Handle next day
             if (outMinutes <= inMinutes) {
                 isValid = false;
                 errorMessage = errorMessage || 'Punch Out must be later than Punch In.';
@@ -1359,8 +1448,9 @@ function validateTimes(row, isModal = false) {
         if (projectStart && projectEnd) {
             const [startH, startM] = projectStart.split(':').map(Number);
             const [endH, endM] = projectEnd.split(':').map(Number);
-            const startMinutes = startH * 60 + startM;
-            const endMinutes = endH * 60 + endM;
+            let startMinutes = startH * 60 + startM;
+            let endMinutes = endH * 60 + endM;
+            if (endMinutes < startMinutes) endMinutes += 24 * 60; // Handle next day
             if (endMinutes <= startMinutes) {
                 isValid = false;
                 errorMessage = 'Project End Time must be later than Project Start Time.';
@@ -1375,8 +1465,9 @@ function validateTimes(row, isModal = false) {
         if (punchIn && punchOut) {
             const [inH, inM] = punchIn.split(':').map(Number);
             const [outH, outM] = punchOut.split(':').map(Number);
-            const inMinutes = inH * 60 + inM;
-            const outMinutes = outH * 60 + outM;
+            let inMinutes = inH * 60 + inM;
+            let outMinutes = outH * 60 + outM;
+            if (outMinutes < inMinutes) outMinutes += 24 * 60; // Handle next day
             if (outMinutes <= inMinutes) {
                 isValid = false;
                 errorMessage = errorMessage || 'Punch Out must be later than Punch In.';
