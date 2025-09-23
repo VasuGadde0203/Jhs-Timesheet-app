@@ -811,6 +811,157 @@ async function exportHistoryToExcel() {
     }
 }
 
+// async function saveDataToMongo() {
+//     showLoading();
+//     const employeeId = document.getElementById('employeeId').value.trim();
+//     if (!employeeId) {
+//         hideLoading();
+//         showPopup('Please enter Employee ID', true);
+//         return;
+//     }
+
+//     const timesheetData = [];
+//     const employeeDataObj = {
+//         employeeId: employeeId,
+//         employeeName: document.getElementById('employeeName').value || '',
+//         designation: document.getElementById('designation').value || '',
+//         gender: document.getElementById('gender').value || '',
+//         partner: document.getElementById('partner').value || '',
+//         reportingManager: document.getElementById('reportingManager').value || '',
+//         weekPeriod: '',
+//         date: '',
+//         location: '',
+//         projectStartTime: '',
+//         projectEndTime: '',
+//         punchIn: '',
+//         punchOut: '',
+//         client: '',
+//         project: '',
+//         projectCode: '',
+//         reportingManagerEntry: '',
+//         activity: '',
+//         hours: '',
+//         workingHours: '',
+//         billable: '',
+//         remarks: '',
+//         hits: document.getElementById('hits').value || '',
+//         misses: document.getElementById('misses').value || '',
+//         feedback_hr: document.getElementById('feedback_hr').value || '',
+//         feedback_it: document.getElementById('feedback_it').value || '',
+//         feedback_crm: document.getElementById('feedback_crm').value || '',
+//         feedback_others: document.getElementById('feedback_others').value || '',
+//         totalHours: document.querySelector('.summary-section .total-hours .value').textContent || '0.00',
+//         totalBillableHours: document.querySelector('.summary-section .billable-hours .value').textContent || '0.00',
+//         totalNonBillableHours: document.querySelector('.summary-section .non-billable-hours .value').textContent || '0.00'
+//     };
+
+//     const sections = document.querySelectorAll('.timesheet-section');
+//     let hasInvalidDates = false;
+//     let hasMissingFields = false;
+//     let errorMessages = [];
+//     sections.forEach(section => {
+//         const weekPeriod = section.querySelector('.week-period select').value || '';
+//         const rows = section.querySelectorAll('tbody tr');
+//         rows.forEach(row => {
+//             const inputs = row.querySelectorAll('input, select');
+//             if (inputs.length < 15) return;
+//             const dateInput = inputs[0];
+//             const selectedWeek = weekOptions.find(opt => opt.value === weekPeriod);
+//             console.log("Validating date:", new Date(dateInput.value), "against week:", selectedWeek);
+//             if (selectedWeek) {
+//                 const inputDate = new Date(dateInput.value);
+//                 if (inputDate < selectedWeek.start || inputDate > selectedWeek.end) {
+//                     hasInvalidDates = true;
+//                     return;
+//                 }
+//             }
+//             console.log("Inputs:", inputs);
+//             const client = inputs[6] ? (inputs[6].value || inputs[6].querySelector('option:checked')?.value || '') : '';
+//             const project = inputs[7] ? inputs[7].value : '';
+//             const projectCode = inputs[8] ? inputs[8].value : '';
+//             if (!client || !project || !projectCode) {
+//                 hasMissingFields = true;
+//                 errorMessages.push(`Row missing required fields: Client, Project, or Project Code.`);
+//                 return;
+//             }
+//             const rowData = {
+//                 employeeId: employeeId,
+//                 employeeName: document.getElementById('employeeName').value || '',
+//                 designation: document.getElementById('designation').value || '',
+//                 gender: document.getElementById('gender').value || '',
+//                 partner: document.getElementById('partner').value || '',
+//                 reportingManager: document.getElementById('reportingManager').value || '',
+//                 weekPeriod: weekPeriod,
+//                 date: inputs[0] ? inputs[0].value : '',
+//                 location: inputs[1] ? (inputs[1].value || inputs[1].querySelector('option:checked')?.value) : '',
+//                 projectStartTime: inputs[2] ? inputs[2].value : '',
+//                 projectEndTime: inputs[3] ? inputs[3].value : '',
+//                 punchIn: inputs[4] ? inputs[4].value : '',
+//                 punchOut: inputs[5] ? inputs[5].value : '',
+//                 client: client,
+//                 project: project,
+//                 projectCode: projectCode,
+//                 reportingManagerEntry: inputs[9] ? (inputs[9].value || inputs[9].querySelector('option:checked')?.value || '') : '',
+//                 activity: inputs[10] ? inputs[10].value : '',
+//                 hours: inputs[11] ? inputs[11].value : '',
+//                 workingHours: inputs[12] ? inputs[12].value : '',
+//                 billable: inputs[13] ? inputs[13].value : '',
+//                 remarks: inputs[14] ? inputs[14].value : '',
+//                 hits: document.getElementById('hits').value || '',
+//                 misses: document.getElementById('misses').value || '',
+//                 feedback_hr: document.getElementById('feedback_hr').value || '',
+//                 feedback_it: document.getElementById('feedback_it').value || '',
+//                 feedback_crm: document.getElementById('feedback_crm').value || '',
+//                 feedback_others: document.getElementById('feedback_others').value || '',
+//                 totalHours: document.querySelector('.summary-section .total-hours .value').textContent || '0.00',
+//                 totalBillableHours: document.querySelector('.summary-section .billable-hours .value').textContent || '0.00',
+//                 totalNonBillableHours: document.querySelector('.summary-section .non-billable-hours .value').textContent || '0.00'
+//             };
+//             timesheetData.push(rowData);
+//         });
+//     });
+//     console.log("Invalid Dates: ", hasInvalidDates);
+
+//     if (hasInvalidDates) {
+//         hideLoading();
+//         showPopup('Please correct all dates to be within their respective week periods.', true);
+//         return;
+//     }
+
+//     if (hasMissingFields) {
+//         hideLoading();
+//         showPopup(errorMessages.join('\n'), true);
+//         return;
+//     }
+
+//     if (timesheetData.length === 0) {
+//         timesheetData.push(employeeDataObj);
+//     }
+
+//     try {
+//         const token = localStorage.getItem('access_token');
+//         const response = await fetch(`${API_URL}/save_timesheets`, {
+//             method: 'POST',
+//             headers: getHeaders(),
+//             body: JSON.stringify(timesheetData)
+//         });
+
+//         if (!response.ok) {
+//             const errorData = await response.json();
+//             throw new Error(`Failed to save data: ${errorData.detail || 'Unknown error'}`);
+//         }
+
+//         const result = await response.json();
+//         hideLoading();
+//         showPopup('Timesheet saved successfully!');
+//         // clearTimesheet();
+//     } catch (error) {
+//         console.error('Error saving data:', error);
+//         hideLoading();
+//         showPopup(`Failed to save timesheet: ${error.message}`, true);
+//     }
+// }
+
 async function saveDataToMongo() {
     showLoading();
     const employeeId = document.getElementById('employeeId').value.trim();
@@ -867,15 +1018,16 @@ async function saveDataToMongo() {
             if (inputs.length < 15) return;
             const dateInput = inputs[0];
             const selectedWeek = weekOptions.find(opt => opt.value === weekPeriod);
-            console.log("Validating date:", new Date(dateInput.value), "against week:", selectedWeek);
             if (selectedWeek) {
-                const inputDate = new Date(dateInput.value);
-                if (inputDate < selectedWeek.start || inputDate > selectedWeek.end) {
+                const inputDateStr = dateInput.value;
+                const weekStartStr = `${selectedWeek.start.getFullYear()}-${String(selectedWeek.start.getMonth() + 1).padStart(2, '0')}-${String(selectedWeek.start.getDate()).padStart(2, '0')}`;
+                const weekEndStr = `${selectedWeek.end.getFullYear()}-${String(selectedWeek.end.getMonth() + 1).padStart(2, '0')}-${String(selectedWeek.end.getDate()).padStart(2, '0')}`;
+                console.log("Validating date in saveDataToMongo:", inputDateStr, "against week:", weekStartStr, weekEndStr);
+                if (inputDateStr < weekStartStr || inputDateStr > weekEndStr) {
                     hasInvalidDates = true;
                     return;
                 }
             }
-            console.log("Inputs:", inputs);
             const client = inputs[6] ? (inputs[6].value || inputs[6].querySelector('option:checked')?.value || '') : '';
             const project = inputs[7] ? inputs[7].value : '';
             const projectCode = inputs[8] ? inputs[8].value : '';
