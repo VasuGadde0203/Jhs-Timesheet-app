@@ -919,6 +919,7 @@ async function saveDataToMongo() {
             timesheetData.push(rowData);
         });
     });
+    console.log("Invalid Dates: ", hasInvalidDates);
 
     if (hasInvalidDates) {
         hideLoading();
