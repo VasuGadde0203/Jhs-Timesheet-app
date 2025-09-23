@@ -867,6 +867,7 @@ async function saveDataToMongo() {
             if (inputs.length < 15) return;
             const dateInput = inputs[0];
             const selectedWeek = weekOptions.find(opt => opt.value === weekPeriod);
+            console.log("Validating date:", new Date(dateInput.value), "against week:", selectedWeek);
             if (selectedWeek) {
                 const inputDate = new Date(dateInput.value);
                 if (inputDate < selectedWeek.start || inputDate > selectedWeek.end) {
