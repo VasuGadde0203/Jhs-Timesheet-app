@@ -271,7 +271,7 @@ body {
     border-radius: 15px;
     overflow: hidden;
     box-shadow: var(--shadow-light);
-    min-width: 1000px; /* Minimum width for desktop */
+    min-width: 1000px;
     white-space: nowrap;
 }
 
@@ -287,7 +287,7 @@ body {
     white-space: nowrap;
     position: sticky;
     top: 0;
-    z-index: 2; /* Above content */
+    z-index: 2;
 }
 
 .timesheet-table td, .history-table td {
@@ -979,7 +979,7 @@ body {
 .table-responsive {
     overflow-x: auto;
     max-width: 100%;
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
 }
 
 /* Update existing .timesheet-table th, .history-table th rule or add new */
@@ -988,30 +988,18 @@ body {
     position: sticky;
     top: 0;
     z-index: 2;
-    background: var(--dark-bg); /* Retain background */
+    background: var(--dark-bg);
 }
 
-/* Sticky Date column (or Client if preferred) */
-/* .timesheet-table th.col-date,
-.timesheet-table td.col-date,
-.history-table th.col-date,
-.history-table td.col-date {
-    position: sticky;
-    left: 0;
-    z-index: 1;
-    background: white; 
-    border-right: 1px solid var(--border-color);
-} */
-
+/* Sticky Date column */
 .timesheet-table th.col-date,
-.history-table th.col-date{
+.history-table th.col-date {
     position: sticky;
     left: 0;
     z-index: 1;
     background: var(--dark-bg);
-    color: white; /* Match header text */
-    /* border-right: 1px solid var(--border-color); */
-    min-width: 120px; /* Ensure enough space */
+    color: white;
+    min-width: 120px;
 }
 
 .timesheet-table td.col-date,
@@ -1020,22 +1008,19 @@ body {
     left: 0;
     z-index: 1;
     background: white;
-    color: var(--dark-bg); /* Match header text */
-    /* border-right: 1px solid var(--border-color); */
-    min-width: 120px; /* Ensure enough space */
+    color: var(--dark-bg);
+    min-width: 120px;
 }
 
-/* Optional: Sticky Client column (uncomment if Client should be sticky instead) */
-
+/* Optional: Sticky Client column */
 .timesheet-table th.col-client,
 .history-table th.col-client {
     position: sticky;
     left: 0;
     z-index: 1;
     background: var(--dark-bg);
-    color: white; /* Match header text */
-    /* border-right: 1px solid var(--border-color); */
-    min-width: 120px; /* Ensure enough space */
+    color: white;
+    min-width: 120px;
 }
 
 .timesheet-table td.col-client,
@@ -1044,11 +1029,9 @@ body {
     left: 0;
     z-index: 1;
     background: white;
-    color: var(--dark-bg); /* Match header text */
-    /* border-right: 1px solid var(--border-color); */
-    min-width: 120px; /* Ensure enough space */
+    color: var(--dark-bg);
+    min-width: 120px;
 }
-
 
 /* Update existing input/select rule or add new */
 .timesheet-table input,
@@ -1067,7 +1050,7 @@ body {
 
 .col-client select,
 .col-client input {
-    min-width: 200px; /* Wider for Client dropdown */
+    min-width: 200px;
 }
 
 .timesheet-table input[type="number"],
@@ -1097,7 +1080,7 @@ body {
         min-width: 180px;
     }
     .table-responsive {
-        border: 1px solid var(--border-color); /* Visual cue for scrollable area */
+        border: 1px solid var(--border-color);
     }
 }
 
@@ -1114,7 +1097,7 @@ body {
 @media (max-width: 768px) {
     .timesheet-table,
     .history-table {
-        min-width: 1200px; /* Ensure horizontal scroll */
+        min-width: 1200px;
     }
     .form-input,
     .timesheet-table input,
@@ -1168,352 +1151,46 @@ body {
     box-shadow: var(--shadow-medium);
 }
 
-
-.header {
-    background: var(--primary-gradient);
-    color: white;
-    padding: 3rem 2rem;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
-}
-
-.header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 10"><defs><pattern id="grain" width="100" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="10" fill="url(%23grain)"/></svg>');
-    opacity: 0.1;
-    animation: grainMove 5s infinite linear;
-}
-
-@keyframes grainMove {
-    0% { transform: translate(0, 0); }
-    100% { transform: translate(10px, 10px); }
-}
-
-.header h1 {
-    margin: 0;
-    font-size: 3.5rem; /* Increased from 2.8rem for a bolder look */
-    font-weight: 700; /* Bolder weight for impact */
-    position: relative;
-    z-index: 1;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3), /* Main shadow */
-                 0 0 15px rgba(102, 126, 234, 0.5); /* Glow effect */
-    letter-spacing: 2px; /* Adds a premium feel */
-    text-transform: uppercase; /* Consistent with table headers */
-}
-
-.header .fas {
-    margin-right: 0.5rem;
-    animation: pulseIcon 2s infinite ease-in-out;
-}
-
-@keyframes pulseIcon {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-}
-
-.summary-section, .history-summary {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
-    margin: 2rem 0;
-    padding: 2rem;
-    background: var(--light-bg);
-    border-radius: 15px;
-    border-left: 5px solid #e74c3c;
-    box-shadow: var(--shadow-light);
-}
-
-.summary-item {
-    text-align: center;
-    padding: 1.5rem;
-    background: white;
-    border-radius: 10px;
-    box-shadow: var(--shadow-light);
-    transition: var(--transition);
-    animation: fadeInUp 0.5s ease-out forwards;
-    animation-delay: calc(0.1s * var(--index));
-}
-
-.summary-item:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-medium);
-}
-
-.summary-item h3 {
-    margin: 0 0 0.5rem 0;
-    color: var(--text-dark);
-    font-size: 1.1rem;
-    font-weight: 500;
-}
-
-.summary-item i {
-    margin-right: 0.5rem;
-    font-size: 1.2rem;
-    vertical-align: middle;
-}
-
-.total-hours .value, .total-hours i {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #2ecc71; /* Green for total hours */
-    margin-top: 0.5rem;
-}
-
-.billable-hours .value, .billable-hours i {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #3498db; /* Blue for billable hours */
-    margin-top: 0.5rem;
-}
-
-.non-billable-hours .value, .non-billable-hours i {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #e74c3c; /* Red for non-billable hours */
-    margin-top: 0.5rem;
-}
-
-.summary-item:nth-child(1) { --index: 1; }
-.summary-item:nth-child(2) { --index: 2; }
-.summary-item:nth-child(3) { --index: 3; }
-
-@media (max-width: 768px) {
-    .summary-section, .history-summary {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-        padding: 1.5rem;
-    }
-
-    .summary-item {
-        padding: 1rem;
-    }
-
-    .summary-item .value {
-        font-size: 2rem;
-    }
-
-    .total-hours .value, .total-hours i {
-        font-size: 2rem;
-        color: #2ecc71;
-    }
-
-    .billable-hours .value, .billable-hours i {
-        font-size: 2rem;
-        color: #3498db;
-    }
-
-    .non-billable-hours .value, .non-billable-hours i {
-        font-size: 2rem;
-        color: #e74c3c;
-    }
-}
-
-@media (max-width: 480px) {
-    .summary-section, .history-summary {
-        padding: 1rem;
-    }
-
-    .summary-item {
-        padding: 0.75rem;
-    }
-
-    .summary-item .value {
-        font-size: 1.8rem;
-    }
-
-    .total-hours .value, .total-hours i {
-        font-size: 1.8rem;
-        color: #2ecc71;
-    }
-
-    .billable-hours .value, .billable-hours i {
-        font-size: 1.8rem;
-        color: #3498db;
-    }
-
-    .non-billable-hours .value, .non-billable-hours i {
-        font-size: 1.8rem;
-        color: #e74c3c;
-    }
-}
-
-.copy-btn, .paste-btn, .paste-above-btn {
-    background: var(--secondary-gradient);
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    margin: 0 0.25rem;
-    transition: var(--transition);
-    box-shadow: var(--shadow-light);
-    display: inline-block;
-    width: auto;
-}
-
-.copy-btn:hover, .paste-btn:hover, .paste-above-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-medium);
-}
-
-.paste-above-btn {
-    background: var(--success-gradient);
-    margin-top: 1rem;
-    display: block;
-    width: 100%;
-    max-width: 200px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.col-action {
-    min-width: 120px; /* Ensure enough space for two buttons */
-}
-
-.button-container {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    gap: 1rem;
-    margin-top: 1rem;
-}
-
-.add-row-btn, .paste-above-btn {
-    background: var(--secondary-gradient);
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: var(--transition);
-    box-shadow: var(--shadow-light);
-}
-
-.paste-above-btn {
-    background: var(--success-gradient);
-}
-
-.add-row-btn:hover, .paste-above-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-medium);
-}
-
-.col-action {
-    min-width: 120px; /* Ensure enough space for two buttons */
-}
-
-.col-add button {
-    padding: 5px;
-    margin: 2px;
-}
-.eye-btn i {
-    font-size: 16px;
-}
-
-/* Style for action column in history table */
+/* Updated styles for Action column and buttons */
 .history-table .col-action {
     min-width: 120px;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 1rem;
+    gap: 0.5rem;
     padding: 0.5rem;
 }
 
-/* Style for edit and delete icons */
-.history-table .fas.fa-edit,
-.history-table .fas.fa-trash {
-    font-size: 1.2rem;
-    color: #3498db;
+.history-table .edit-btn,
+.history-table .delete-btn {
+    background: none;
+    border: none;
     cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 50%;
+    font-size: 1rem;
+    padding: 0.25rem 0.5rem;
+    color: #3498db;
+    border-radius: 4px;
     transition: var(--transition);
-    background: rgba(52, 152, 219, 0.1);
+    width: 50px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-/* Delete icon with red color */
-.history-table .fas.fa-trash {
+.history-table .delete-btn {
     color: #e74c3c;
     background: rgba(231, 76, 60, 0.1);
 }
 
-/* Hover effects for icons */
-.history-table .fas.fa-edit:hover {
+.history-table .edit-btn:hover {
     color: #2980b9;
     background: rgba(52, 152, 219, 0.2);
-    transform: scale(1.2);
+    transform: scale(1.05);
 }
 
-.history-table .fas.fa-trash:hover {
+.history-table .delete-btn:hover {
     color: #c0392b;
     background: rgba(231, 76, 60, 0.2);
-    transform: scale(1.2);
-}
-
-/* Ensure icons are clickable and centered */
-.history-table .col-action i {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    width: 1rem;
-    height: 1rem;
-}
-
-/* General action button styling */
-.action-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.5rem 1rem;
-    margin: 0 0.5rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background-color 0.3s, transform 0.2s;
-    background-color: #3498db;
-    color: white;
-}
-
-/* Edit button specific styling */
-.edit-btn {
-    background-color: #3498db;
-}
-.edit-btn:hover {
-    background-color: #2980b9;
     transform: scale(1.05);
-}
-
-/* Delete button specific styling */
-.delete-btn {
-    background-color: #e74c3c;
-}
-.delete-btn:hover {
-    background-color: #c0392b;
-    transform: scale(1.05);
-}
-
-/* Ensure icons inside buttons are styled */
-.action-btn i {
-    margin-right: 0.3rem;
-}
-
-/* Adjust col-action for button layout */
-.history-table .col-action {
-    min-width: 120px; /* Enough space for two buttons */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0.3rem;
 }
