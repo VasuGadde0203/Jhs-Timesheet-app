@@ -6,7 +6,7 @@ let currentRow = null;
 let weekOptions = [];
 let loggedInEmployeeId = localStorage.getItem('loggedInEmployeeId');
 let copiedData = null; // Store copied row data
-const API_URL = '';
+const API_URL = 'http://localhost:8000';
 let isEditingHistory = false;
 let currentEntryId = null;
 
@@ -830,160 +830,6 @@ async function exportHistoryToExcel() {
     }
 }
 
-// async function saveDataToMongo() {
-//     showLoading();
-//     const employeeId = document.getElementById('employeeId').value.trim();
-//     if (!employeeId) {
-//         hideLoading();
-//         showPopup('Please enter Employee ID', true);
-//         return;
-//     }
-
-//     const timesheetData = [];
-//     const employeeDataObj = {
-//         employeeId: employeeId,
-//         employeeName: document.getElementById('employeeName').value || '',
-//         designation: document.getElementById('designation').value || '',
-//         gender: document.getElementById('gender').value || '',
-//         partner: document.getElementById('partner').value || '',
-//         reportingManager: document.getElementById('reportingManager').value || '',
-//         weekPeriod: '',
-//         date: '',
-//         location: '',
-//         projectStartTime: '',
-//         projectEndTime: '',
-//         punchIn: '',
-//         punchOut: '',
-//         client: '',
-//         project: '',
-//         projectCode: '',
-//         reportingManagerEntry: '',
-//         activity: '',
-//         projectHours: '',
-//         workingHours: '',
-//         billable: '',
-//         remarks: '',
-//         hits: document.getElementById('hits').value || '',
-//         misses: document.getElementById('misses').value || '',
-//         feedback_hr: document.getElementById('feedback_hr').value || '',
-//         feedback_it: document.getElementById('feedback_it').value || '',
-//         feedback_crm: document.getElementById('feedback_crm').value || '',
-//         feedback_others: document.getElementById('feedback_others').value || '',
-//         totalHours: document.querySelector('.summary-section .total-hours .value').textContent || '0.00',
-//         totalBillableHours: document.querySelector('.summary-section .billable-hours .value').textContent || '0.00',
-//         totalNonBillableHours: document.querySelector('.summary-section .non-billable-hours .value').textContent || '0.00'
-//     };
-
-//     const sections = document.querySelectorAll('.timesheet-section');
-//     let hasInvalidDates = false;
-//     let hasMissingFields = false;
-//     let errorMessages = [];
-//     sections.forEach(section => {
-//         const weekPeriod = section.querySelector('.week-period select').value || '';
-//         const rows = section.querySelectorAll('tbody tr');
-//         rows.forEach(row => {
-//             const inputs = row.querySelectorAll('input, select');
-//             if (inputs.length < 15) return;
-//             const dateInput = inputs[0];
-//             const selectedWeek = weekOptions.find(opt => opt.value === weekPeriod);
-//             if (selectedWeek) {
-//                 const inputDateStr = dateInput.value;
-//                 const weekStartStr = `${selectedWeek.start.getFullYear()}-${String(selectedWeek.start.getMonth() + 1).padStart(2, '0')}-${String(selectedWeek.start.getDate()).padStart(2, '0')}`;
-//                 const weekEndStr = `${selectedWeek.end.getFullYear()}-${String(selectedWeek.end.getMonth() + 1).padStart(2, '0')}-${String(selectedWeek.end.getDate()).padStart(2, '0')}`;
-//                 console.log("Validating date in saveDataToMongo:", inputDateStr, "against week:", weekStartStr, weekEndStr);
-//                 if (inputDateStr < weekStartStr || inputDateStr > weekEndStr) {
-//                     hasInvalidDates = true;
-//                     return;
-//                 }
-//             }
-//             const client = inputs[6] ? (inputs[6].value || inputs[6].querySelector('option:checked')?.value || '') : '';
-//             const project = inputs[7] ? inputs[7].value : '';
-//             const projectCode = inputs[8] ? inputs[8].value : '';
-//             if (!client || !project || !projectCode) {
-//                 hasMissingFields = true;
-//                 errorMessages.push(`Row missing required fields: Client, Project, or Project Code.`);
-//                 return;
-//             }
-//             const rowData = {
-//                 employeeId: employeeId,
-//                 employeeName: document.getElementById('employeeName').value || '',
-//                 designation: document.getElementById('designation').value || '',
-//                 gender: document.getElementById('gender').value || '',
-//                 partner: document.getElementById('partner').value || '',
-//                 reportingManager: document.getElementById('reportingManager').value || '',
-//                 weekPeriod: weekPeriod,
-//                 date: inputs[0] ? inputs[0].value : '',
-//                 location: inputs[1] ? (inputs[1].value || inputs[1].querySelector('option:checked')?.value) : '',
-//                 punchIn: inputs[2] ? inputs[2].value : '',
-//                 punchOut: inputs[3] ? inputs[3].value : '',
-//                 projectStartTime: inputs[4] ? inputs[4].value : '',
-//                 projectEndTime: inputs[5] ? inputs[5].value : '',
-//                 client: client,
-//                 project: project,
-//                 projectCode: projectCode,
-//                 reportingManagerEntry: inputs[9] ? inputs[9].value || '' : '',
-//                 activity: inputs[10] ? inputs[10].value : '',
-//                 projectHours: inputs[11] ? inputs[11].value : '',
-//                 workingHours: inputs[12] ? inputs[12].value : '',
-//                 billable: inputs[13] ? inputs[13].value : '',
-//                 remarks: inputs[14] ? inputs[14].value : '',
-//                 hits: document.getElementById('hits').value || '',
-//                 misses: document.getElementById('misses').value || '',
-//                 feedback_hr: document.getElementById('feedback_hr').value || '',
-//                 feedback_it: document.getElementById('feedback_it').value || '',
-//                 feedback_crm: document.getElementById('feedback_crm').value || '',
-//                 feedback_others: document.getElementById('feedback_others').value || '',
-//                 totalHours: document.querySelector('.summary-section .total-hours .value').textContent || '0.00',
-//                 totalBillableHours: document.querySelector('.summary-section .billable-hours .value').textContent || '0.00',
-//                 totalNonBillableHours: document.querySelector('.summary-section .non-billable-hours .value').textContent || '0.00'
-//             };
-//             timesheetData.push(rowData);
-//         });
-//     });
-//     console.log("Invalid Dates: ", hasInvalidDates);
-
-//     if (hasInvalidDates) {
-//         hideLoading();
-//         showPopup('Please correct all dates to be within their respective week periods.', true);
-//         return;
-//     }
-
-//     if (hasMissingFields) {
-//         hideLoading();
-//         showPopup(errorMessages.join('\n'), true);
-//         return;
-//     }
-
-//     if (timesheetData.length === 0) {
-//         timesheetData.push(employeeDataObj);
-//     }
-
-//     try {
-//         const token = localStorage.getItem('access_token');
-//         const response = await fetch(`${API_URL}/save_timesheets`, {
-//             method: 'POST',
-//             headers: getHeaders(),
-//             body: JSON.stringify(timesheetData)
-//         });
-
-//         if (!response.ok) {
-//             const errorData = await response.json();
-//             throw new Error(`Failed to save data: ${errorData.detail || 'Unknown error'}`);
-//         }
-
-//         const result = await response.json();
-//         hideLoading();
-//         showPopup('Timesheet saved successfully!');
-//         setTimeout(() => {
-//             window.location.reload();
-//         }, 2000);
-//     } catch (error) {
-//         console.error('Error saving data:', error);
-//         hideLoading();
-//         showPopup(`Failed to save timesheet: ${error.message}`, true);
-//     }
-// }
-
 async function saveDataToMongo() {
     showLoading();
     const employeeId = document.getElementById('employeeId').value.trim();
@@ -1039,43 +885,23 @@ async function saveDataToMongo() {
             const inputs = row.querySelectorAll('input, select');
             if (inputs.length < 15) return;
             const dateInput = inputs[0];
-
-            // Validate mandatory fields
-            const mandatoryFields = {
-                'Punch In': inputs[2].value,
-                'Punch Out': inputs[3].value,
-                'Project Start Time': inputs[4].value,
-                'Project End Time': inputs[5].value,
-                'Client': inputs[6].value,
-                'Project': inputs[7].value,
-                'Project Code': inputs[8].value,
-                'Reporting Manager': inputs[9].value,
-                'Activity': inputs[10].value
-            };
-
-            for (let [fieldName, value] of Object.entries(mandatoryFields)) {
-                if (!value || value.trim() === '') {
-                    hasMissingFields = true;
-                    errorMessages.push(`Please fill in the ${fieldName} field for the row dated ${dateInput.value || 'N/A'}.`);
-                }
-            }
-
             const selectedWeek = weekOptions.find(opt => opt.value === weekPeriod);
             if (selectedWeek) {
                 const inputDateStr = dateInput.value;
                 const weekStartStr = `${selectedWeek.start.getFullYear()}-${String(selectedWeek.start.getMonth() + 1).padStart(2, '0')}-${String(selectedWeek.start.getDate()).padStart(2, '0')}`;
                 const weekEndStr = `${selectedWeek.end.getFullYear()}-${String(selectedWeek.end.getMonth() + 1).padStart(2, '0')}-${String(selectedWeek.end.getDate()).padStart(2, '0')}`;
+                console.log("Validating date in saveDataToMongo:", inputDateStr, "against week:", weekStartStr, weekEndStr);
                 if (inputDateStr < weekStartStr || inputDateStr > weekEndStr) {
                     hasInvalidDates = true;
                     return;
                 }
             }
-            const client = inputs[6].value || inputs[6].querySelector('option:checked')?.value || '';
-            const project = inputs[7].value;
-            const projectCode = inputs[8].value;
+            const client = inputs[6] ? (inputs[6].value || inputs[6].querySelector('option:checked')?.value || '') : '';
+            const project = inputs[7] ? inputs[7].value : '';
+            const projectCode = inputs[8] ? inputs[8].value : '';
             if (!client || !project || !projectCode) {
                 hasMissingFields = true;
-                errorMessages.push(`Row missing required fields: Client, Project, or Project Code for the row dated ${dateInput.value || 'N/A'}.`);
+                errorMessages.push(`Row missing required fields: Client, Project, or Project Code.`);
                 return;
             }
             const rowData = {
@@ -1086,21 +912,21 @@ async function saveDataToMongo() {
                 partner: document.getElementById('partner').value || '',
                 reportingManager: document.getElementById('reportingManager').value || '',
                 weekPeriod: weekPeriod,
-                date: inputs[0].value,
-                location: inputs[1].value || inputs[1].querySelector('option:checked')?.value,
-                punchIn: inputs[2].value,
-                punchOut: inputs[3].value,
-                projectStartTime: inputs[4].value,
-                projectEndTime: inputs[5].value,
+                date: inputs[0] ? inputs[0].value : '',
+                location: inputs[1] ? (inputs[1].value || inputs[1].querySelector('option:checked')?.value) : '',
+                punchIn: inputs[2] ? inputs[2].value : '',
+                punchOut: inputs[3] ? inputs[3].value : '',
+                projectStartTime: inputs[4] ? inputs[4].value : '',
+                projectEndTime: inputs[5] ? inputs[5].value : '',
                 client: client,
                 project: project,
                 projectCode: projectCode,
-                reportingManagerEntry: inputs[9].value || '',
-                activity: inputs[10].value,
-                projectHours: inputs[11].value,
-                workingHours: inputs[12].value,
-                billable: inputs[13].value,
-                remarks: inputs[14].value,
+                reportingManagerEntry: inputs[9] ? inputs[9].value || '' : '',
+                activity: inputs[10] ? inputs[10].value : '',
+                projectHours: inputs[11] ? inputs[11].value : '',
+                workingHours: inputs[12] ? inputs[12].value : '',
+                billable: inputs[13] ? inputs[13].value : '',
+                remarks: inputs[14] ? inputs[14].value : '',
                 hits: document.getElementById('hits').value || '',
                 misses: document.getElementById('misses').value || '',
                 feedback_hr: document.getElementById('feedback_hr').value || '',
@@ -1114,6 +940,7 @@ async function saveDataToMongo() {
             timesheetData.push(rowData);
         });
     });
+    console.log("Invalid Dates: ", hasInvalidDates);
 
     if (hasInvalidDates) {
         hideLoading();
@@ -1454,59 +1281,32 @@ async function showSection(section) {
                 `;
                 const tbody = table.querySelector('tbody');
 
-                // groupedByWeek[week].forEach((entry, rowIndex) => {
-                //     const row = document.createElement('tr');
-                //     row.innerHTML = `
-                //         <td class="col-sno">${rowIndex + 1}</td>
-                //         <td class="col-action">
-                //             <i class="fas fa-edit" onclick="editHistoryRow(this, '${entry.id}')"></i>
-                //             <i class="fas fa-trash" onclick="deleteHistoryRow(this, '${entry.id}')"></i>
-                //         </td>
-                //         <td class="col-date">${entry.date || ''}</td>
-                //         <td class="col-location">${entry.location || ''}</td>
-                //         <td class="col-punch-in">${entry.punchIn || ''}</td>
-                //         <td class="col-punch-out">${entry.punchOut || ''}</td>
-                //         <td class="col-project-start">${entry.projectStartTime || ''}</td>
-                //         <td class="col-project-end">${entry.projectEndTime || ''}</td>
-                //         <td class="col-client">${entry.client || ''}</td>
-                //         <td class="col-project">${entry.project || ''}</td>
-                //         <td class="col-project-code">${entry.projectCode || ''}</td>
-                //         <td class="col-reporting-manager">${entry.reportingManagerEntry || ''}</td>
-                //         <td class="col-activity">${entry.activity || ''}</td>
-                //         <td class="col-project-hours">${entry.projectHours || ''}</td>
-                //         <td class="col-working-hours">${entry.workingHours || ''}</td>
-                //         <td class="col-billable">${entry.billable || ''}</td>
-                //         <td class="col-remarks">${entry.remarks || ''}</td>
-                //     `;
-                //     tbody.appendChild(row);
-                // });
-
                 groupedByWeek[week].forEach((entry, rowIndex) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td class="col-sno">${rowIndex + 1}</td>
-                    <td class="col-action" style="min-width: 120px;">
-                        <button class="action-btn edit-btn" onclick="editHistoryRow(this, '${entry.id}')"><i class="fas fa-edit"></i> Edit</button>
-                        <button class="action-btn delete-btn" onclick="deleteHistoryRow(this, '${entry.id}')"><i class="fas fa-trash"></i> Delete</button>
-                    </td>
-                    <td class="col-date">${entry.date || ''}</td>
-                    <td class="col-location">${entry.location || ''}</td>
-                    <td class="col-punch-in">${entry.punchIn || ''}</td>
-                    <td class="col-punch-out">${entry.punchOut || ''}</td>
-                    <td class="col-project-start">${entry.projectStartTime || ''}</td>
-                    <td class="col-project-end">${entry.projectEndTime || ''}</td>
-                    <td class="col-client">${entry.client || ''}</td>
-                    <td class="col-project">${entry.project || ''}</td>
-                    <td class="col-project-code">${entry.projectCode || ''}</td>
-                    <td class="col-reporting-manager">${entry.reportingManagerEntry || ''}</td>
-                    <td class="col-activity">${entry.activity || ''}</td>
-                    <td class="col-project-hours">${entry.projectHours || ''}</td>
-                    <td class="col-working-hours">${entry.workingHours || ''}</td>
-                    <td class="col-billable">${entry.billable || ''}</td>
-                    <td class="col-remarks">${entry.remarks || ''}</td>
-                `;
-                tbody.appendChild(row);
-            });
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="col-sno">${rowIndex + 1}</td>
+                        <td class="col-action">
+                            <i class="fas fa-edit" onclick="editHistoryRow(this, '${entry.id}')"></i>
+                            <i class="fas fa-trash" onclick="deleteHistoryRow(this, '${entry.id}')"></i>
+                        </td>
+                        <td class="col-date">${entry.date || ''}</td>
+                        <td class="col-location">${entry.location || ''}</td>
+                        <td class="col-punch-in">${entry.punchIn || ''}</td>
+                        <td class="col-punch-out">${entry.punchOut || ''}</td>
+                        <td class="col-project-start">${entry.projectStartTime || ''}</td>
+                        <td class="col-project-end">${entry.projectEndTime || ''}</td>
+                        <td class="col-client">${entry.client || ''}</td>
+                        <td class="col-project">${entry.project || ''}</td>
+                        <td class="col-project-code">${entry.projectCode || ''}</td>
+                        <td class="col-reporting-manager">${entry.reportingManagerEntry || ''}</td>
+                        <td class="col-activity">${entry.activity || ''}</td>
+                        <td class="col-project-hours">${entry.projectHours || ''}</td>
+                        <td class="col-working-hours">${entry.workingHours || ''}</td>
+                        <td class="col-billable">${entry.billable || ''}</td>
+                        <td class="col-remarks">${entry.remarks || ''}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
 
                 tableWrapper.appendChild(table);
                 weekDiv.appendChild(tableWrapper);
@@ -1535,81 +1335,20 @@ async function showSection(section) {
     }
 }
 
-// function editHistoryRow(icon, entryId) {
-//     console.log("Editing entry ID:", entryId);
-//     const row = icon.closest('tr');
-//     currentRow = row;
-//     const cells = row.querySelectorAll('td');
-//     const modalInputs = document.querySelectorAll('#modalOverlay input, #modalOverlay select');
-
-//     // Map history cells to modal inputs (adjust indices as per cell order)
-//     modalInputs[0].value = cells[2].textContent; // date
-//     modalInputs[1].value = cells[3].textContent; // location
-//     modalInputs[2].value = cells[6].textContent; // punchIn
-//     modalInputs[3].value = cells[7].textContent; // punchOut
-//     modalInputs[4].value = cells[4].textContent; // projectStart
-//     modalInputs[5].value = cells[5].textContent; // projectEnd
-//     modalInputs[6].value = cells[8].textContent; // client
-//     modalInputs[7].value = cells[9].textContent; // project
-//     modalInputs[8].value = cells[10].textContent; // projectCode
-//     modalInputs[9].value = cells[11].textContent; // reporting
-//     modalInputs[10].value = cells[12].textContent; // activity
-//     modalInputs[11].value = cells[13].textContent; // projectHours
-//     modalInputs[12].value = cells[14].textContent; // workingHours
-//     modalInputs[13].value = cells[15].textContent; // billable
-//     modalInputs[14].value = cells[16].textContent; // remarks
-
-//     isEditingHistory = true;
-//     currentEntryId = entryId;
-//     document.getElementById('modalOverlay').style.display = 'flex';
-//     validateModalDate(document.getElementById('modalInput1'));
-//     updateModalHours();
-
-//     const addBtn = document.getElementById('modalAddBtn');
-//     addBtn.innerHTML = '<i class="fas fa-check"></i> Update';
-//     addBtn.setAttribute('onclick', 'updateHistoryEntry()');
-// }
-
-// function deleteHistoryRow(icon, entryId) {
-//     if (confirm('Are you sure you want to delete this entry?')) {
-//         fetch(`${API_URL}/delete_timesheet/${loggedInEmployeeId}/${entryId}`, {
-//             method: 'DELETE',
-//             headers: getHeaders()
-//         })
-//         .then(response => {
-//             if (!response.ok) {
-//                 throw new Error('Failed to delete entry');
-//             }
-//             return response.json();
-//         })
-//         .then(result => {
-//             if (result.success) {
-//                 showPopup('Entry deleted successfully!');
-//                 showSection('history'); // Reload history
-//             } else {
-//                 showPopup('Failed to delete entry.', true);
-//             }
-//         })
-//         .catch(error => {
-//             console.error('Error deleting entry:', error);
-//             showPopup(`Failed to delete entry: ${error.message}`, true);
-//         });
-//     }
-// }
-
-function editHistoryRow(button, entryId) {
+function editHistoryRow(icon, entryId) {
     console.log("Editing entry ID:", entryId);
-    const row = button.closest('tr');
+    const row = icon.closest('tr');
     currentRow = row;
     const cells = row.querySelectorAll('td');
     const modalInputs = document.querySelectorAll('#modalOverlay input, #modalOverlay select');
 
+    // Map history cells to modal inputs (adjust indices as per cell order)
     modalInputs[0].value = cells[2].textContent; // date
     modalInputs[1].value = cells[3].textContent; // location
-    modalInputs[2].value = cells[4].textContent; // punchIn
-    modalInputs[3].value = cells[5].textContent; // punchOut
-    modalInputs[4].value = cells[6].textContent; // projectStart
-    modalInputs[5].value = cells[7].textContent; // projectEnd
+    modalInputs[2].value = cells[6].textContent; // punchIn
+    modalInputs[3].value = cells[7].textContent; // punchOut
+    modalInputs[4].value = cells[4].textContent; // projectStart
+    modalInputs[5].value = cells[5].textContent; // projectEnd
     modalInputs[6].value = cells[8].textContent; // client
     modalInputs[7].value = cells[9].textContent; // project
     modalInputs[8].value = cells[10].textContent; // projectCode
@@ -1631,7 +1370,7 @@ function editHistoryRow(button, entryId) {
     addBtn.setAttribute('onclick', 'updateHistoryEntry()');
 }
 
-function deleteHistoryRow(button, entryId) {
+function deleteHistoryRow(icon, entryId) {
     if (confirm('Are you sure you want to delete this entry?')) {
         fetch(`${API_URL}/delete_timesheet/${loggedInEmployeeId}/${entryId}`, {
             method: 'DELETE',
