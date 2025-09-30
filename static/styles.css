@@ -1427,12 +1427,12 @@ body {
 
 /* Adjust the Action column width and styling */
 .col-action {
-    min-width: 90px; /* Reduced from 120px for a tighter fit */
+    min-width: 120px;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 0.5rem; /* Reduced gap between buttons */
-    padding: 0.25rem; /* Reduced padding for compactness */
+    gap: 0.3rem;
+    padding: 0.2rem;
 }
 
 /* Style for Edit and Delete buttons */
@@ -1441,42 +1441,48 @@ body {
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 1rem; /* Reduced from 1.2rem for smaller icons */
-    padding: 0.25rem; /* Reduced padding */
-    color: #3498db; /* Edit button color */
-    border-radius: 50%;
+    font-size: 0.9rem;
+    padding: 0.2rem;
+    color: #3498db;
+    border-radius: 4px;
     transition: var(--transition);
-    width: 24px; /* Fixed width for consistency */
-    height: 24px; /* Fixed height for consistency */
+    width: 20px;
+    height: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
 .delete-btn {
-    color: #e74c3c; /* Delete button color */
+    color: #e74c3c;
     background: rgba(231, 76, 60, 0.1);
 }
 
 .edit-btn:hover,
 .delete-btn:hover {
     color: var(--text-dark);
-    background: rgba(52, 152, 219, 0.1); /* Hover effect for Edit */
-    transform: scale(1.1); /* Slightly reduced scale on hover */
+    background: rgba(52, 152, 219, 0.1);
+    transform: scale(1.05);
 }
 
 .delete-btn:hover {
     color: #c0392b;
-    background: rgba(231, 76, 60, 0.2); /* Hover effect for Delete */
+    background: rgba(231, 76, 60, 0.2);
 }
 
 /* Ensure icons fit within the buttons */
 .edit-btn i,
 .delete-btn i {
-    font-size: 14px; /* Reduced icon size */
+    font-size: 12px;
 }
 
 /* Adjust table cell padding for better alignment */
 .timesheet-table td {
-    padding: 0.5rem 0.25rem; /* Reduced padding for tighter rows */
+    padding: 0.4rem 0.2rem;
+}
+
+/* Ensure buttons are inline and not overlapping */
+.timesheet-table .col-action button {
+    margin: 0;
+    line-height: 1;
 }
