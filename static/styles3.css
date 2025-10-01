@@ -1408,14 +1408,9 @@ body {
     box-shadow: var(--shadow-medium);
 }
 
-/* .col-action {
-    min-width: 90px; 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5rem; 
-    padding: 0.25rem; 
-} */
+.col-action {
+    min-width: 120px; /* Ensure enough space for two buttons */
+}
 
 .col-add button {
     padding: 5px;
@@ -1425,64 +1420,100 @@ body {
     font-size: 16px;
 }
 
-/* Adjust the Action column width and styling */
-.col-action {
+/* Style for action column in history table */
+.history-table .col-action {
     min-width: 120px;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 0.3rem;
-    padding: 0.2rem;
+    gap: 1rem;
+    padding: 0.5rem;
 }
 
-/* Style for Edit and Delete buttons */
-.edit-btn,
-.delete-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 0.9rem;
-    padding: 0.2rem;
+/* Style for edit and delete icons */
+.history-table .fas.fa-edit,
+.history-table .fas.fa-trash {
+    font-size: 1.2rem;
     color: #3498db;
-    border-radius: 4px;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
     transition: var(--transition);
-    width: 20px;
-    height: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    background: rgba(52, 152, 219, 0.1);
 }
 
-.delete-btn {
+/* Delete icon with red color */
+.history-table .fas.fa-trash {
     color: #e74c3c;
     background: rgba(231, 76, 60, 0.1);
 }
 
-.edit-btn:hover,
-.delete-btn:hover {
-    color: var(--text-dark);
-    background: rgba(52, 152, 219, 0.1);
+/* Hover effects for icons */
+.history-table .fas.fa-edit:hover {
+    color: #2980b9;
+    background: rgba(52, 152, 219, 0.2);
+    transform: scale(1.2);
+}
+
+.history-table .fas.fa-trash:hover {
+    color: #c0392b;
+    background: rgba(231, 76, 60, 0.2);
+    transform: scale(1.2);
+}
+
+/* Ensure icons are clickable and centered */
+.history-table .col-action i {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 2rem;
+    height: 2rem;
+}
+
+/* General action button styling */
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    margin: 0 0.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s, transform 0.2s;
+    background-color: #3498db;
+    color: white;
+}
+
+/* Edit button specific styling */
+.edit-btn {
+    background-color: #3498db;
+}
+.edit-btn:hover {
+    background-color: #2980b9;
     transform: scale(1.05);
 }
 
+/* Delete button specific styling */
+.delete-btn {
+    background-color: #e74c3c;
+}
 .delete-btn:hover {
-    color: #c0392b;
-    background: rgba(231, 76, 60, 0.2);
+    background-color: #c0392b;
+    transform: scale(1.05);
 }
 
-/* Ensure icons fit within the buttons */
-.edit-btn i,
-.delete-btn i {
-    font-size: 12px;
+/* Ensure icons inside buttons are styled */
+.action-btn i {
+    margin-right: 0.5rem;
 }
 
-/* Adjust table cell padding for better alignment */
-.timesheet-table td {
-    padding: 0.4rem 0.2rem;
-}
-
-/* Ensure buttons are inline and not overlapping */
-.timesheet-table .col-action button {
-    margin: 0;
-    line-height: 1;
+/* Adjust col-action for button layout */
+.history-table .col-action {
+    min-width: 240px; /* Enough space for two buttons */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem;
 }
