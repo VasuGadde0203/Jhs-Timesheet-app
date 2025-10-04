@@ -314,7 +314,7 @@ body {
 
 .timesheet-table th.col-action,
 .history-table th.col-action {
-    min-width: 170px;
+    min-width: 220px;
     padding: 1rem 0.75rem;
     /* padding: 0.4rem 0.2rem; */
     text-align: center;
@@ -329,7 +329,7 @@ body {
 .timesheet-table td, .history-table td {
     padding: 0.4rem 0.2rem;
     text-align: center;
-    border-bottom: 1px solid var(--border-color);
+    /* border-bottom: 1px solid var(--border-color); */
     vertical-align: middle;
     white-space: nowrap;
     transition: var(--transition);
