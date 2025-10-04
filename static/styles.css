@@ -314,9 +314,9 @@ body {
 
 .timesheet-table th.col-action,
 .history-table th.col-action {
-    min-width: 120px;
-    /* padding: 1rem 0.75rem; */
-    padding: 0.4rem 0.2rem;
+    min-width: 140px;
+    padding: 1rem 0.75rem;
+    /* padding: 0.4rem 0.2rem; */
     text-align: center;
     position: sticky;
     top: 0;
