@@ -294,6 +294,7 @@ body {
     box-shadow: var(--shadow-light);
     min-width: 1000px;
     white-space: nowrap;
+    vertical-align: middle;
 }
 
 .timesheet-table th, .history-table th {
@@ -348,7 +349,7 @@ body {
 
 .timesheet-table tr:hover, .history-table tr:hover {
     background: #e3f2fd;
-    transform: scale(1.01);
+    /* transform: scale(1.01); */
 }
 
 .timesheet-table input,
@@ -392,7 +393,7 @@ body {
 .eye-btn:hover, .edit-btn:hover {
     color: var(--text-dark);
     background: rgba(52, 152, 219, 0.1);
-    transform: scale(1.1);
+    /* transform: scale(1.1); */
 }
 
 .cancel-btn, .update-btn {
@@ -1068,8 +1069,8 @@ body {
     position: sticky;
     left: 0;
     z-index: 1;
-    background: white;
-    color: var(--dark-bg);
+    background: var(--dark-bg);
+    color: white;
     min-width: 120px;
 }
 
@@ -1264,7 +1265,7 @@ body {
 .button-container {
     position: relative;
     padding-bottom: 2rem;
-    text-align: right;
+    text-align: left;
 }
 
 .edit-btn,
