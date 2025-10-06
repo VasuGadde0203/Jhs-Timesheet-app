@@ -596,11 +596,14 @@ body {
     font-size: 0.9rem;
 }
 
-.history-table td.col-action{
-    width: 280px;   
+.history-table td.col-action {
+    min-width: 220px;
+    padding: 0.4rem 0.2rem;
     text-align: center;
-    vertical-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
 }
+
 
 .col-narrow { width: 60px; }
 .col-medium { width: 120px; }
