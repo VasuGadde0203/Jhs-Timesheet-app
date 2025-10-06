@@ -1316,8 +1316,8 @@ body {
 }
 
 .delete-btn {
-    color: #e74c3c;
-    background: rgba(231, 76, 60, 0.1);
+    color: white;
+    background: rgb(224, 8, 8);
 }
 
 .edit-btn:hover,
