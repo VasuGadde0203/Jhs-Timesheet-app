@@ -1235,7 +1235,7 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 100px;
+    min-width: 70px;
     gap: 4px;
 }
 
@@ -1313,6 +1313,7 @@ body {
     align-items: center;
     justify-content: center;
     min-width: 70px;
+    gap: 4px;
 }
 
 .delete-btn {
