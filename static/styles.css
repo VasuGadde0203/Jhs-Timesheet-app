@@ -1318,59 +1318,11 @@ body {
     font-size: 16px;
 }
 
-/* .col-action {
+.col-action {
     min-width: 120px;
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 0.3rem;
     padding: 0.2rem;
-}*/
-
-.col-action {
-    min-width: 180px; /* Increased from 120px */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5rem; /* Increased from 0.3rem for better spacing */
-    padding: 0.2rem;
-}
-
-.edit-btn,
-.delete-btn {
-    width: 24px; /* Slightly increased for better visibility */
-    height: 24px;
-    font-size: 0.95rem; /* Adjusted font size for consistency */
-    padding: 0.25rem; /* Increased padding for better click area */
-}
-
-@media (max-width: 768px) {
-    .col-action {
-        min-width: 150px; /* Adjusted for smaller screens */
-        gap: 0.4rem; /* Reduced gap on smaller screens if needed */
-    }
-
-    .edit-btn,
-    .delete-btn {
-        width: 22px;
-        height: 22px;
-        font-size: 0.9rem;
-        padding: 0.2rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .col-action {
-        min-width: 120px; /* Minimum width for very small screens */
-        flex-direction: column; /* Stack buttons vertically on very small screens */
-        gap: 0.3rem;
-    }
-
-    .edit-btn,
-    .delete-btn {
-        width: 20px;
-        height: 20px;
-        font-size: 0.85rem;
-        padding: 0.15rem;
-    }
 }
