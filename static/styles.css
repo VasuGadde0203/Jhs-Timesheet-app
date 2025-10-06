@@ -1279,7 +1279,7 @@ body {
     text-align: left;
 }
 
-.edit-btn,
+/* .edit-btn,
 .delete-btn {
     background: none;
     border: none;
@@ -1295,6 +1295,24 @@ body {
     justify-content: center;
     align-items: center;
     gap: 8px;
+} */
+
+.edit-btn,
+.delete-btn {
+    background: var(--secondary-gradient);
+    color: white;
+    border: none;
+    padding: 0.3rem 0.7rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    margin: 0 0.2rem;
+    transition: var(--transition);
+    box-shadow: var(--shadow-light);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 70px;
 }
 
 .delete-btn {
