@@ -1331,3 +1331,14 @@ body {
     justify-content: center;
     gap: 8px;
 }
+
+.timesheet-table td.col-action {
+    min-width: 220px;
+    padding: 0.4rem 0.2rem;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
