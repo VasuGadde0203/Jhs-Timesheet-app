@@ -597,7 +597,7 @@ body {
 }
 
 .history-table td.col-action{
-    min-width: 220px;   
+    width: 280px;   
     text-align: center;
     vertical-align: center;
 }
