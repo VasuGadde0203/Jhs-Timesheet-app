@@ -1235,7 +1235,8 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 70px;
+    min-width: 100px;
+    gap: 4px;
 }
 
 .copy-btn:hover,
